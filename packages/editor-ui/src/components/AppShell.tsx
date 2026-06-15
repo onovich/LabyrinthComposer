@@ -7,6 +7,7 @@ import {
 } from '@labyrinth/workbench';
 import {
   CirclePlus,
+  FolderOpen,
   GitBranchPlus,
   KeyRound,
   RotateCcw,
@@ -26,10 +27,14 @@ type AppShellProps = {
   snapshot: WorkbenchSnapshot;
   selectedEntity: EntityRef | null;
   selectedDiagnosticId: string | null;
+  projectPath: string | undefined;
+  operationMessage: string;
   canUndo: boolean;
   canRedo: boolean;
   onSelectEntity(entity: EntityRef | null): void;
   onSelectDiagnostic(id: string): void;
+  onOpenSample(): void;
+  onSaveCopy(): void;
   onCreateSpace(): void;
   onCreateConnection(): void;
   onCreateGate(): void;
@@ -45,10 +50,14 @@ export function AppShell({
   snapshot,
   selectedEntity,
   selectedDiagnosticId,
+  projectPath,
+  operationMessage,
   canUndo,
   canRedo,
   onSelectEntity,
   onSelectDiagnostic,
+  onOpenSample,
+  onSaveCopy,
   onCreateSpace,
   onCreateConnection,
   onCreateGate,
@@ -79,6 +88,7 @@ export function AppShell({
         <div className="lc-sidebar-section">
           <div className="lc-section-label">Project</div>
           <div className="lc-project-title">{projectName}</div>
+          <div className="lc-project-path">{projectPath ?? 'Local draft'}</div>
           <div className="lc-project-meta">
             {Object.keys(snapshot.project.spaces).length} spaces -{' '}
             {Object.keys(snapshot.project.connections).length} connections
@@ -101,9 +111,13 @@ export function AppShell({
       <main className="lc-main">
         <header className="lc-topbar">
           <div className="lc-toolbar-group">
-            <button className="lc-tool-button" type="button">
+            <button className="lc-tool-button" onClick={onOpenSample} type="button">
+              <FolderOpen size={14} />
+              Open Sample
+            </button>
+            <button className="lc-tool-button" onClick={onSaveCopy} type="button">
               <Save size={14} />
-              Save
+              Save Copy
             </button>
             <button className="lc-tool-button" onClick={onRunValidation} type="button">
               <ShieldCheck size={14} />
@@ -145,7 +159,7 @@ export function AppShell({
             {summary.ok
               ? snapshot.dirty
                 ? 'Unsaved changes'
-                : 'Ready'
+                : operationMessage
               : `${summary.errorCount} errors / ${summary.warningCount} warnings`}
           </div>
         </header>

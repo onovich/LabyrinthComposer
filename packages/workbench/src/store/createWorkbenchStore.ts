@@ -21,6 +21,7 @@ export type WorkbenchStore = {
   undo(): WorkbenchSnapshot;
   redo(): WorkbenchSnapshot;
   validate(): WorkbenchSnapshot;
+  markSaved(): WorkbenchSnapshot;
 };
 
 function makeSnapshot(project: ProjectGraph, dirty: boolean): WorkbenchSnapshot {
@@ -69,6 +70,9 @@ export function createWorkbenchStore(initialProject: ProjectGraph): WorkbenchSto
     },
     validate() {
       return refresh(snapshot.dirty);
+    },
+    markSaved() {
+      return refresh(false);
     }
   };
 }

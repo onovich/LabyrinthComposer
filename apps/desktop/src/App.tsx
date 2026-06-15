@@ -3,6 +3,8 @@ import { createHighlightedEntitiesForDiagnostic, createWorkbenchStore } from '@l
 import { SCHEMA_VERSION, type EntityRef, type ProjectGraph } from '@labyrinth/schema';
 import { useMemo, useState } from 'react';
 
+import { createDesktopAdapters } from './bootstrap/createDesktopAdapters.js';
+
 function createStarterProject(): ProjectGraph {
   return {
     schemaVersion: SCHEMA_VERSION,
@@ -28,16 +30,20 @@ function createStarterProject(): ProjectGraph {
 
 export function App() {
   const store = useMemo(() => createWorkbenchStore(createStarterProject()), []);
+  const adapters = useMemo(() => createDesktopAdapters(), []);
   const [snapshot, setSnapshot] = useState(() => store.getSnapshot());
   const [selectedEntity, setSelectedEntity] = useState<EntityRef | null>({
     kind: 'space',
     id: 'start'
   });
   const [selectedDiagnosticId, setSelectedDiagnosticId] = useState<string | null>(null);
+  const [projectPath, setProjectPath] = useState<string | undefined>();
+  const [operationMessage, setOperationMessage] = useState('Ready');
 
   function commit(nextSnapshot = store.getSnapshot()) {
     setSnapshot(nextSnapshot);
     setSelectedDiagnosticId(null);
+    setOperationMessage('Edited');
   }
 
   function selectEntity(entity: EntityRef | null) {
@@ -57,6 +63,34 @@ export function App() {
     if (focusEntity !== undefined) {
       setSelectedEntity(focusEntity);
     }
+  }
+
+  async function openSample() {
+    const result = await adapters.projectRepository.openProject();
+
+    if (!result.ok) {
+      setOperationMessage(result.message);
+      return;
+    }
+
+    setSnapshot(store.loadProject(result.project));
+    setSelectedEntity({ kind: 'space', id: result.project.startSpaceId });
+    setSelectedDiagnosticId(null);
+    setProjectPath(result.path);
+    setOperationMessage(`Loaded ${result.path ?? result.project.project.name}`);
+  }
+
+  async function saveCopy() {
+    const result = await adapters.projectRepository.saveProjectAs(snapshot.project);
+
+    if (!result.ok) {
+      setOperationMessage(result.message);
+      return;
+    }
+
+    setSnapshot(store.markSaved());
+    setProjectPath(result.path ?? projectPath);
+    setOperationMessage(`Saved ${result.path ?? 'copy'}`);
   }
 
   function nextId(prefix: string, record: Record<string, unknown>) {
@@ -217,6 +251,8 @@ export function App() {
     <AppShell
       canRedo={store.commandBus.canRedo()}
       canUndo={store.commandBus.canUndo()}
+      operationMessage={operationMessage}
+      projectPath={projectPath}
       selectedDiagnosticId={selectedDiagnosticId}
       selectedEntity={selectedEntity}
       snapshot={snapshot}
@@ -225,8 +261,14 @@ export function App() {
       onCreatePuzzle={createPuzzle}
       onCreateSpace={createSpace}
       onCreateToken={createToken}
+      onOpenSample={openSample}
       onRedo={() => commit(store.redo())}
-      onRunValidation={() => commit(store.validate())}
+      onRunValidation={() => {
+        setSnapshot(store.validate());
+        setSelectedDiagnosticId(null);
+        setOperationMessage('Validated');
+      }}
+      onSaveCopy={saveCopy}
       onSelectDiagnostic={selectDiagnostic}
       onSelectEntity={selectEntity}
       onUndo={() => commit(store.undo())}

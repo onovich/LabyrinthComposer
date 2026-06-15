@@ -59,10 +59,17 @@ button {
 }
 
 .lc-project-meta,
+.lc-project-path,
 .lc-entity-id {
   color: var(--muted);
   font-size: 10px;
   line-height: 1.4;
+}
+
+.lc-project-path {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .lc-nav-item,
@@ -129,11 +136,13 @@ button {
   display: flex;
   align-items: center;
   gap: 4px;
+  min-width: 0;
 }
 
 .lc-tool-button {
   padding: 5px 8px;
   font-size: 11px;
+  white-space: nowrap;
 }
 
 .lc-tool-button-primary {
@@ -409,5 +418,15 @@ button {
   .lc-workbench {
     grid-template-columns: 1fr;
     grid-template-rows: minmax(420px, 1fr) auto;
+  }
+
+  .lc-main {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .lc-topbar {
+    flex-wrap: wrap;
+    min-height: 72px;
+    padding: 8px 14px;
   }
 }

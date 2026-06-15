@@ -74,4 +74,27 @@ describe('workbench store', () => {
     expect(snapshot.dirty).toBe(false);
     expect(snapshot.project.project.name).toBe('Loaded Project');
   });
+
+  it('can mark a saved project clean without changing validation output', () => {
+    const store = createWorkbenchStore(projectFixture());
+
+    store.dispatch({
+      type: 'CreateSpace',
+      payload: {
+        space: {
+          id: 'draft',
+          name: 'Draft'
+        },
+        addToTargets: true
+      }
+    });
+
+    const snapshot = store.markSaved();
+
+    expect(snapshot.dirty).toBe(false);
+    expect(snapshot.project.spaces.draft).toEqual({ id: 'draft', name: 'Draft' });
+    expect(snapshot.validation.diagnostics.map((diagnostic) => diagnostic.ruleId)).toContain(
+      'reachability.target-unreachable'
+    );
+  });
 });
