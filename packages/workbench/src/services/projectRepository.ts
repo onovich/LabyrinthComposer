@@ -56,7 +56,7 @@ export function serializeProject(project: ProjectGraph): string {
   return `${JSON.stringify(project, null, 2)}\n`;
 }
 
-function parseProjectText(text: string): ProjectOpenResult {
+export function parseProjectText(text: string): ProjectOpenResult {
   let value: unknown;
 
   try {

@@ -26,12 +26,40 @@ const project: ProjectGraph = {
     'start-end': {
       id: 'start-end',
       fromSpaceId: 'start',
-      toSpaceId: 'end'
+      toSpaceId: 'end',
+      gateId: 'gate-a'
     }
   },
-  gates: {},
-  tokens: {},
-  puzzles: {},
+  gates: {
+    'gate-a': {
+      id: 'gate-a',
+      name: 'Gate A',
+      kind: 'lock',
+      requiredTokenIds: ['key-a']
+    }
+  },
+  tokens: {
+    'key-a': {
+      id: 'key-a',
+      name: 'Key A',
+      kind: 'item',
+      locationSpaceId: 'start'
+    },
+    'reward-a': {
+      id: 'reward-a',
+      name: 'Reward A',
+      kind: 'knowledge'
+    }
+  },
+  puzzles: {
+    'puzzle-a': {
+      id: 'puzzle-a',
+      name: 'Puzzle A',
+      locationSpaceId: 'end',
+      requiredTokenIds: ['key-a'],
+      outputTokenIds: ['reward-a']
+    }
+  },
   beats: {}
 };
 
@@ -51,17 +79,24 @@ describe('graph selectors', () => {
       validation,
       highlightedEntities: [
         { kind: 'space', id: 'end' },
-        { kind: 'connection', id: 'start-end' }
+        { kind: 'gate', id: 'gate-a' },
+        { kind: 'token', id: 'key-a' },
+        { kind: 'puzzle', id: 'puzzle-a' }
       ]
     });
 
     expect(graph.nodes.map((node) => [node.id, node.validationState])).toEqual([
       ['end', 'affected'],
-      ['start', 'reachable']
+      ['start', 'reachable'],
+      ['token:key-a', 'affected'],
+      ['token:reward-a', 'neutral'],
+      ['puzzle:puzzle-a', 'affected']
     ]);
     expect(graph.edges).toEqual([
       expect.objectContaining({
         id: 'start-end',
+        gateId: 'gate-a',
+        label: 'Gate A',
         validationState: 'affected'
       })
     ]);

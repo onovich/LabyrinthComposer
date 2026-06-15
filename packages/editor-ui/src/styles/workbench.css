@@ -12,8 +12,93 @@ body {
   letter-spacing: 0;
 }
 
+html,
+body,
+#root {
+  min-width: 0;
+  overflow-x: hidden;
+}
+
 button {
   font: inherit;
+}
+
+.lc-dashboard {
+  min-height: 100vh;
+  display: grid;
+  align-content: start;
+  gap: 24px;
+  padding: 28px;
+  background: var(--page);
+}
+
+.lc-dashboard-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  max-width: 1120px;
+}
+
+.lc-dashboard-header h1 {
+  margin: 12px 0 8px;
+  color: var(--text);
+  font-size: 28px;
+  font-weight: 720;
+  line-height: 1.12;
+}
+
+.lc-dashboard-header p {
+  max-width: 680px;
+  margin: 0;
+  color: var(--muted-strong);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.lc-template-grid {
+  max-width: 1120px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+}
+
+.lc-template-card {
+  min-height: 146px;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 8px 20px rgba(39, 36, 31, 0.04);
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.lc-template-card:hover {
+  border-color: rgba(106, 109, 87, 0.2);
+  box-shadow: 0 0 0 3px rgba(106, 109, 87, 0.05);
+}
+
+.lc-template-card span,
+.lc-template-card small,
+.lc-dashboard-status {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.lc-template-card strong {
+  font-size: 14px;
+}
+
+.lc-template-card p {
+  margin: 0;
+  color: var(--muted-strong);
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .lc-shell {
@@ -134,6 +219,7 @@ button {
 
 .lc-toolbar-group {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 4px;
   min-width: 0;
@@ -164,12 +250,18 @@ button {
 .lc-workbench {
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
+  grid-template-areas:
+    'graph inspector'
+    'validation inspector';
+  grid-template-columns: minmax(0, 1fr) 336px;
+  grid-template-rows: minmax(0, 1fr) 240px;
 }
 
 .lc-graph-canvas {
+  grid-area: graph;
   position: relative;
   min-width: 0;
+  min-height: 0;
   overflow: hidden;
   background:
     linear-gradient(var(--line-soft) 1px, transparent 1px),
@@ -194,15 +286,51 @@ button {
   font-size: 13px;
 }
 
+.react-flow__node-default.lc-flow-node {
+  padding: 0;
+}
+
 .lc-flow-node {
-  width: 156px;
-  min-height: 54px;
+  min-height: 58px;
   border: 1px solid var(--line-strong);
   border-radius: 8px;
   background: var(--surface);
   box-shadow: 0 8px 20px rgba(39, 36, 31, 0.07);
   color: var(--text);
-  font-size: 13px;
+}
+
+.lc-flow-node-content {
+  display: grid;
+  gap: 3px;
+  padding: 10px;
+  font-size: 12px;
+  line-height: 1.25;
+  text-align: left;
+}
+
+.lc-flow-node-content strong,
+.lc-flow-node-content span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-flow-node-content span {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.lc-flow-node-token {
+  min-height: 44px;
+  border-color: rgba(86, 126, 128, 0.24);
+  background: #f8fbfa;
+}
+
+.lc-flow-node-puzzle {
+  min-height: 48px;
+  border-color: rgba(117, 101, 137, 0.22);
+  background: #fbf9fc;
 }
 
 .lc-flow-node.selected {
@@ -245,6 +373,7 @@ button {
 }
 
 .lc-right-panel {
+  grid-area: inspector;
   display: grid;
   align-content: start;
   gap: 20px;
@@ -252,6 +381,15 @@ button {
   overflow: auto;
   background: var(--surface-soft);
   border-left: 1px solid var(--line-soft);
+}
+
+.lc-validation-panel {
+  grid-area: validation;
+  min-width: 0;
+  overflow: auto;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.76);
+  border-top: 1px solid var(--line-soft);
 }
 
 .lc-panel-copy {
@@ -268,7 +406,9 @@ button {
   font-size: 11px;
 }
 
-.lc-field input {
+.lc-field input,
+.lc-field select,
+.lc-field textarea {
   min-height: 30px;
   width: 100%;
   border: 1px solid var(--line-strong);
@@ -280,14 +420,51 @@ button {
   padding: 6px 8px;
 }
 
-.lc-field input:focus {
+.lc-field textarea {
+  min-height: 70px;
+  resize: vertical;
+}
+
+.lc-field input:focus,
+.lc-field select:focus,
+.lc-field textarea:focus {
   border-color: rgba(106, 109, 87, 0.5);
   box-shadow: 0 0 0 3px rgba(106, 109, 87, 0.08);
 }
 
+.lc-readonly-field {
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  background: var(--surface-muted);
+  color: var(--muted-strong);
+  font-size: 11px;
+}
+
+.lc-check-list {
+  display: grid;
+  gap: 4px;
+}
+
+.lc-check-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted-strong);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.lc-check-item input {
+  flex: 0 0 auto;
+}
+
 .lc-validation-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
   gap: 8px;
 }
 
@@ -323,6 +500,7 @@ button {
 
 .lc-diagnostic-list {
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 8px;
 }
 
@@ -405,6 +583,14 @@ button {
 }
 
 @media (max-width: 900px) {
+  .lc-dashboard {
+    padding: 18px;
+  }
+
+  .lc-dashboard-header {
+    display: grid;
+  }
+
   .lc-shell {
     grid-template-columns: 1fr;
   }
@@ -416,8 +602,12 @@ button {
   }
 
   .lc-workbench {
+    grid-template-areas:
+      'graph'
+      'inspector'
+      'validation';
     grid-template-columns: 1fr;
-    grid-template-rows: minmax(420px, 1fr) auto;
+    grid-template-rows: minmax(420px, 1fr) auto auto;
   }
 
   .lc-main {
@@ -428,5 +618,46 @@ button {
     flex-wrap: wrap;
     min-height: 72px;
     padding: 8px 14px;
+  }
+
+  .lc-right-panel {
+    border-left: 0;
+    border-top: 1px solid var(--line-soft);
+  }
+
+  .lc-validation-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .lc-dashboard {
+    padding: 14px;
+  }
+
+  .lc-dashboard-header h1 {
+    font-size: 22px;
+  }
+
+  .lc-shell {
+    width: 100%;
+  }
+
+  .lc-sidebar {
+    padding: 14px;
+  }
+
+  .lc-topbar {
+    gap: 8px;
+  }
+
+  .lc-tool-button {
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .lc-validation-grid,
+  .lc-diagnostic-list {
+    grid-template-columns: 1fr;
   }
 }

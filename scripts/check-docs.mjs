@@ -5,7 +5,9 @@ const requiredDocs = [
   'docs/development-plan.md',
   'docs/phase0-acceptance-review.md',
   'docs/phase0-architecture-implementation.md',
+  'docs/phase1-acceptance-review.md',
   'docs/phase1-architecture-implementation.md',
+  'docs/Labyrinth_Composer_UI_UX_设计文档_v0.1.pdf',
   'docs/codex-ops-workflow.md',
   'docs/codex-git-workflow.md'
 ];

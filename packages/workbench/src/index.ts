@@ -18,6 +18,7 @@ export {
 } from './store/createWorkbenchStore.js';
 export {
   createProjectRepository,
+  parseProjectText,
   serializeProject,
   type ProjectOpenResult,
   type ProjectRepository,
@@ -36,8 +37,9 @@ export {
 export {
   createGraphViewModel,
   type ConnectionEdgeViewModel,
+  type GraphNodeKind,
+  type GraphNodeViewModel,
   type GraphValidationState,
   type GraphViewModel,
-  type GraphViewModelOptions,
-  type SpaceNodeViewModel
+  type GraphViewModelOptions
 } from './selectors/graphSelectors.js';

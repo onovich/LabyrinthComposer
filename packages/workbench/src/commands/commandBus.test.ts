@@ -153,4 +153,149 @@ describe('command bus', () => {
     expect(bus.getProject().puzzles.puzzle).toBeDefined();
     expect(bus.getProject().beats.beat).toBeDefined();
   });
+
+  it('updates inspector-owned fields through commands', () => {
+    const bus = createCommandBus(projectFixture());
+
+    bus.dispatch({
+      type: 'CreateSpace',
+      payload: {
+        space: {
+          id: 'exit',
+          name: 'Exit'
+        }
+      }
+    });
+    bus.dispatch({
+      type: 'CreateToken',
+      payload: {
+        token: {
+          id: 'key',
+          name: 'Key',
+          kind: 'item',
+          locationSpaceId: 'start'
+        }
+      }
+    });
+    bus.dispatch({
+      type: 'CreateGate',
+      payload: {
+        gate: {
+          id: 'gate',
+          name: 'Gate',
+          kind: 'lock',
+          requiredTokenIds: ['key']
+        }
+      }
+    });
+    bus.dispatch({
+      type: 'ConnectSpaces',
+      payload: {
+        connection: {
+          id: 'start-exit',
+          fromSpaceId: 'start',
+          toSpaceId: 'exit'
+        }
+      }
+    });
+    bus.dispatch({
+      type: 'CreatePuzzle',
+      payload: {
+        puzzle: {
+          id: 'puzzle',
+          name: 'Puzzle',
+          locationSpaceId: 'exit',
+          requiredTokenIds: ['key'],
+          outputTokenIds: ['key']
+        }
+      }
+    });
+    bus.dispatch({
+      type: 'UpdateSpace',
+      payload: {
+        id: 'start',
+        patch: {
+          description: 'Opening space',
+          tags: ['intro']
+        }
+      }
+    });
+    bus.dispatch({
+      type: 'UpdateConnection',
+      payload: {
+        id: 'start-exit',
+        patch: {
+          directed: true,
+          gateId: 'gate',
+          description: 'Locked route'
+        }
+      }
+    });
+    bus.dispatch({
+      type: 'UpdateGate',
+      payload: {
+        id: 'gate',
+        patch: {
+          kind: 'knowledge',
+          description: 'Needs a clue'
+        }
+      }
+    });
+    bus.dispatch({
+      type: 'UpdateToken',
+      payload: {
+        id: 'key',
+        patch: {
+          kind: 'knowledge',
+          locationSpaceId: 'exit',
+          description: 'Clue text'
+        }
+      }
+    });
+    bus.dispatch({
+      type: 'UpdatePuzzle',
+      payload: {
+        id: 'puzzle',
+        patch: {
+          locationSpaceId: 'start',
+          description: 'Solve at start'
+        }
+      }
+    });
+    bus.dispatch({
+      type: 'UpdateBeat',
+      payload: {
+        beat: {
+          id: 'beat',
+          name: 'Beat',
+          spaceId: 'exit',
+          intensity: 0.75,
+          description: 'Tension spike'
+        }
+      }
+    });
+
+    const project = bus.getProject();
+
+    expect(project.spaces.start?.description).toBe('Opening space');
+    expect(project.connections['start-exit']).toEqual(
+      expect.objectContaining({ directed: true, gateId: 'gate', description: 'Locked route' })
+    );
+    expect(project.gates.gate).toEqual(
+      expect.objectContaining({ kind: 'knowledge', description: 'Needs a clue' })
+    );
+    expect(project.tokens.key).toEqual(
+      expect.objectContaining({
+        kind: 'knowledge',
+        locationSpaceId: 'exit',
+        description: 'Clue text'
+      })
+    );
+    expect(project.puzzles.puzzle).toEqual(
+      expect.objectContaining({ locationSpaceId: 'start', description: 'Solve at start' })
+    );
+    expect(project.beats.beat).toEqual(
+      expect.objectContaining({ spaceId: 'exit', intensity: 0.75, description: 'Tension spike' })
+    );
+  });
 });

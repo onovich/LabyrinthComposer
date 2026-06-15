@@ -8,8 +8,10 @@ import {
 import {
   CirclePlus,
   FolderOpen,
+  Gauge,
   GitBranchPlus,
   KeyRound,
+  LayoutDashboard,
   RotateCcw,
   RotateCw,
   Save,
@@ -19,11 +21,14 @@ import {
   Waypoints
 } from 'lucide-react';
 
+import { Dashboard, type TemplateCardViewModel } from './Dashboard.js';
 import { GraphCanvas } from '../graph/GraphCanvas.js';
 import { DiagnosticsPanel } from './DiagnosticsPanel.js';
 import { InspectorPanel } from './InspectorPanel.js';
 
 type AppShellProps = {
+  showDashboard: boolean;
+  templates: TemplateCardViewModel[];
   snapshot: WorkbenchSnapshot;
   selectedEntity: EntityRef | null;
   selectedDiagnosticId: string | null;
@@ -33,6 +38,8 @@ type AppShellProps = {
   canRedo: boolean;
   onSelectEntity(entity: EntityRef | null): void;
   onSelectDiagnostic(id: string): void;
+  onSelectTemplate(id: string): void;
+  onOpenDashboard(): void;
   onOpenSample(): void;
   onSaveCopy(): void;
   onCreateSpace(): void;
@@ -40,13 +47,21 @@ type AppShellProps = {
   onCreateGate(): void;
   onCreateToken(): void;
   onCreatePuzzle(): void;
+  onCreateBeat(): void;
   onRunValidation(): void;
   onUpdateSpace(id: string, patch: Partial<ProjectGraph['spaces'][string]>): void;
+  onUpdateConnection(id: string, patch: Partial<ProjectGraph['connections'][string]>): void;
+  onUpdateGate(id: string, patch: Partial<ProjectGraph['gates'][string]>): void;
+  onUpdateToken(id: string, patch: Partial<ProjectGraph['tokens'][string]>): void;
+  onUpdatePuzzle(id: string, patch: Partial<ProjectGraph['puzzles'][string]>): void;
+  onUpdateBeat(id: string, patch: Partial<ProjectGraph['beats'][string]>): void;
   onUndo(): void;
   onRedo(): void;
 };
 
 export function AppShell({
+  showDashboard,
+  templates,
   snapshot,
   selectedEntity,
   selectedDiagnosticId,
@@ -56,6 +71,8 @@ export function AppShell({
   canRedo,
   onSelectEntity,
   onSelectDiagnostic,
+  onSelectTemplate,
+  onOpenDashboard,
   onOpenSample,
   onSaveCopy,
   onCreateSpace,
@@ -63,8 +80,14 @@ export function AppShell({
   onCreateGate,
   onCreateToken,
   onCreatePuzzle,
+  onCreateBeat,
   onRunValidation,
   onUpdateSpace,
+  onUpdateConnection,
+  onUpdateGate,
+  onUpdateToken,
+  onUpdatePuzzle,
+  onUpdateBeat,
   onUndo,
   onRedo
 }: AppShellProps) {
@@ -78,8 +101,17 @@ export function AppShell({
     validation: snapshot.validation,
     highlightedEntities: selectedDiagnostic?.highlightedEntities ?? []
   });
-  const selectedSpace =
-    selectedEntity?.kind === 'space' ? snapshot.project.spaces[selectedEntity.id] : undefined;
+
+  if (showDashboard) {
+    return (
+      <Dashboard
+        operationMessage={operationMessage}
+        templates={templates}
+        onOpenSample={onOpenSample}
+        onSelectTemplate={onSelectTemplate}
+      />
+    );
+  }
 
   return (
     <div className="lc-shell">
@@ -111,6 +143,10 @@ export function AppShell({
       <main className="lc-main">
         <header className="lc-topbar">
           <div className="lc-toolbar-group">
+            <button className="lc-tool-button" onClick={onOpenDashboard} type="button">
+              <LayoutDashboard size={14} />
+              Dashboard
+            </button>
             <button className="lc-tool-button" onClick={onOpenSample} type="button">
               <FolderOpen size={14} />
               Open Sample
@@ -153,6 +189,10 @@ export function AppShell({
               <Shapes size={14} />
               Puzzle
             </button>
+            <button className="lc-tool-button" onClick={onCreateBeat} type="button">
+              <Gauge size={14} />
+              Beat
+            </button>
           </div>
           <div className={`lc-status-pill ${summary.ok ? '' : 'lc-status-pill-warning'}`}>
             <Waypoints size={12} />
@@ -169,19 +209,26 @@ export function AppShell({
             onSelectEntity={onSelectEntity}
             selectedEntity={selectedEntity}
           />
-          <aside className="lc-right-panel" aria-label="Inspector and diagnostics">
+          <aside className="lc-right-panel" aria-label="Inspector">
             <InspectorPanel
+              project={snapshot.project}
               selectedEntity={selectedEntity}
-              selectedSpace={selectedSpace}
+              onUpdateBeat={onUpdateBeat}
+              onUpdateConnection={onUpdateConnection}
+              onUpdateGate={onUpdateGate}
+              onUpdatePuzzle={onUpdatePuzzle}
               onUpdateSpace={onUpdateSpace}
+              onUpdateToken={onUpdateToken}
             />
+          </aside>
+          <div className="lc-validation-panel">
             <DiagnosticsPanel
               diagnostics={diagnostics}
               selectedDiagnosticId={selectedDiagnosticId}
               summary={summary}
               onSelectDiagnostic={onSelectDiagnostic}
             />
-          </aside>
+          </div>
         </section>
       </main>
     </div>
