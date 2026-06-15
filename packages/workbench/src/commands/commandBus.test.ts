@@ -99,4 +99,58 @@ describe('command bus', () => {
       })
     ).toThrow('Space "missing" does not exist.');
   });
+
+  it('creates gates, tokens, puzzles, and beats through serializable commands', () => {
+    const bus = createCommandBus(projectFixture());
+
+    bus.dispatch({
+      type: 'CreateToken',
+      payload: {
+        token: {
+          id: 'key',
+          name: 'Key',
+          kind: 'item',
+          locationSpaceId: 'start'
+        }
+      }
+    });
+    bus.dispatch({
+      type: 'CreateGate',
+      payload: {
+        gate: {
+          id: 'gate',
+          name: 'Gate',
+          kind: 'lock',
+          requiredTokenIds: ['key']
+        }
+      }
+    });
+    bus.dispatch({
+      type: 'CreatePuzzle',
+      payload: {
+        puzzle: {
+          id: 'puzzle',
+          name: 'Puzzle',
+          locationSpaceId: 'start',
+          requiredTokenIds: ['key'],
+          outputTokenIds: ['key']
+        }
+      }
+    });
+    bus.dispatch({
+      type: 'UpdateBeat',
+      payload: {
+        beat: {
+          id: 'beat',
+          name: 'Beat',
+          spaceId: 'start'
+        }
+      }
+    });
+
+    expect(bus.getProject().tokens.key).toBeDefined();
+    expect(bus.getProject().gates.gate).toBeDefined();
+    expect(bus.getProject().puzzles.puzzle).toBeDefined();
+    expect(bus.getProject().beats.beat).toBeDefined();
+  });
 });

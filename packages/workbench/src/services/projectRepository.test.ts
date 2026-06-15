@@ -31,7 +31,9 @@ function projectFixture(): ProjectGraph {
   };
 }
 
-function createMemoryAdapter(text: string): ProjectRepositoryAdapter & { savedText: string | null } {
+function createMemoryAdapter(
+  text: string
+): ProjectRepositoryAdapter & { savedText: string | null } {
   return {
     savedText: null,
     async openText() {

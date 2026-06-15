@@ -29,11 +29,13 @@
     "vitest": "^2.1.9"
   },
   "dependencies": {
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.2",
-    "vite": "^7.3.0",
+    "@xyflow/react": "^12.10.1",
+    "lucide-react": "^0.561.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "@types/react": "^19.2.7",
-    "@types/react-dom": "^19.2.3"
+    "vite": "^7.3.0"
   }
 }

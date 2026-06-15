@@ -58,8 +58,18 @@ button {
   line-height: 1.35;
 }
 
+.lc-project-meta,
+.lc-entity-id {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.4;
+}
+
 .lc-nav-item,
 .lc-tool-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   min-height: 28px;
   border: 0;
   border-radius: 8px;
@@ -72,7 +82,18 @@ button {
     color 140ms ease;
 }
 
+.lc-tool-button:disabled {
+  cursor: default;
+  opacity: 0.36;
+}
+
+.lc-tool-button:disabled:hover {
+  background: transparent;
+  color: var(--muted-strong);
+}
+
 .lc-nav-item {
+  display: block;
   padding: 6px 8px;
   font-size: 10px;
 }
@@ -120,6 +141,9 @@ button {
 }
 
 .lc-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: var(--muted);
   font-size: 10px;
 }
@@ -136,8 +160,7 @@ button {
   overflow: hidden;
   background:
     linear-gradient(var(--line-soft) 1px, transparent 1px),
-    linear-gradient(90deg, var(--line-soft) 1px, transparent 1px),
-    var(--graph-canvas);
+    linear-gradient(90deg, var(--line-soft) 1px, transparent 1px), var(--graph-canvas);
   background-size: 24px 24px;
 }
 
@@ -158,6 +181,37 @@ button {
   font-size: 13px;
 }
 
+.lc-flow-node {
+  width: 156px;
+  min-height: 54px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 8px 20px rgba(39, 36, 31, 0.07);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.lc-flow-node.selected {
+  border-color: rgba(106, 109, 87, 0.5);
+  box-shadow: 0 0 0 3px rgba(106, 109, 87, 0.08);
+}
+
+.lc-flow-edge .react-flow__edge-path {
+  stroke: rgba(101, 95, 84, 0.68);
+  stroke-width: 1.5;
+}
+
+.react-flow__controls {
+  border: 1px solid var(--line-soft);
+  box-shadow: var(--shadow-soft);
+}
+
+.react-flow__controls-button {
+  border-bottom: 1px solid var(--line-soft);
+  background: var(--surface);
+}
+
 .lc-right-panel {
   display: grid;
   align-content: start;
@@ -172,6 +226,30 @@ button {
   color: var(--muted-strong);
   font-size: 12px;
   line-height: 1.55;
+}
+
+.lc-field {
+  display: grid;
+  gap: 6px;
+  color: var(--muted-strong);
+  font-size: 11px;
+}
+
+.lc-field input {
+  min-height: 30px;
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  outline: none;
+  padding: 6px 8px;
+}
+
+.lc-field input:focus {
+  border-color: rgba(106, 109, 87, 0.5);
+  box-shadow: 0 0 0 3px rgba(106, 109, 87, 0.08);
 }
 
 @media (max-width: 900px) {

@@ -25,3 +25,9 @@ export {
   type ProjectSaveResult,
   type SaveTarget
 } from './services/projectRepository.js';
+export {
+  createGraphViewModel,
+  type ConnectionEdgeViewModel,
+  type GraphViewModel,
+  type SpaceNodeViewModel
+} from './selectors/graphSelectors.js';
