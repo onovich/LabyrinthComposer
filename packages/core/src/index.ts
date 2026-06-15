@@ -1,8 +1,12 @@
 export { shortestSpaceDistance } from './graph/adjacency.js';
 export { collectReferenceChecks, validateReferences } from './graph/references.js';
+export { analyzeBacktracking } from './analysis/backtracking.js';
+export { analyzeHintDistance } from './analysis/hintDistance.js';
+export { analyzeTimelinePacing } from './analysis/timeline.js';
 export { validateBacktracking } from './metrics/backtracking.js';
 export { validateCircularDependencies } from './validation/dependencies.js';
 export { validateTokenLockedBehindOwnGate } from './validation/deadlocks.js';
 export { validateMissingPuzzleInputs } from './validation/missingInput.js';
 export { evaluateReachability } from './validation/reachability.js';
-export { validateProject } from './validation/validateProject.js';
+export { validateProject, validateProjectWithRules } from './validation/validateProject.js';
+export type { RuleContext, ValidationOptions } from './validation/ruleContext.js';

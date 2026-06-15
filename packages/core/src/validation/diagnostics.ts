@@ -14,10 +14,12 @@ type DiagnosticInput = {
   affectedEntities: EntityRef[];
   causeChain: CauseStep[];
   suggestions: FixSuggestion[];
+  suppressed?: boolean;
+  exceptionId?: string;
 };
 
 export function createDiagnostic(input: DiagnosticInput): Diagnostic {
-  return {
+  const diagnostic: Diagnostic = {
     id: input.id,
     ruleId: input.ruleId,
     severity: input.severity,
@@ -26,4 +28,14 @@ export function createDiagnostic(input: DiagnosticInput): Diagnostic {
     causeChain: input.causeChain,
     suggestions: input.suggestions
   };
+
+  if (input.suppressed !== undefined) {
+    diagnostic.suppressed = input.suppressed;
+  }
+
+  if (input.exceptionId !== undefined) {
+    diagnostic.exceptionId = input.exceptionId;
+  }
+
+  return diagnostic;
 }

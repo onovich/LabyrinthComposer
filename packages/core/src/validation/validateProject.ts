@@ -1,5 +1,8 @@
 import type { ProjectGraph, ValidationResult } from '@labyrinth/schema';
 
+import { analyzeBacktracking } from '../analysis/backtracking.js';
+import { analyzeHintDistance } from '../analysis/hintDistance.js';
+import { analyzeTimelinePacing } from '../analysis/timeline.js';
 import { validateReferences } from '../graph/references.js';
 import { validateBacktracking } from '../metrics/backtracking.js';
 import { validateCircularDependencies } from './dependencies.js';
@@ -10,8 +13,21 @@ import {
   validateProjectAnchors,
   validateReachableTargets
 } from './reachability.js';
+import {
+  applyRuleControls,
+  createRuleContext,
+  hasBlockingDiagnostics,
+  type ValidationOptions
+} from './ruleContext.js';
 
-export function validateProject(project: ProjectGraph): ValidationResult {
+type InternalValidationOptions = {
+  includeDefaultBacktracking: boolean;
+};
+
+function validateProjectInternal(
+  project: ProjectGraph,
+  options: InternalValidationOptions
+): ValidationResult {
   const referenceDiagnostics = validateReferences(project);
   const anchorDiagnostics = validateProjectAnchors(project);
   const reachability = evaluateReachability(project);
@@ -49,7 +65,7 @@ export function validateProject(project: ProjectGraph): ValidationResult {
     ...tokenLockedDiagnostics,
     ...circularDependencyDiagnostics,
     ...missingPuzzleInputDiagnostics,
-    ...validateBacktracking(project),
+    ...(options.includeDefaultBacktracking ? validateBacktracking(project) : []),
     ...reachableTargetDiagnostics
   ];
 
@@ -61,5 +77,37 @@ export function validateProject(project: ProjectGraph): ValidationResult {
     solvedPuzzles: reachability.solvedPuzzles,
     diagnostics,
     trace: reachability.trace
+  };
+}
+
+export function validateProject(project: ProjectGraph): ValidationResult {
+  return validateProjectInternal(project, {
+    includeDefaultBacktracking: true
+  });
+}
+
+export function validateProjectWithRules(
+  project: ProjectGraph,
+  options: ValidationOptions = {}
+): ValidationResult {
+  const baseResult = validateProjectInternal(project, {
+    includeDefaultBacktracking: false
+  });
+  const context = createRuleContext(options);
+  const ruleDiagnostics = [
+    ...analyzeBacktracking(project, context),
+    ...analyzeHintDistance(project, context),
+    ...analyzeTimelinePacing(project, context)
+  ];
+  const diagnostics = applyRuleControls(
+    [...baseResult.diagnostics, ...ruleDiagnostics],
+    context,
+    options.exceptions
+  );
+
+  return {
+    ...baseResult,
+    ok: !hasBlockingDiagnostics(diagnostics),
+    diagnostics
   };
 }

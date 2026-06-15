@@ -21,6 +21,8 @@ export type Diagnostic = {
   affectedEntities: EntityRef[];
   causeChain: CauseStep[];
   suggestions: FixSuggestion[];
+  suppressed?: boolean;
+  exceptionId?: string;
 };
 
 export type ValidationTraceEventKind =

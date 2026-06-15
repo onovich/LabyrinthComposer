@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { type ProjectGraph, SCHEMA_VERSION } from '@labyrinth/schema';
+import { type ProjectGraph, type RulePreset, SCHEMA_VERSION } from '@labyrinth/schema';
 
-import { validateProject } from './index.js';
+import { validateProject, validateProjectWithRules } from './index.js';
 
 function baseProject(): ProjectGraph {
   return {
@@ -494,5 +494,210 @@ describe('validateProject core diagnostics', () => {
         })
       ])
     );
+  });
+});
+
+function phase2DistanceProject(): ProjectGraph {
+  return {
+    schemaVersion: SCHEMA_VERSION,
+    project: {
+      id: 'phase2-distance',
+      name: 'Phase 2 Distance'
+    },
+    startSpaceId: 's0',
+    targetSpaceIds: ['exit'],
+    spaces: {
+      s0: { id: 's0', name: 'S0' },
+      s1: { id: 's1', name: 'S1' },
+      s2: { id: 's2', name: 'S2' },
+      s3: { id: 's3', name: 'S3' },
+      s4: { id: 's4', name: 'S4' },
+      s5: { id: 's5', name: 'S5' },
+      exit: { id: 'exit', name: 'Exit' }
+    },
+    connections: {
+      's0-s1': { id: 's0-s1', fromSpaceId: 's0', toSpaceId: 's1' },
+      's1-s2': { id: 's1-s2', fromSpaceId: 's1', toSpaceId: 's2' },
+      's2-s3': { id: 's2-s3', fromSpaceId: 's2', toSpaceId: 's3' },
+      's3-s4': { id: 's3-s4', fromSpaceId: 's3', toSpaceId: 's4' },
+      's4-s5': { id: 's4-s5', fromSpaceId: 's4', toSpaceId: 's5' },
+      's5-exit': {
+        id: 's5-exit',
+        fromSpaceId: 's5',
+        toSpaceId: 'exit',
+        gateId: 'key-gate'
+      }
+    },
+    gates: {
+      'key-gate': {
+        id: 'key-gate',
+        name: 'Key Gate',
+        kind: 'lock',
+        requiredTokenIds: ['key']
+      }
+    },
+    tokens: {
+      key: {
+        id: 'key',
+        name: 'Key',
+        kind: 'item',
+        locationSpaceId: 's0'
+      }
+    },
+    puzzles: {},
+    beats: {}
+  };
+}
+
+function phase2TimelineProject(): ProjectGraph {
+  return {
+    ...baseProject(),
+    beats: {
+      a: { id: 'a', name: 'A', intensity: 0.9, order: 1 },
+      b: { id: 'b', name: 'B', intensity: 0.91, order: 2 },
+      c: { id: 'c', name: 'C', intensity: 0.92, order: 3 },
+      d: { id: 'd', name: 'D', intensity: 0.93, order: 4 }
+    }
+  };
+}
+
+function preset(enabledRuleIds: string[], thresholds: Record<string, number> = {}): RulePreset {
+  return {
+    id: 'test.phase2',
+    name: 'Test Phase 2',
+    enabledRuleIds,
+    thresholds
+  };
+}
+
+describe('validateProjectWithRules', () => {
+  it('keeps validateProject behavior stable while rules presets add diagnostics', () => {
+    const project = phase2DistanceProject();
+
+    expect(validateProject(project).diagnostics.map((diagnostic) => diagnostic.ruleId)).toEqual([
+      'backtracking.long-token-return'
+    ]);
+
+    const result = validateProjectWithRules(project, {
+      preset: preset(['hint.token-use-too-late'], {
+        maxTokenUseDistance: 4
+      })
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          ruleId: 'hint.token-use-too-late',
+          severity: 'warning',
+          affectedEntities: [
+            { kind: 'token', id: 'key' },
+            { kind: 'gate', id: 'key-gate' }
+          ]
+        })
+      ])
+    );
+    expect(
+      result.diagnostics.some(
+        (diagnostic) => diagnostic.ruleId === 'backtracking.long-token-return'
+      )
+    ).toBe(false);
+  });
+
+  it('applies threshold overrides and disabled rule overrides', () => {
+    const project = phase2DistanceProject();
+    const basePreset = preset(['hint.token-use-too-late'], {
+      maxTokenUseDistance: 4
+    });
+
+    expect(
+      validateProjectWithRules(project, {
+        preset: basePreset,
+        overrides: [
+          {
+            ruleId: 'hint.token-use-too-late',
+            thresholdOverrides: {
+              maxTokenUseDistance: 6
+            }
+          }
+        ]
+      }).diagnostics
+    ).toEqual([]);
+
+    expect(
+      validateProjectWithRules(project, {
+        preset: basePreset,
+        overrides: [
+          {
+            ruleId: 'hint.token-use-too-late',
+            disabled: true
+          }
+        ]
+      }).diagnostics
+    ).toEqual([]);
+  });
+
+  it('marks matching diagnostic exceptions without deleting the diagnostic', () => {
+    const project = phase2DistanceProject();
+    const result = validateProjectWithRules(project, {
+      preset: preset(['hint.token-use-too-late'], {
+        maxTokenUseDistance: 4
+      }),
+      exceptions: [
+        {
+          id: 'intentional-detour',
+          ruleId: 'hint.token-use-too-late',
+          entityRefs: [
+            { kind: 'token', id: 'key' },
+            { kind: 'gate', id: 'key-gate' }
+          ],
+          reason: 'The long return is the point of the dungeon.'
+        }
+      ]
+    });
+    const diagnostic = result.diagnostics.find((item) => item.ruleId === 'hint.token-use-too-late');
+
+    expect(diagnostic).toEqual(
+      expect.objectContaining({
+        suppressed: true,
+        exceptionId: 'intentional-detour'
+      })
+    );
+  });
+
+  it('detects gate previews that happen after the token is acquired', () => {
+    const project = phase2DistanceProject();
+    const result = validateProjectWithRules(project, {
+      preset: preset(['hint.gate-too-late'], {
+        minGatePreviewDistance: 1
+      })
+    });
+
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          ruleId: 'hint.gate-too-late',
+          affectedEntities: [
+            { kind: 'gate', id: 'key-gate' },
+            { kind: 'token', id: 'key' }
+          ]
+        })
+      ])
+    );
+  });
+
+  it('detects flat and spiking timeline pacing', () => {
+    const project = phase2TimelineProject();
+    const result = validateProjectWithRules(project, {
+      preset: preset(['timeline.intensity-flat', 'timeline.intensity-spike'], {
+        flatIntensityDelta: 0.1,
+        maxConsecutiveHighIntensityBeats: 3
+      })
+    });
+
+    expect(result.diagnostics.map((diagnostic) => diagnostic.ruleId)).toEqual([
+      'timeline.intensity-flat',
+      'timeline.intensity-spike'
+    ]);
   });
 });
