@@ -10,6 +10,7 @@ export default defineConfig({
     alias: {
       '@labyrinth/core': resolve(rootDir, 'packages/core/src/index.ts'),
       '@labyrinth/editor-ui': resolve(rootDir, 'packages/editor-ui/src/index.ts'),
+      '@labyrinth/rulesets': resolve(rootDir, 'packages/rulesets/src/index.ts'),
       '@labyrinth/schema': resolve(rootDir, 'packages/schema/src/index.ts'),
       '@labyrinth/test-fixtures': resolve(rootDir, 'packages/test-fixtures/src/index.ts'),
       '@labyrinth/workbench': resolve(rootDir, 'packages/workbench/src/index.ts')

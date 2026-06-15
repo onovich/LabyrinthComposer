@@ -53,6 +53,20 @@
     },
     "rulePresetId": {
       "$ref": "#/$defs/id"
+    },
+    "ruleOverrides": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/rulePresetOverride"
+      },
+      "uniqueItems": true
+    },
+    "diagnosticExceptions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/diagnosticException"
+      },
+      "uniqueItems": true
     }
   },
   "$defs": {
@@ -67,6 +81,73 @@
         "type": "string"
       },
       "uniqueItems": true
+    },
+    "diagnosticSeverity": {
+      "enum": ["error", "warning", "info"]
+    },
+    "entityRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id"],
+      "properties": {
+        "kind": {
+          "enum": ["space", "connection", "gate", "token", "puzzle", "beat"]
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        }
+      }
+    },
+    "thresholdMap": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "rulePresetOverride": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ruleId"],
+      "properties": {
+        "ruleId": {
+          "$ref": "#/$defs/id"
+        },
+        "thresholdOverrides": {
+          "$ref": "#/$defs/thresholdMap"
+        },
+        "severity": {
+          "$ref": "#/$defs/diagnosticSeverity"
+        },
+        "disabled": {
+          "type": "boolean"
+        }
+      }
+    },
+    "diagnosticException": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "ruleId", "entityRefs"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "ruleId": {
+          "$ref": "#/$defs/id"
+        },
+        "entityRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/entityRef"
+          },
+          "minItems": 1
+        },
+        "reason": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string"
+        }
+      }
     },
     "projectMetadata": {
       "type": "object",
@@ -232,10 +313,16 @@
         "spaceId": {
           "$ref": "#/$defs/id"
         },
+        "kind": {
+          "enum": ["discovery", "threat", "relief", "puzzle", "reward"]
+        },
         "intensity": {
           "type": "number",
           "minimum": 0,
           "maximum": 1
+        },
+        "order": {
+          "type": "number"
         },
         "description": {
           "type": "string"

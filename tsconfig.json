@@ -3,6 +3,7 @@
   "references": [
     { "path": "./packages/schema" },
     { "path": "./packages/core" },
+    { "path": "./packages/rulesets" },
     { "path": "./packages/test-fixtures" },
     { "path": "./packages/workbench" },
     { "path": "./packages/editor-ui" },

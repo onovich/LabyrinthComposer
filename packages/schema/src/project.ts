@@ -16,6 +16,7 @@ import type {
   Token,
   TokenId
 } from './entities.js';
+import type { DiagnosticException, RulePresetOverride } from './rulesets.js';
 import { SCHEMA_VERSION, type SchemaVersion } from './schemaVersion.js';
 
 export type ProjectMetadata = {
@@ -37,6 +38,8 @@ export type ProjectGraph = {
   puzzles: Record<PuzzleId, Puzzle>;
   beats: Record<BeatId, Beat>;
   rulePresetId?: RulePresetId;
+  ruleOverrides?: RulePresetOverride[];
+  diagnosticExceptions?: DiagnosticException[];
 };
 
 export type SchemaIssue = {

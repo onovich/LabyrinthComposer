@@ -6,6 +6,8 @@ export default [
     ignores: [
       '**/coverage/**',
       '**/dist/**',
+      '**/src-tauri/gen/**',
+      '**/src-tauri/target/**',
       '**/node_modules/**',
       '**/pnpm-lock.yaml'
     ]

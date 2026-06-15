@@ -5,6 +5,7 @@ const rootDir = new URL('..', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/
 const sourceRoots = [
   'packages/core/src',
   'packages/schema/src',
+  'packages/rulesets/src',
   'packages/test-fixtures/src',
   'packages/workbench/src',
   'packages/editor-ui/src',
@@ -19,7 +20,16 @@ function isSourceFile(entryName) {
 }
 
 async function collectFiles(dir) {
-  const entries = await readdir(dir);
+  let entries;
+  try {
+    entries = await readdir(dir);
+  } catch (error) {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
+      return [];
+    }
+
+    throw error;
+  }
   const files = [];
 
   for (const entry of entries) {
@@ -46,6 +56,10 @@ function isForbiddenCoreImport(specifier) {
     ['fs', 'path', 'process', 'react', '@labyrinth/cli'].includes(specifier) ||
     specifier === '@labyrinth/workbench' ||
     specifier.startsWith('@labyrinth/workbench/') ||
+    specifier === '@labyrinth/rulesets' ||
+    specifier.startsWith('@labyrinth/rulesets/') ||
+    specifier === '@labyrinth/exporters' ||
+    specifier.startsWith('@labyrinth/exporters/') ||
     specifier === '@labyrinth/editor-ui' ||
     specifier.startsWith('@labyrinth/editor-ui/') ||
     specifier.startsWith('apps/')
@@ -58,8 +72,29 @@ function isForbiddenSchemaImport(specifier) {
     specifier.startsWith('@labyrinth/core/') ||
     specifier === '@labyrinth/workbench' ||
     specifier.startsWith('@labyrinth/workbench/') ||
+    specifier === '@labyrinth/rulesets' ||
+    specifier.startsWith('@labyrinth/rulesets/') ||
+    specifier === '@labyrinth/exporters' ||
+    specifier.startsWith('@labyrinth/exporters/') ||
     specifier === '@labyrinth/editor-ui' ||
     specifier.startsWith('@labyrinth/editor-ui/')
+  );
+}
+
+function isForbiddenRulesetsImport(specifier) {
+  return (
+    specifier.startsWith('node:') ||
+    ['fs', 'path', 'process', 'react', 'react-dom', '@xyflow/react'].includes(specifier) ||
+    specifier === '@labyrinth/core' ||
+    specifier.startsWith('@labyrinth/core/') ||
+    specifier === '@labyrinth/workbench' ||
+    specifier.startsWith('@labyrinth/workbench/') ||
+    specifier === '@labyrinth/exporters' ||
+    specifier.startsWith('@labyrinth/exporters/') ||
+    specifier === '@labyrinth/editor-ui' ||
+    specifier.startsWith('@labyrinth/editor-ui/') ||
+    specifier.startsWith('@tauri-apps/') ||
+    specifier.startsWith('apps/')
   );
 }
 
@@ -77,6 +112,12 @@ function isForbiddenEditorUiImport(specifier) {
     specifier.startsWith('node:') ||
     ['fs', 'path', 'process'].includes(specifier) ||
     specifier.startsWith('@tauri-apps/') ||
+    specifier === '@labyrinth/core' ||
+    specifier.startsWith('@labyrinth/core/') ||
+    specifier === '@labyrinth/rulesets' ||
+    specifier.startsWith('@labyrinth/rulesets/') ||
+    specifier === '@labyrinth/exporters' ||
+    specifier.startsWith('@labyrinth/exporters/') ||
     specifier.startsWith('@labyrinth/desktop') ||
     specifier.startsWith('apps/desktop')
   );
@@ -104,6 +145,14 @@ for (const root of sourceRoots) {
 
       if (projectPath.startsWith('packages/schema/') && isForbiddenSchemaImport(specifier)) {
         violations.push(`${projectPath} imports forbidden schema dependency "${specifier}"`);
+      }
+
+      if (
+        projectPath.startsWith('packages/rulesets/') &&
+        !isTestFile &&
+        isForbiddenRulesetsImport(specifier)
+      ) {
+        violations.push(`${projectPath} imports forbidden rulesets dependency "${specifier}"`);
       }
 
       if (

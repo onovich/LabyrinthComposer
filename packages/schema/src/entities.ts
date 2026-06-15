@@ -58,10 +58,14 @@ export type Puzzle = {
   description?: string;
 };
 
+export type BeatKind = 'discovery' | 'threat' | 'relief' | 'puzzle' | 'reward';
+
 export type Beat = {
   id: BeatId;
   name: string;
   spaceId?: SpaceId;
+  kind?: BeatKind;
   intensity?: number;
+  order?: number;
   description?: string;
 };
