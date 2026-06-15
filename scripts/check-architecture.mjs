@@ -6,6 +6,7 @@ const sourceRoots = [
   'packages/core/src',
   'packages/schema/src',
   'packages/rulesets/src',
+  'packages/exporters/src',
   'packages/test-fixtures/src',
   'packages/workbench/src',
   'packages/editor-ui/src',
@@ -107,6 +108,21 @@ function isForbiddenWorkbenchImport(specifier) {
   );
 }
 
+function isForbiddenExportersImport(specifier) {
+  return (
+    specifier.startsWith('node:') ||
+    ['fs', 'path', 'process', 'react', 'react-dom', '@xyflow/react'].includes(specifier) ||
+    specifier === '@labyrinth/core' ||
+    specifier.startsWith('@labyrinth/core/') ||
+    specifier === '@labyrinth/workbench' ||
+    specifier.startsWith('@labyrinth/workbench/') ||
+    specifier === '@labyrinth/editor-ui' ||
+    specifier.startsWith('@labyrinth/editor-ui/') ||
+    specifier.startsWith('@tauri-apps/') ||
+    specifier.startsWith('apps/')
+  );
+}
+
 function isForbiddenEditorUiImport(specifier) {
   return (
     specifier.startsWith('node:') ||
@@ -161,6 +177,14 @@ for (const root of sourceRoots) {
         isForbiddenWorkbenchImport(specifier)
       ) {
         violations.push(`${projectPath} imports forbidden workbench dependency "${specifier}"`);
+      }
+
+      if (
+        projectPath.startsWith('packages/exporters/') &&
+        !isTestFile &&
+        isForbiddenExportersImport(specifier)
+      ) {
+        violations.push(`${projectPath} imports forbidden exporters dependency "${specifier}"`);
       }
 
       if (

@@ -3,8 +3,25 @@ import { invoke, isTauri } from '@tauri-apps/api/core';
 
 import horrorClinicProjectText from '../../../../packages/test-fixtures/samples/horror-clinic.lcproj.json?raw';
 
+type ReportFormat = 'markdown' | 'json';
+
 export type DesktopAdapters = {
   projectRepository: ProjectRepository;
+  reportRepository: ReportRepository;
+};
+
+export type ReportSaveResult =
+  | {
+      ok: true;
+      path?: string;
+    }
+  | {
+      ok: false;
+      message: string;
+    };
+
+export type ReportRepository = {
+  saveReportAs(text: string, format: ReportFormat): Promise<ReportSaveResult>;
 };
 
 type ProjectFileResult = {
@@ -21,18 +38,27 @@ export type TauriProjectFileClient = {
   openProjectFile(): Promise<ProjectFileResult | null>;
   saveProjectFile(text: string, path: string): Promise<SaveProjectFileResult>;
   saveProjectFileAs(text: string): Promise<SaveProjectFileResult | null>;
+  saveReportFileAs(text: string, format: ReportFormat): Promise<SaveProjectFileResult | null>;
 };
 
 const samplePath = 'packages/test-fixtures/samples/horror-clinic.lcproj.json';
 const saveAsPath = 'labyrinth-composer-copy.lcproj.json';
 
-function downloadText(text: string, filename: string) {
+function reportFileName(format: ReportFormat): string {
+  return format === 'json' ? 'labyrinth-report.json' : 'labyrinth-report.md';
+}
+
+function reportMimeType(format: ReportFormat): string {
+  return format === 'json' ? 'application/json' : 'text/markdown';
+}
+
+function downloadText(text: string, filename: string, mimeType = 'application/json') {
   if (typeof document === 'undefined') {
     return;
   }
 
   const blob = new Blob([text], {
-    type: 'application/json'
+    type: mimeType
   });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
@@ -56,6 +82,12 @@ const defaultTauriProjectFileClient: TauriProjectFileClient = {
   },
   saveProjectFileAs(text) {
     return invoke<SaveProjectFileResult | null>('save_project_file_as', {
+      text
+    });
+  },
+  saveReportFileAs(text, format) {
+    return invoke<SaveProjectFileResult | null>('save_report_file_as', {
+      format,
       text
     });
   }
@@ -120,6 +152,37 @@ export function createDesktopAdapters(
           path: saveAsPath
         };
       }
-    })
+    }),
+    reportRepository: {
+      async saveReportAs(text, format) {
+        try {
+          if (tauriProjectFileClient.isAvailable()) {
+            const saved = await tauriProjectFileClient.saveReportFileAs(text, format);
+
+            if (saved === null) {
+              throw new Error('Report save was cancelled.');
+            }
+
+            return {
+              ok: true,
+              path: saved.path
+            };
+          }
+
+          const filename = reportFileName(format);
+          downloadText(text, filename, reportMimeType(format));
+
+          return {
+            ok: true,
+            path: filename
+          };
+        } catch (error) {
+          return {
+            ok: false,
+            message: `Report save failed: ${String(error)}`
+          };
+        }
+      }
+    }
   };
 }

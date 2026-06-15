@@ -26,6 +26,7 @@ export {
   type ProjectSaveResult,
   type SaveTarget
 } from './services/projectRepository.js';
+export { createReportText, type ReportFormat } from './services/reportService.js';
 export {
   createDiagnosticViewModels,
   createHighlightedEntitiesForDiagnostic,

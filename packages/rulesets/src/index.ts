@@ -12,6 +12,12 @@ export const rulePresets = [
   horrorClinicPreset
 ] satisfies RulePreset[];
 
+const legacyPresetAliases: Record<string, RulePresetId> = {
+  horror: horrorClinicPreset.id,
+  maze: mazeStandardPreset.id,
+  zelda: zeldaMiniDungeonPreset.id
+};
+
 export function listRulePresets(): RulePreset[] {
   return rulePresets.map((preset) => ({
     ...preset,
@@ -23,7 +29,8 @@ export function listRulePresets(): RulePreset[] {
 }
 
 export function getRulePreset(id: RulePresetId | undefined): RulePreset {
-  const preset = rulePresets.find((item) => item.id === (id ?? DEFAULT_RULE_PRESET_ID));
+  const resolvedId = id === undefined ? DEFAULT_RULE_PRESET_ID : legacyPresetAliases[id] ?? id;
+  const preset = rulePresets.find((item) => item.id === resolvedId);
 
   if (preset === undefined) {
     return mazeStandardPreset;

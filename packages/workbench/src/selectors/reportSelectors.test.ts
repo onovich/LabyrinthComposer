@@ -93,5 +93,7 @@ describe('report selectors', () => {
     });
     expect(viewModel.exceptionCount).toBe(1);
     expect(viewModel.timeline.beats.map((beat) => beat.id)).toEqual(['beat']);
+    expect(viewModel.markdownPreview).toContain('# Labyrinth Composer Report');
+    expect(viewModel.markdownPreview).toContain('- Name: Report Selector');
   });
 });

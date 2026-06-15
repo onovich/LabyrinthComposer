@@ -1,13 +1,29 @@
 import type { ReportViewModel } from '@labyrinth/workbench';
+import { FileJson, FileText } from 'lucide-react';
 
 type ReportPanelProps = {
   viewModel: ReportViewModel;
+  onExportReport(format: 'markdown' | 'json'): void;
 };
 
-export function ReportPanel({ viewModel }: ReportPanelProps) {
+export function ReportPanel({ viewModel, onExportReport }: ReportPanelProps) {
   return (
     <section className="lc-panel-section">
       <div className="lc-section-label">Report</div>
+      <div className="lc-report-actions">
+        <button
+          className="lc-tool-button"
+          onClick={() => onExportReport('markdown')}
+          type="button"
+        >
+          <FileText size={14} />
+          Export Markdown
+        </button>
+        <button className="lc-tool-button" onClick={() => onExportReport('json')} type="button">
+          <FileJson size={14} />
+          Export JSON
+        </button>
+      </div>
       <div className="lc-report-summary" aria-label="Report summary">
         <div>
           <span>Preset</span>
@@ -33,6 +49,9 @@ export function ReportPanel({ viewModel }: ReportPanelProps) {
         <span>{viewModel.exceptionCount} exceptions</span>
         <span>{viewModel.timeline.beats.length} beats</span>
       </div>
+      <pre className="lc-report-markdown-preview" aria-label="Markdown report preview">
+        {viewModel.markdownPreview}
+      </pre>
     </section>
   );
 }

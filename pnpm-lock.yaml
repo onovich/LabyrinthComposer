@@ -63,6 +63,9 @@ importers:
       '@labyrinth/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@labyrinth/exporters':
+        specifier: workspace:*
+        version: link:../../packages/exporters
       '@labyrinth/rulesets':
         specifier: workspace:*
         version: link:../../packages/rulesets
@@ -125,6 +128,12 @@ importers:
         specifier: ^19.2.3
         version: 19.2.7(react@19.2.7)
 
+  packages/exporters:
+    dependencies:
+      '@labyrinth/schema':
+        specifier: workspace:*
+        version: link:../schema
+
   packages/rulesets:
     dependencies:
       '@labyrinth/schema':
@@ -148,6 +157,9 @@ importers:
       '@labyrinth/core':
         specifier: workspace:*
         version: link:../core
+      '@labyrinth/exporters':
+        specifier: workspace:*
+        version: link:../exporters
       '@labyrinth/rulesets':
         specifier: workspace:*
         version: link:../rulesets

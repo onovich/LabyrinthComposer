@@ -7,10 +7,5 @@
     "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
   },
   "include": ["src/**/*.ts"],
-  "references": [
-    { "path": "../../packages/schema" },
-    { "path": "../../packages/core" },
-    { "path": "../../packages/rulesets" },
-    { "path": "../../packages/exporters" }
-  ]
+  "references": [{ "path": "../schema" }]
 }

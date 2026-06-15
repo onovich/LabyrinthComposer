@@ -17,6 +17,7 @@ const viewModel: ReportViewModel = {
   },
   diagnostics: [],
   exceptionCount: 1,
+  markdownPreview: '# Labyrinth Composer Report\n\n## Project\n\n- Name: Clinic Wing\n',
   timeline: {
     beats: [
       {
@@ -35,12 +36,16 @@ const viewModel: ReportViewModel = {
 
 describe('ReportPanel smoke', () => {
   it('renders report summary and preview metadata', () => {
-    const html = renderToStaticMarkup(<ReportPanel viewModel={viewModel} />);
+    const html = renderToStaticMarkup(
+      <ReportPanel viewModel={viewModel} onExportReport={() => undefined} />
+    );
 
     expect(html).toContain('Report');
     expect(html).toContain('Clinic Wing');
     expect(html).toContain('Horror Clinic');
     expect(html).toContain('1 exceptions');
     expect(html).toContain('1 beats');
+    expect(html).toContain('Export Markdown');
+    expect(html).toContain('Labyrinth Composer Report');
   });
 });

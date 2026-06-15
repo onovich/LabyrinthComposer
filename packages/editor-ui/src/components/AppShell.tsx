@@ -50,6 +50,7 @@ type AppShellProps = {
   onSetRulePreset(rulePresetId: string): void;
   onUpdateRuleThreshold(ruleId: string, key: string, value: number): void;
   onMarkDiagnosticException(id: string): void;
+  onExportReport(format: 'markdown' | 'json'): void;
   onOpenDashboard(): void;
   onOpenProject(): void;
   onSaveProject(): void;
@@ -88,6 +89,7 @@ export function AppShell({
   onSetRulePreset,
   onUpdateRuleThreshold,
   onMarkDiagnosticException,
+  onExportReport,
   onOpenDashboard,
   onOpenProject,
   onSaveProject,
@@ -256,7 +258,7 @@ export function AppShell({
               onUpdateSpace={onUpdateSpace}
               onUpdateToken={onUpdateToken}
             />
-            <ReportPanel viewModel={report} />
+            <ReportPanel viewModel={report} onExportReport={onExportReport} />
           </aside>
           <div className="lc-validation-panel">
             <DiagnosticsPanel

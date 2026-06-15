@@ -24,6 +24,14 @@ function createTauriClient(
         path: 'D:\\Projects\\horror-clinic-copy.lcproj.json'
       };
     },
+    async saveReportFileAs(_text, format) {
+      return {
+        path:
+          format === 'json'
+            ? 'D:\\Projects\\horror-clinic-report.json'
+            : 'D:\\Projects\\horror-clinic-report.md'
+      };
+    },
     ...overrides
   };
 }
@@ -102,6 +110,46 @@ describe('desktop adapters', () => {
     expect(saveResult).toEqual({
       ok: false,
       message: 'Project save failed: Error: Project save was cancelled.'
+    });
+  });
+
+  it('saves Markdown reports through the Tauri report save dialog', async () => {
+    let savedText = '';
+    const adapters = createDesktopAdapters(
+      createTauriClient({
+        async saveReportFileAs(text, format) {
+          savedText = text;
+          return {
+            path:
+              format === 'markdown'
+                ? 'D:\\Projects\\horror-clinic-report.md'
+                : 'D:\\Projects\\horror-clinic-report.json'
+          };
+        }
+      })
+    );
+
+    const result = await adapters.reportRepository.saveReportAs('# Report', 'markdown');
+
+    expect(result).toEqual({
+      ok: true,
+      path: 'D:\\Projects\\horror-clinic-report.md'
+    });
+    expect(savedText).toBe('# Report');
+  });
+
+  it('reports a cancelled Tauri report save-as', async () => {
+    const adapters = createDesktopAdapters(
+      createTauriClient({
+        async saveReportFileAs() {
+          return null;
+        }
+      })
+    );
+
+    await expect(adapters.reportRepository.saveReportAs('{}', 'json')).resolves.toEqual({
+      ok: false,
+      message: 'Report save failed: Error: Report save was cancelled.'
     });
   });
 });

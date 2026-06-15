@@ -16,6 +16,12 @@ describe('rule presets', () => {
     expect(getRulePreset('unknown.preset').id).toBe('maze.standard');
   });
 
+  it('resolves legacy sample preset ids to phase 2 preset ids', () => {
+    expect(getRulePreset('maze').id).toBe('maze.standard');
+    expect(getRulePreset('zelda').id).toBe('zelda.mini-dungeon');
+    expect(getRulePreset('horror').id).toBe('horror.clinic');
+  });
+
   it('returns cloned preset data so callers cannot mutate the registry', () => {
     const [firstPreset] = listRulePresets();
 

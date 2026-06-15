@@ -1,3 +1,4 @@
+import { createReportModel, formatMarkdownReport } from '@labyrinth/exporters';
 import { getRulePreset } from '@labyrinth/rulesets';
 import type { Diagnostic, ProjectGraph, ValidationResult } from '@labyrinth/schema';
 
@@ -18,6 +19,7 @@ export type ReportViewModel = {
   diagnostics: Diagnostic[];
   exceptionCount: number;
   timeline: TimelineViewModel;
+  markdownPreview: string;
 };
 
 function createDiagnosticSummary(diagnostics: Diagnostic[]): ReportDiagnosticSummary {
@@ -51,6 +53,7 @@ export function createReportViewModel(
   validation: ValidationResult
 ): ReportViewModel {
   const rulePreset = getRulePreset(project.rulePresetId);
+  const reportModel = createReportModel(project, validation, rulePreset, 'preview');
 
   return {
     projectName: project.project.name,
@@ -59,6 +62,7 @@ export function createReportViewModel(
     summary: createDiagnosticSummary(validation.diagnostics),
     diagnostics: [...validation.diagnostics].sort((left, right) => left.id.localeCompare(right.id)),
     exceptionCount: project.diagnosticExceptions?.length ?? 0,
-    timeline: createTimelineViewModel(project, validation)
+    timeline: createTimelineViewModel(project, validation),
+    markdownPreview: formatMarkdownReport(reportModel)
   };
 }

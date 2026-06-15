@@ -1,8 +1,10 @@
 import { AppShell, type TemplateCardViewModel } from '@labyrinth/editor-ui';
 import {
   createHighlightedEntitiesForDiagnostic,
+  createReportText,
   createWorkbenchStore,
-  parseProjectText
+  parseProjectText,
+  type ReportFormat
 } from '@labyrinth/workbench';
 import { SCHEMA_VERSION, type EntityRef, type ProjectGraph } from '@labyrinth/schema';
 import { useMemo, useState } from 'react';
@@ -419,6 +421,20 @@ export function App() {
     setOperationMessage(`Saved ${result.path ?? 'project copy'}`);
   }
 
+  async function exportReport(format: ReportFormat) {
+    const result = await adapters.reportRepository.saveReportAs(
+      createReportText(snapshot, format),
+      format
+    );
+
+    if (!result.ok) {
+      setOperationMessage(result.message);
+      return;
+    }
+
+    setOperationMessage(`Exported ${result.path ?? `${format} report`}`);
+  }
+
   function nextId(prefix: string, record: Record<string, unknown>) {
     let index = Object.keys(record).length + 1;
     let id = `${prefix}-${index}`;
@@ -681,6 +697,7 @@ export function App() {
       onCreatePuzzle={createPuzzle}
       onCreateSpace={createSpace}
       onCreateToken={createToken}
+      onExportReport={exportReport}
       onOpenDashboard={() => setShowDashboard(true)}
       onOpenProject={openProject}
       onRedo={() => commit(store.redo())}

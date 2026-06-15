@@ -41,4 +41,39 @@ describe('labyrinth CLI', () => {
     expect(result.stdout).toContain('FAIL');
     expect(result.stdout).toContain('reachability.target-unreachable');
   });
+
+  it('generates a Markdown report for review workflows', () => {
+    const result = runCli([
+      'report',
+      'packages/test-fixtures/samples/horror-clinic.lcproj.json',
+      '--format',
+      'markdown'
+    ]);
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('# Labyrinth Composer Report');
+    expect(result.stdout).toContain('## Rule Preset');
+    expect(result.stdout).toContain('Horror Clinic');
+  });
+
+  it('generates a JSON report for CI artifacts', () => {
+    const result = runCli([
+      'report',
+      'packages/test-fixtures/samples/horror-clinic.lcproj.json',
+      '--format',
+      'json'
+    ]);
+
+    expect(result.status).toBe(0);
+    expect(JSON.parse(result.stdout) as unknown).toEqual(
+      expect.objectContaining({
+        project: expect.objectContaining({
+          name: 'Horror Clinic'
+        }),
+        rulePreset: expect.objectContaining({
+          id: 'horror.clinic'
+        })
+      })
+    );
+  });
 });

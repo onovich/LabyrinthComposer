@@ -22,6 +22,7 @@
     "paths": {
       "@labyrinth/core": ["packages/core/src/index.ts"],
       "@labyrinth/editor-ui": ["packages/editor-ui/src/index.ts"],
+      "@labyrinth/exporters": ["packages/exporters/src/index.ts"],
       "@labyrinth/rulesets": ["packages/rulesets/src/index.ts"],
       "@labyrinth/schema": ["packages/schema/src/index.ts"],
       "@labyrinth/test-fixtures": ["packages/test-fixtures/src/index.ts"],
