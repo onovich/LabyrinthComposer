@@ -41,7 +41,7 @@
     },
     "smoke": {
       "urls": [],
-      "commands": ["npx --yes pnpm@11.7.0 smoke:cli"]
+      "commands": ["npx --yes pnpm@11.7.0 smoke:cli", "npx --yes pnpm@11.7.0 smoke:desktop"]
     },
     "package": {
       "commands": []
@@ -51,9 +51,9 @@
     }
   },
   "devServer": {
-    "startCommand": "",
+    "startCommand": "npx --yes pnpm@11.7.0 dev:desktop",
     "healthUrl": "",
-    "readyText": "",
+    "readyText": "ready",
     "startupTimeoutSeconds": 30,
     "pidFile": ".codex/project-ops-devserver.pid"
   },

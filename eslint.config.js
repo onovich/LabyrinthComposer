@@ -17,8 +17,10 @@ export default [
     languageOptions: {
       globals: {
         console: 'readonly',
+        document: 'readonly',
         process: 'readonly',
-        URL: 'readonly'
+        URL: 'readonly',
+        window: 'readonly'
       }
     },
     rules: {

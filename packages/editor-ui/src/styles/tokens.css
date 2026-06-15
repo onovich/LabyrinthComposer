@@ -1,0 +1,19 @@
+:root {
+  --page: #fbfbfa;
+  --sidebar: #f6f6f4;
+  --surface: #ffffff;
+  --surface-soft: #fbfbf9;
+  --surface-muted: #f0f0ec;
+  --graph-canvas: #fbfaf7;
+  --text: #27241f;
+  --muted: #938b7d;
+  --muted-strong: #655f54;
+  --accent: #6a6d57;
+  --danger: #a55e52;
+  --warning: #98753b;
+  --line-soft: rgba(39, 36, 31, 0.04);
+  --line-strong: rgba(39, 36, 31, 0.08);
+  --hover: rgba(39, 36, 31, 0.04);
+  --selection: rgba(106, 109, 87, 0.08);
+  --shadow-soft: 0 12px 28px rgba(39, 36, 31, 0.08);
+}

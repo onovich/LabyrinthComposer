@@ -6,7 +6,8 @@
     "declarationMap": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["ES2022"],
+    "jsx": "react-jsx",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "noEmitOnError": true,
@@ -20,8 +21,10 @@
     "target": "ES2022",
     "paths": {
       "@labyrinth/core": ["packages/core/src/index.ts"],
+      "@labyrinth/editor-ui": ["packages/editor-ui/src/index.ts"],
       "@labyrinth/schema": ["packages/schema/src/index.ts"],
-      "@labyrinth/test-fixtures": ["packages/test-fixtures/src/index.ts"]
+      "@labyrinth/test-fixtures": ["packages/test-fixtures/src/index.ts"],
+      "@labyrinth/workbench": ["packages/workbench/src/index.ts"]
     },
     "verbatimModuleSyntax": true
   }

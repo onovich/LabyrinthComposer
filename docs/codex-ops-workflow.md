@@ -48,12 +48,13 @@ Configured commands:
 - Test: `npx --yes pnpm@11.7.0 test`
 - Structure check: `npx --yes pnpm@11.7.0 architecture:check`
 - Docs check: `npx --yes pnpm@11.7.0 docs:check`
-- Smoke: `npx --yes pnpm@11.7.0 smoke:cli`
+- Smoke: `npx --yes pnpm@11.7.0 smoke:cli`, `npx --yes pnpm@11.7.0 smoke:desktop`
 
 ## Dev Server
 
-Start command: `Health URL:`
-Ready text: ``
+Start command: `npx --yes pnpm@11.7.0 dev:desktop`
+Health URL: ``
+Ready text: `ready`
 Timeout seconds: 30
 
 ## Safety Policy

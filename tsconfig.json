@@ -4,6 +4,9 @@
     { "path": "./packages/schema" },
     { "path": "./packages/core" },
     { "path": "./packages/test-fixtures" },
-    { "path": "./apps/cli" }
+    { "path": "./packages/workbench" },
+    { "path": "./packages/editor-ui" },
+    { "path": "./apps/cli" },
+    { "path": "./apps/desktop" }
   ]
 }

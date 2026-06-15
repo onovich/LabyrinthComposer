@@ -6,13 +6,15 @@
   "packageManager": "pnpm@11.7.0",
   "scripts": {
     "architecture:check": "node scripts/check-architecture.mjs",
-    "build": "tsc -b",
+    "build": "tsc -b && pnpm --filter @labyrinth/desktop build:bundle",
+    "dev:desktop": "pnpm --filter @labyrinth/desktop dev",
     "docs:check": "node scripts/check-docs.mjs",
     "format": "prettier --check .",
     "format:write": "prettier --write .",
     "labyrinth": "node apps/cli/dist/index.js",
     "lint": "eslint . --max-warnings=0",
     "smoke:cli": "node apps/cli/dist/index.js validate packages/test-fixtures/samples/horror-clinic.lcproj.json --format text",
+    "smoke:desktop": "pnpm --filter @labyrinth/desktop build:bundle",
     "test": "vitest run",
     "typecheck": "tsc -b --pretty false"
   },
@@ -25,5 +27,13 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.3",
     "vitest": "^2.1.9"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^5.1.2",
+    "vite": "^7.3.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3"
   }
 }

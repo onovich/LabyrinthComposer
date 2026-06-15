@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Labyrinth Composer",
+  "version": "0.1.0",
+  "identifier": "local.labyrinth-composer.desktop",
+  "build": {
+    "beforeDevCommand": "npx --yes pnpm@11.7.0 dev:desktop",
+    "beforeBuildCommand": "npx --yes pnpm@11.7.0 build",
+    "devUrl": "http://127.0.0.1:5173",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Labyrinth Composer",
+        "width": 1280,
+        "height": 820
+      }
+    ]
+  }
+}
