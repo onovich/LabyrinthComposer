@@ -56,6 +56,22 @@ button {
   line-height: 1.55;
 }
 
+.lc-dashboard-preset {
+  max-width: 560px;
+  display: grid;
+  gap: 8px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.lc-dashboard-preset p {
+  margin: 0;
+  color: var(--muted-strong);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .lc-template-grid {
   max-width: 1120px;
   display: grid;
@@ -432,6 +448,171 @@ button {
   box-shadow: 0 0 0 3px rgba(106, 109, 87, 0.08);
 }
 
+.lc-rule-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.lc-rule-list code {
+  padding: 3px 5px;
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--muted-strong);
+  font-family: 'Cascadia Code', Consolas, monospace;
+  font-size: 9px;
+}
+
+.lc-threshold-list {
+  display: grid;
+  gap: 6px;
+}
+
+.lc-threshold-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 76px;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted-strong);
+  font-size: 10px;
+}
+
+.lc-threshold-row span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-threshold-row input,
+.lc-timeline-controls input,
+.lc-timeline-controls select {
+  min-height: 26px;
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  outline: none;
+  padding: 4px 6px;
+}
+
+.lc-timeline-list {
+  display: grid;
+  gap: 8px;
+}
+
+.lc-timeline-row {
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.lc-timeline-row-warning {
+  border-left: 3px solid var(--warning);
+}
+
+.lc-timeline-beat-button {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.lc-timeline-beat-button span {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--surface-muted);
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.lc-timeline-beat-button strong {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-timeline-meter {
+  height: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--surface-muted);
+}
+
+.lc-timeline-meter span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+}
+
+.lc-timeline-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 64px 64px;
+  gap: 6px;
+  font-size: 10px;
+}
+
+.lc-timeline-row small {
+  color: var(--warning);
+  font-size: 10px;
+}
+
+.lc-report-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.lc-report-summary div,
+.lc-report-preview {
+  display: grid;
+  gap: 3px;
+  padding: 8px;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.lc-report-summary span,
+.lc-report-preview span {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.lc-report-summary strong,
+.lc-report-preview strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-report-preview {
+  color: var(--muted-strong);
+  font-size: 10px;
+}
+
 .lc-readonly-field {
   min-height: 30px;
   display: flex;
@@ -504,6 +685,36 @@ button {
   gap: 8px;
 }
 
+.lc-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.lc-filter-row button,
+.lc-inline-action {
+  min-height: 24px;
+  padding: 4px 7px;
+  border: 1px solid var(--line-soft);
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--muted-strong);
+  cursor: pointer;
+  font-size: 10px;
+}
+
+.lc-filter-row button:hover,
+.lc-inline-action:hover {
+  border-color: rgba(106, 109, 87, 0.22);
+  color: var(--text);
+}
+
+.lc-filter-active {
+  background: var(--selection) !important;
+  color: var(--text) !important;
+}
+
 .lc-diagnostic-item {
   display: grid;
   gap: 6px;
@@ -521,6 +732,18 @@ button {
 .lc-diagnostic-selected {
   border-color: rgba(106, 109, 87, 0.22);
   box-shadow: 0 0 0 3px rgba(106, 109, 87, 0.06);
+}
+
+.lc-diagnostic-main {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
 }
 
 .lc-diagnostic-error {

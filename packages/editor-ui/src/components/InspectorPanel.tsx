@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import type {
   Beat,
+  BeatKind,
   Connection,
   EntityRef,
   Gate,
@@ -40,6 +41,7 @@ const tokenKinds: TokenKind[] = [
   'relationship',
   'resource'
 ];
+const beatKinds: BeatKind[] = ['discovery', 'threat', 'relief', 'puzzle', 'reward'];
 
 function sortedEntries<T>(record: Record<string, T>): [string, T][] {
   return Object.entries(record).sort(([left], [right]) => left.localeCompare(right));
@@ -420,6 +422,34 @@ function BeatInspector({
           type="number"
           value={beat.intensity ?? 0}
           onChange={(event) => onUpdateBeat(beat.id, { intensity: Number(event.target.value) })}
+        />
+      </label>
+      <label className="lc-field">
+        <span>Kind</span>
+        <select
+          value={beat.kind ?? ''}
+          onChange={(event) =>
+            onUpdateBeat(beat.id, {
+              kind: event.target.value.length === 0 ? undefined : (event.target.value as BeatKind)
+            })
+          }
+        >
+          <option value="">No kind</option>
+          {beatKinds.map((kind) => (
+            <option key={kind} value={kind}>
+              {kind}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="lc-field">
+        <span>Order</span>
+        <input
+          min="1"
+          step="1"
+          type="number"
+          value={beat.order ?? 1}
+          onChange={(event) => onUpdateBeat(beat.id, { order: Number(event.target.value) })}
         />
       </label>
       <DraftTextField

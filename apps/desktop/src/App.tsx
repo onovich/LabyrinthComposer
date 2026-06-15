@@ -17,6 +17,13 @@ type TemplateDefinition = TemplateCardViewModel & {
   path?: string;
 };
 
+function sanitizeIdSegment(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
 function createStarterProject(): ProjectGraph {
   return {
     schemaVersion: SCHEMA_VERSION,
@@ -96,6 +103,44 @@ function loadProjectText(text: string): ProjectGraph {
   }
 
   return result.project;
+}
+
+function withRulePreset(project: ProjectGraph, rulePresetId: string | undefined): ProjectGraph {
+  if (rulePresetId === undefined || project.rulePresetId === rulePresetId) {
+    return project;
+  }
+
+  return {
+    ...project,
+    rulePresetId
+  };
+}
+
+function entityKey(entity: EntityRef): string {
+  return `${entity.kind}:${entity.id}`;
+}
+
+function sameEntityRefs(left: EntityRef[], right: EntityRef[]): boolean {
+  if (left.length !== right.length) {
+    return false;
+  }
+
+  const rightKeys = new Set(right.map(entityKey));
+  return left.every((entity) => rightKeys.has(entityKey(entity)));
+}
+
+function nextDiagnosticExceptionId(project: ProjectGraph, ruleId: string): string {
+  const existingIds = new Set((project.diagnosticExceptions ?? []).map((exception) => exception.id));
+  const base = `exception-${sanitizeIdSegment(ruleId) || 'diagnostic'}`;
+  let id = base;
+  let index = 2;
+
+  while (existingIds.has(id)) {
+    id = `${base}-${index}`;
+    index += 1;
+  }
+
+  return id;
 }
 
 const templates: TemplateDefinition[] = [
@@ -192,11 +237,12 @@ export function App() {
   const [selectedDiagnosticId, setSelectedDiagnosticId] = useState<string | null>(null);
   const [projectPath, setProjectPath] = useState<string | undefined>();
   const [operationMessage, setOperationMessage] = useState('Ready');
+  const [dashboardRulePresetId, setDashboardRulePresetId] = useState<string | undefined>();
 
-  function commit(nextSnapshot = store.getSnapshot()) {
+  function commit(nextSnapshot = store.getSnapshot(), message = 'Edited') {
     setSnapshot(nextSnapshot);
     setSelectedDiagnosticId(null);
-    setOperationMessage('Edited');
+    setOperationMessage(message);
   }
 
   function selectEntity(entity: EntityRef | null) {
@@ -228,8 +274,22 @@ export function App() {
     setSelectedEntity({ kind: 'space', id: result.project.startSpaceId });
     setSelectedDiagnosticId(null);
     setProjectPath(result.path);
+    setDashboardRulePresetId(result.project.rulePresetId);
     setOperationMessage(`Loaded ${result.path ?? result.project.project.name}`);
     setShowDashboard(false);
+  }
+
+  function selectDashboardRulePreset(rulePresetId: string) {
+    setDashboardRulePresetId(rulePresetId);
+    commit(
+      store.dispatch({
+        type: 'SetRulePreset',
+        payload: {
+          rulePresetId
+        }
+      }),
+      'Selected rule preset'
+    );
   }
 
   function loadTemplate(id: string) {
@@ -241,7 +301,7 @@ export function App() {
     }
 
     try {
-      const project = template.load();
+      const project = withRulePreset(template.load(), dashboardRulePresetId);
       setSnapshot(store.loadProject(project));
       setSelectedEntity({ kind: 'space', id: project.startSpaceId });
       setSelectedDiagnosticId(null);
@@ -251,6 +311,79 @@ export function App() {
     } catch (error) {
       setOperationMessage(`Template load failed: ${String(error)}`);
     }
+  }
+
+  function setRulePreset(rulePresetId: string) {
+    setDashboardRulePresetId(rulePresetId);
+    commit(
+      store.dispatch({
+        type: 'SetRulePreset',
+        payload: {
+          rulePresetId
+        }
+      }),
+      'Rule preset updated'
+    );
+  }
+
+  function updateRuleThreshold(ruleId: string, key: string, value: number) {
+    if (!Number.isFinite(value)) {
+      return;
+    }
+
+    const existing = snapshot.project.ruleOverrides?.find((override) => override.ruleId === ruleId);
+
+    commit(
+      store.dispatch({
+        type: 'UpdateRuleOverride',
+        payload: {
+          override: {
+            ...existing,
+            ruleId,
+            thresholdOverrides: {
+              ...(existing?.thresholdOverrides ?? {}),
+              [key]: value
+            }
+          }
+        }
+      }),
+      'Rule threshold updated'
+    );
+  }
+
+  function markDiagnosticException(id: string) {
+    const diagnostic = snapshot.validation.diagnostics.find((item) => item.id === id);
+
+    if (diagnostic === undefined) {
+      setOperationMessage(`Diagnostic ${id} was not found`);
+      return;
+    }
+
+    const alreadyExists = (snapshot.project.diagnosticExceptions ?? []).some(
+      (exception) =>
+        exception.ruleId === diagnostic.ruleId &&
+        sameEntityRefs(exception.entityRefs, diagnostic.affectedEntities)
+    );
+
+    if (alreadyExists) {
+      setOperationMessage('Diagnostic exception already exists');
+      return;
+    }
+
+    commit(
+      store.dispatch({
+        type: 'AddDiagnosticException',
+        payload: {
+          exception: {
+            id: nextDiagnosticExceptionId(snapshot.project, diagnostic.ruleId),
+            ruleId: diagnostic.ruleId,
+            entityRefs: diagnostic.affectedEntities,
+            reason: 'Accepted from the diagnostics panel.'
+          }
+        }
+      }),
+      'Diagnostic exception added'
+    );
   }
 
   async function saveProject() {
@@ -558,10 +691,14 @@ export function App() {
       }}
       onSaveAsProject={saveProjectAs}
       onSaveProject={saveProject}
+      onSelectDashboardRulePreset={selectDashboardRulePreset}
       onSelectDiagnostic={selectDiagnostic}
       onSelectEntity={selectEntity}
       onSelectTemplate={loadTemplate}
+      onSetRulePreset={setRulePreset}
       onUndo={() => commit(store.undo())}
+      onMarkDiagnosticException={markDiagnosticException}
+      onUpdateRuleThreshold={updateRuleThreshold}
       onUpdateBeat={updateBeat}
       onUpdateConnection={updateConnection}
       onUpdateGate={updateGate}

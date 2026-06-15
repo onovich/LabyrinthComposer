@@ -50,6 +50,7 @@ describe('rule preset selectors', () => {
       expect.arrayContaining([
         {
           key: 'maxTokenUseDistance',
+          ruleId: 'hint.token-use-too-late',
           value: 4,
           overrideValue: 8
         }

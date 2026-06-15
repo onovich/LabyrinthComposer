@@ -51,6 +51,7 @@ describe('DiagnosticsPanel smoke', () => {
         diagnostics={diagnostics}
         selectedDiagnosticId="target-unreachable"
         summary={summary}
+        onMarkException={() => undefined}
         onSelectDiagnostic={() => undefined}
       />
     );
@@ -61,5 +62,33 @@ describe('DiagnosticsPanel smoke', () => {
     expect(html).toContain('space:exit');
     expect(html).toContain('connection:start-exit - Connection is blocked');
     expect(html).toContain('add_connection - Add a route to the exit');
+    expect(html).toContain('Mark exception');
+  });
+
+  it('renders suppressed diagnostics with their exception id', () => {
+    const diagnostic = diagnostics[0];
+
+    if (diagnostic === undefined) {
+      throw new Error('Expected one diagnostic fixture.');
+    }
+
+    const html = renderToStaticMarkup(
+      <DiagnosticsPanel
+        diagnostics={[
+          {
+            ...diagnostic,
+            suppressed: true,
+            exceptionId: 'exception-target-unreachable'
+          }
+        ]}
+        selectedDiagnosticId={null}
+        summary={summary}
+        onMarkException={() => undefined}
+        onSelectDiagnostic={() => undefined}
+      />
+    );
+
+    expect(html).toContain('suppressed');
+    expect(html).toContain('exception-target-unreachable');
   });
 });

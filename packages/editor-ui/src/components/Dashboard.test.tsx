@@ -1,6 +1,8 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 
+import type { RulePresetViewModel } from '@labyrinth/workbench';
+
 import { Dashboard, type TemplateCardViewModel } from './Dashboard.js';
 
 const templates: TemplateCardViewModel[] = [
@@ -20,13 +22,50 @@ const templates: TemplateCardViewModel[] = [
   }
 ];
 
+const rulePreset: RulePresetViewModel = {
+  currentPreset: {
+    id: 'maze.standard',
+    name: 'Standard Maze',
+    description: 'General spatial maze checks.',
+    enabledRuleIds: ['backtracking.long-token-return'],
+    thresholds: {
+      maxBacktrackDistance: 5
+    }
+  },
+  options: [
+    {
+      id: 'maze.standard',
+      name: 'Standard Maze',
+      description: 'General spatial maze checks.',
+      active: true
+    },
+    {
+      id: 'horror.clinic',
+      name: 'Horror Clinic',
+      description: 'Investigation pacing checks.',
+      active: false
+    }
+  ],
+  thresholds: [
+    {
+      key: 'maxBacktrackDistance',
+      ruleId: 'backtracking.long-token-return',
+      value: 5
+    }
+  ],
+  overrides: [],
+  enabledRuleIds: ['backtracking.long-token-return']
+};
+
 describe('Dashboard smoke', () => {
   it('renders the template entry surface before the workbench', () => {
     const html = renderToStaticMarkup(
       <Dashboard
         operationMessage="Ready"
+        rulePreset={rulePreset}
         templates={templates}
         onOpenProject={() => undefined}
+        onSelectRulePreset={() => undefined}
         onSelectTemplate={() => undefined}
       />
     );
@@ -35,5 +74,7 @@ describe('Dashboard smoke', () => {
     expect(html).toContain('Horror Puzzle');
     expect(html).toContain('Start Blank');
     expect(html).toContain('Open project');
+    expect(html).toContain('Rule preset');
+    expect(html).toContain('Standard Maze');
   });
 });

@@ -1,3 +1,5 @@
+import type { RulePresetViewModel } from '@labyrinth/workbench';
+
 export type TemplateCardViewModel = {
   id: string;
   name: string;
@@ -9,15 +11,19 @@ export type TemplateCardViewModel = {
 type DashboardProps = {
   templates: TemplateCardViewModel[];
   operationMessage: string;
+  rulePreset: RulePresetViewModel;
   onSelectTemplate(id: string): void;
   onOpenProject(): void;
+  onSelectRulePreset(rulePresetId: string): void;
 };
 
 export function Dashboard({
   templates,
   operationMessage,
+  rulePreset,
   onSelectTemplate,
-  onOpenProject
+  onOpenProject,
+  onSelectRulePreset
 }: DashboardProps) {
   return (
     <main className="lc-dashboard" aria-label="Project dashboard">
@@ -37,6 +43,22 @@ export function Dashboard({
         >
           Open project
         </button>
+      </section>
+      <section className="lc-dashboard-preset" aria-label="Initial rule preset">
+        <label className="lc-field">
+          <span>Rule preset</span>
+          <select
+            value={rulePreset.currentPreset.id}
+            onChange={(event) => onSelectRulePreset(event.target.value)}
+          >
+            {rulePreset.options.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <p>{rulePreset.currentPreset.description}</p>
       </section>
       <section className="lc-template-grid" aria-label="Templates">
         {templates.map((template) => (

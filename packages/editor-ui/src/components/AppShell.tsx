@@ -2,6 +2,9 @@ import type { EntityRef, ProjectGraph } from '@labyrinth/schema';
 import {
   createDiagnosticViewModels,
   createGraphViewModel,
+  createReportViewModel,
+  createRulePresetViewModel,
+  createTimelineViewModel,
   createValidationSummary,
   type WorkbenchSnapshot
 } from '@labyrinth/workbench';
@@ -26,6 +29,9 @@ import { Dashboard, type TemplateCardViewModel } from './Dashboard.js';
 import { GraphCanvas } from '../graph/GraphCanvas.js';
 import { DiagnosticsPanel } from './DiagnosticsPanel.js';
 import { InspectorPanel } from './InspectorPanel.js';
+import { ReportPanel } from './ReportPanel.js';
+import { RulePresetPanel } from './RulePresetPanel.js';
+import { TimelinePanel } from './TimelinePanel.js';
 
 type AppShellProps = {
   showDashboard: boolean;
@@ -40,6 +46,10 @@ type AppShellProps = {
   onSelectEntity(entity: EntityRef | null): void;
   onSelectDiagnostic(id: string): void;
   onSelectTemplate(id: string): void;
+  onSelectDashboardRulePreset(rulePresetId: string): void;
+  onSetRulePreset(rulePresetId: string): void;
+  onUpdateRuleThreshold(ruleId: string, key: string, value: number): void;
+  onMarkDiagnosticException(id: string): void;
   onOpenDashboard(): void;
   onOpenProject(): void;
   onSaveProject(): void;
@@ -74,6 +84,10 @@ export function AppShell({
   onSelectEntity,
   onSelectDiagnostic,
   onSelectTemplate,
+  onSelectDashboardRulePreset,
+  onSetRulePreset,
+  onUpdateRuleThreshold,
+  onMarkDiagnosticException,
   onOpenDashboard,
   onOpenProject,
   onSaveProject,
@@ -100,6 +114,9 @@ export function AppShell({
     (diagnostic) => diagnostic.id === selectedDiagnosticId
   );
   const summary = createValidationSummary(snapshot.validation);
+  const rulePreset = createRulePresetViewModel(snapshot.project);
+  const timeline = createTimelineViewModel(snapshot.project, snapshot.validation);
+  const report = createReportViewModel(snapshot.project, snapshot.validation);
   const graph = createGraphViewModel(snapshot.project, {
     validation: snapshot.validation,
     highlightedEntities: selectedDiagnostic?.highlightedEntities ?? []
@@ -109,8 +126,10 @@ export function AppShell({
     return (
       <Dashboard
         operationMessage={operationMessage}
+        rulePreset={rulePreset}
         templates={templates}
         onOpenProject={onOpenProject}
+        onSelectRulePreset={onSelectDashboardRulePreset}
         onSelectTemplate={onSelectTemplate}
       />
     );
@@ -217,6 +236,16 @@ export function AppShell({
             selectedEntity={selectedEntity}
           />
           <aside className="lc-right-panel" aria-label="Inspector">
+            <RulePresetPanel
+              viewModel={rulePreset}
+              onSelectPreset={onSetRulePreset}
+              onUpdateThreshold={onUpdateRuleThreshold}
+            />
+            <TimelinePanel
+              viewModel={timeline}
+              onSelectBeat={(id) => onSelectEntity({ kind: 'beat', id })}
+              onUpdateBeat={onUpdateBeat}
+            />
             <InspectorPanel
               project={snapshot.project}
               selectedEntity={selectedEntity}
@@ -227,12 +256,14 @@ export function AppShell({
               onUpdateSpace={onUpdateSpace}
               onUpdateToken={onUpdateToken}
             />
+            <ReportPanel viewModel={report} />
           </aside>
           <div className="lc-validation-panel">
             <DiagnosticsPanel
               diagnostics={diagnostics}
               selectedDiagnosticId={selectedDiagnosticId}
               summary={summary}
+              onMarkException={onMarkDiagnosticException}
               onSelectDiagnostic={onSelectDiagnostic}
             />
           </div>
