@@ -26,7 +26,7 @@ describe('Dashboard smoke', () => {
       <Dashboard
         operationMessage="Ready"
         templates={templates}
-        onOpenSample={() => undefined}
+        onOpenProject={() => undefined}
         onSelectTemplate={() => undefined}
       />
     );
@@ -34,6 +34,6 @@ describe('Dashboard smoke', () => {
     expect(html).toContain('Choose a starting structure');
     expect(html).toContain('Horror Puzzle');
     expect(html).toContain('Start Blank');
-    expect(html).toContain('Open sample project');
+    expect(html).toContain('Open project');
   });
 });

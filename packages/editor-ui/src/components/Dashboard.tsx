@@ -10,14 +10,14 @@ type DashboardProps = {
   templates: TemplateCardViewModel[];
   operationMessage: string;
   onSelectTemplate(id: string): void;
-  onOpenSample(): void;
+  onOpenProject(): void;
 };
 
 export function Dashboard({
   templates,
   operationMessage,
   onSelectTemplate,
-  onOpenSample
+  onOpenProject
 }: DashboardProps) {
   return (
     <main className="lc-dashboard" aria-label="Project dashboard">
@@ -32,10 +32,10 @@ export function Dashboard({
         </div>
         <button
           className="lc-tool-button lc-tool-button-primary"
-          onClick={onOpenSample}
+          onClick={onOpenProject}
           type="button"
         >
-          Open sample project
+          Open project
         </button>
       </section>
       <section className="lc-template-grid" aria-label="Templates">

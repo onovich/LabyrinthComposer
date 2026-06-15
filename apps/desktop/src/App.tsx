@@ -216,7 +216,7 @@ export function App() {
     }
   }
 
-  async function openSample() {
+  async function openProject() {
     const result = await adapters.projectRepository.openProject();
 
     if (!result.ok) {
@@ -253,7 +253,27 @@ export function App() {
     }
   }
 
-  async function saveCopy() {
+  async function saveProject() {
+    const result = await adapters.projectRepository.saveProject(
+      snapshot.project,
+      projectPath === undefined
+        ? undefined
+        : {
+            path: projectPath
+          }
+    );
+
+    if (!result.ok) {
+      setOperationMessage(result.message);
+      return;
+    }
+
+    setSnapshot(store.markSaved());
+    setProjectPath(result.path ?? projectPath);
+    setOperationMessage(`Saved ${result.path ?? 'project'}`);
+  }
+
+  async function saveProjectAs() {
     const result = await adapters.projectRepository.saveProjectAs(snapshot.project);
 
     if (!result.ok) {
@@ -263,7 +283,7 @@ export function App() {
 
     setSnapshot(store.markSaved());
     setProjectPath(result.path ?? projectPath);
-    setOperationMessage(`Saved ${result.path ?? 'copy'}`);
+    setOperationMessage(`Saved ${result.path ?? 'project copy'}`);
   }
 
   function nextId(prefix: string, record: Record<string, unknown>) {
@@ -529,14 +549,15 @@ export function App() {
       onCreateSpace={createSpace}
       onCreateToken={createToken}
       onOpenDashboard={() => setShowDashboard(true)}
-      onOpenSample={openSample}
+      onOpenProject={openProject}
       onRedo={() => commit(store.redo())}
       onRunValidation={() => {
         setSnapshot(store.validate());
         setSelectedDiagnosticId(null);
         setOperationMessage('Validated');
       }}
-      onSaveCopy={saveCopy}
+      onSaveAsProject={saveProjectAs}
+      onSaveProject={saveProject}
       onSelectDiagnostic={selectDiagnostic}
       onSelectEntity={selectEntity}
       onSelectTemplate={loadTemplate}

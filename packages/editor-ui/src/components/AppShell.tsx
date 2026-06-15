@@ -15,6 +15,7 @@ import {
   RotateCcw,
   RotateCw,
   Save,
+  SaveAll,
   Shapes,
   ShieldCheck,
   Sparkle,
@@ -40,8 +41,9 @@ type AppShellProps = {
   onSelectDiagnostic(id: string): void;
   onSelectTemplate(id: string): void;
   onOpenDashboard(): void;
-  onOpenSample(): void;
-  onSaveCopy(): void;
+  onOpenProject(): void;
+  onSaveProject(): void;
+  onSaveAsProject(): void;
   onCreateSpace(): void;
   onCreateConnection(): void;
   onCreateGate(): void;
@@ -73,8 +75,9 @@ export function AppShell({
   onSelectDiagnostic,
   onSelectTemplate,
   onOpenDashboard,
-  onOpenSample,
-  onSaveCopy,
+  onOpenProject,
+  onSaveProject,
+  onSaveAsProject,
   onCreateSpace,
   onCreateConnection,
   onCreateGate,
@@ -107,7 +110,7 @@ export function AppShell({
       <Dashboard
         operationMessage={operationMessage}
         templates={templates}
-        onOpenSample={onOpenSample}
+        onOpenProject={onOpenProject}
         onSelectTemplate={onSelectTemplate}
       />
     );
@@ -147,13 +150,17 @@ export function AppShell({
               <LayoutDashboard size={14} />
               Dashboard
             </button>
-            <button className="lc-tool-button" onClick={onOpenSample} type="button">
+            <button className="lc-tool-button" onClick={onOpenProject} type="button">
               <FolderOpen size={14} />
-              Open Sample
+              Open Project
             </button>
-            <button className="lc-tool-button" onClick={onSaveCopy} type="button">
+            <button className="lc-tool-button" onClick={onSaveProject} type="button">
               <Save size={14} />
-              Save Copy
+              Save
+            </button>
+            <button className="lc-tool-button" onClick={onSaveAsProject} type="button">
+              <SaveAll size={14} />
+              Save As
             </button>
             <button className="lc-tool-button" onClick={onRunValidation} type="button">
               <ShieldCheck size={14} />

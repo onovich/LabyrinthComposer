@@ -12,6 +12,11 @@ const sourceRoots = [
   'apps/desktop/src'
 ];
 const importPattern = /(?:import|export)\s+(?:type\s+)?(?:[^'"]*from\s+)?['"]([^'"]+)['"]/g;
+const sourceExtensions = ['.ts', '.tsx'];
+
+function isSourceFile(entryName) {
+  return sourceExtensions.some((extension) => entryName.endsWith(extension));
+}
 
 async function collectFiles(dir) {
   const entries = await readdir(dir);
@@ -23,7 +28,7 @@ async function collectFiles(dir) {
 
     if (entryStat.isDirectory()) {
       files.push(...(await collectFiles(absolute)));
-    } else if (entry.endsWith('.ts')) {
+    } else if (isSourceFile(entry)) {
       files.push(absolute);
     }
   }
@@ -68,7 +73,13 @@ function isForbiddenWorkbenchImport(specifier) {
 }
 
 function isForbiddenEditorUiImport(specifier) {
-  return specifier.startsWith('@labyrinth/desktop') || specifier.startsWith('apps/desktop');
+  return (
+    specifier.startsWith('node:') ||
+    ['fs', 'path', 'process'].includes(specifier) ||
+    specifier.startsWith('@tauri-apps/') ||
+    specifier.startsWith('@labyrinth/desktop') ||
+    specifier.startsWith('apps/desktop')
+  );
 }
 
 const violations = [];
@@ -78,7 +89,7 @@ for (const root of sourceRoots) {
 
   for (const file of files) {
     const projectPath = toProjectPath(file);
-    const isTestFile = projectPath.endsWith('.test.ts');
+    const isTestFile = projectPath.endsWith('.test.ts') || projectPath.endsWith('.test.tsx');
     const content = await readFile(file, 'utf8');
     const imports = [...content.matchAll(importPattern)].map((match) => match[1]);
 

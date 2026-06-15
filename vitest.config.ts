@@ -9,8 +9,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@labyrinth/core': resolve(rootDir, 'packages/core/src/index.ts'),
+      '@labyrinth/editor-ui': resolve(rootDir, 'packages/editor-ui/src/index.ts'),
       '@labyrinth/schema': resolve(rootDir, 'packages/schema/src/index.ts'),
-      '@labyrinth/test-fixtures': resolve(rootDir, 'packages/test-fixtures/src/index.ts')
+      '@labyrinth/test-fixtures': resolve(rootDir, 'packages/test-fixtures/src/index.ts'),
+      '@labyrinth/workbench': resolve(rootDir, 'packages/workbench/src/index.ts')
     }
   },
   test: {
@@ -18,6 +20,11 @@ export default defineConfig({
       reporter: ['text', 'html']
     },
     environment: 'node',
-    include: ['apps/**/*.test.ts', 'packages/**/*.test.ts']
+    include: [
+      'apps/**/*.test.ts',
+      'apps/**/*.test.tsx',
+      'packages/**/*.test.ts',
+      'packages/**/*.test.tsx'
+    ]
   }
 });

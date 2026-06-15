@@ -3,3 +3,5 @@ dist/
 node_modules/
 *.tsbuildinfo
 .codex/*.pid
+apps/desktop/src-tauri/gen/
+apps/desktop/src-tauri/target/
