@@ -1,0 +1,15 @@
+{
+  "presetId": "horror.clinic",
+  "ok": true,
+  "reachableSpaces": ["exit", "s0", "s1", "s2", "s3", "s4", "s5", "s6"],
+  "acquiredTokens": [],
+  "openedGates": [],
+  "solvedPuzzles": [],
+  "diagnostics": [],
+  "timeline": [
+    { "id": "a", "kind": "threat", "intensity": 0.9, "order": 1 },
+    { "id": "b", "kind": "threat", "intensity": 0.91, "order": 2 },
+    { "id": "c", "kind": "relief", "intensity": 0.2, "order": 3 },
+    { "id": "d", "kind": "threat", "intensity": 0.92, "order": 4 }
+  ]
+}

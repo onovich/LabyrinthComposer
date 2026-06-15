@@ -1,0 +1,20 @@
+{
+  "presetId": "maze.standard",
+  "ok": true,
+  "reachableSpaces": ["exit", "s0", "s1", "s2", "s3", "s4", "s5", "s6"],
+  "acquiredTokens": ["key"],
+  "openedGates": ["key-gate"],
+  "solvedPuzzles": [],
+  "diagnostics": [
+    {
+      "id": "backtracking.long-token-return:gate:key-gate:key",
+      "ruleId": "backtracking.long-token-return",
+      "severity": "warning",
+      "affectedEntities": [
+        { "kind": "gate", "id": "key-gate" },
+        { "kind": "token", "id": "key" }
+      ]
+    }
+  ],
+  "timeline": []
+}

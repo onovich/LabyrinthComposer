@@ -1,0 +1,17 @@
+{
+  "presetId": "maze.standard",
+  "ok": false,
+  "reachableSpaces": ["exit", "s0", "s1", "s2", "s3", "s4", "s5", "s6"],
+  "acquiredTokens": [],
+  "openedGates": [],
+  "solvedPuzzles": [],
+  "diagnostics": [
+    {
+      "id": "project.missing-target-space:missing-exit",
+      "ruleId": "project.missing-target-space",
+      "severity": "error",
+      "affectedEntities": [{ "kind": "space", "id": "missing-exit" }]
+    }
+  ],
+  "timeline": []
+}

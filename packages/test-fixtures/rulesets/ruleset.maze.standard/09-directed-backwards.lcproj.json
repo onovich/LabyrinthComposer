@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "0.1.0",
+  "project": {
+    "id": "maze-directed-backwards",
+    "name": "maze-directed-backwards"
+  },
+  "startSpaceId": "s0",
+  "targetSpaceIds": ["exit"],
+  "spaces": {
+    "s0": { "id": "s0", "name": "Space 0" },
+    "s1": { "id": "s1", "name": "Space 1" },
+    "s2": { "id": "s2", "name": "Space 2" },
+    "s3": { "id": "s3", "name": "Space 3" },
+    "s4": { "id": "s4", "name": "Space 4" },
+    "s5": { "id": "s5", "name": "Space 5" },
+    "s6": { "id": "s6", "name": "Space 6" },
+    "exit": { "id": "exit", "name": "Exit" }
+  },
+  "connections": {
+    "s0-s1": {
+      "id": "s0-s1",
+      "fromSpaceId": "s1",
+      "toSpaceId": "s0",
+      "directed": true
+    },
+    "s1-s2": {
+      "id": "s1-s2",
+      "fromSpaceId": "s2",
+      "toSpaceId": "s1",
+      "directed": true
+    },
+    "s2-s3": {
+      "id": "s2-s3",
+      "fromSpaceId": "s3",
+      "toSpaceId": "s2",
+      "directed": true
+    },
+    "s3-s4": {
+      "id": "s3-s4",
+      "fromSpaceId": "s4",
+      "toSpaceId": "s3",
+      "directed": true
+    },
+    "s4-s5": {
+      "id": "s4-s5",
+      "fromSpaceId": "s5",
+      "toSpaceId": "s4",
+      "directed": true
+    },
+    "s5-s6": {
+      "id": "s5-s6",
+      "fromSpaceId": "s6",
+      "toSpaceId": "s5",
+      "directed": true
+    },
+    "s-last-exit": {
+      "id": "s-last-exit",
+      "fromSpaceId": "s6",
+      "toSpaceId": "exit"
+    }
+  },
+  "gates": {},
+  "tokens": {},
+  "puzzles": {},
+  "beats": {}
+}

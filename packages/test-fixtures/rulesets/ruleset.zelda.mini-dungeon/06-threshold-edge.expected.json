@@ -1,0 +1,20 @@
+{
+  "presetId": "zelda.mini-dungeon",
+  "ok": true,
+  "reachableSpaces": ["exit", "s0", "s1", "s2", "s3", "s4"],
+  "acquiredTokens": ["key"],
+  "openedGates": ["key-gate"],
+  "solvedPuzzles": [],
+  "diagnostics": [
+    {
+      "id": "hint.gate-too-late:key-gate:key",
+      "ruleId": "hint.gate-too-late",
+      "severity": "warning",
+      "affectedEntities": [
+        { "kind": "gate", "id": "key-gate" },
+        { "kind": "token", "id": "key" }
+      ]
+    }
+  ],
+  "timeline": []
+}

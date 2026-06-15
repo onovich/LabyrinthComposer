@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "0.1.0",
+  "project": { "id": "horror-short-clue", "name": "horror-short-clue" },
+  "startSpaceId": "s0",
+  "targetSpaceIds": ["exit"],
+  "spaces": {
+    "s0": { "id": "s0", "name": "Space 0" },
+    "s1": { "id": "s1", "name": "Space 1" },
+    "s2": { "id": "s2", "name": "Space 2" },
+    "s3": { "id": "s3", "name": "Space 3" },
+    "exit": { "id": "exit", "name": "Exit" }
+  },
+  "connections": {
+    "s0-s1": {
+      "id": "s0-s1",
+      "fromSpaceId": "s0",
+      "toSpaceId": "s1",
+      "directed": false
+    },
+    "s1-s2": {
+      "id": "s1-s2",
+      "fromSpaceId": "s1",
+      "toSpaceId": "s2",
+      "directed": false
+    },
+    "s2-s3": {
+      "id": "s2-s3",
+      "fromSpaceId": "s2",
+      "toSpaceId": "s3",
+      "directed": false
+    },
+    "s-last-exit": {
+      "id": "s-last-exit",
+      "fromSpaceId": "s3",
+      "toSpaceId": "exit",
+      "gateId": "key-gate"
+    }
+  },
+  "gates": {
+    "key-gate": {
+      "id": "key-gate",
+      "name": "Key Gate",
+      "kind": "lock",
+      "requiredTokenIds": ["key"]
+    }
+  },
+  "tokens": {
+    "key": {
+      "id": "key",
+      "name": "Key",
+      "kind": "knowledge",
+      "locationSpaceId": "s0"
+    }
+  },
+  "puzzles": {},
+  "beats": {}
+}

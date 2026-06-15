@@ -63,6 +63,9 @@ importers:
       '@labyrinth/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@labyrinth/rulesets':
+        specifier: workspace:*
+        version: link:../../packages/rulesets
       '@labyrinth/schema':
         specifier: workspace:*
         version: link:../../packages/schema

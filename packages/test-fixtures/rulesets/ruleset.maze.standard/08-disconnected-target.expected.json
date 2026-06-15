@@ -1,0 +1,20 @@
+{
+  "presetId": "maze.standard",
+  "ok": false,
+  "reachableSpaces": ["s0"],
+  "acquiredTokens": [],
+  "openedGates": [],
+  "solvedPuzzles": [],
+  "diagnostics": [
+    {
+      "id": "reachability.target-unreachable:exit",
+      "ruleId": "reachability.target-unreachable",
+      "severity": "error",
+      "affectedEntities": [
+        { "kind": "space", "id": "exit" },
+        { "kind": "space", "id": "s0" }
+      ]
+    }
+  ],
+  "timeline": []
+}

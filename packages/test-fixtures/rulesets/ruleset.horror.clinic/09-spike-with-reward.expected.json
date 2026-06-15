@@ -1,0 +1,38 @@
+{
+  "presetId": "horror.clinic",
+  "ok": true,
+  "reachableSpaces": ["exit", "s0", "s1", "s2", "s3", "s4", "s5", "s6"],
+  "acquiredTokens": [],
+  "openedGates": [],
+  "solvedPuzzles": [],
+  "diagnostics": [
+    {
+      "id": "timeline.intensity-flat:a|b|c|d",
+      "ruleId": "timeline.intensity-flat",
+      "severity": "info",
+      "affectedEntities": [
+        { "kind": "beat", "id": "a" },
+        { "kind": "beat", "id": "b" },
+        { "kind": "beat", "id": "c" },
+        { "kind": "beat", "id": "d" }
+      ]
+    },
+    {
+      "id": "timeline.intensity-spike:a|b|c|d",
+      "ruleId": "timeline.intensity-spike",
+      "severity": "warning",
+      "affectedEntities": [
+        { "kind": "beat", "id": "a" },
+        { "kind": "beat", "id": "b" },
+        { "kind": "beat", "id": "c" },
+        { "kind": "beat", "id": "d" }
+      ]
+    }
+  ],
+  "timeline": [
+    { "id": "a", "kind": "threat", "intensity": 0.95, "order": 1 },
+    { "id": "b", "kind": "puzzle", "intensity": 0.96, "order": 2 },
+    { "id": "c", "kind": "threat", "intensity": 0.97, "order": 3 },
+    { "id": "d", "kind": "reward", "intensity": 0.98, "order": 4 }
+  ]
+}

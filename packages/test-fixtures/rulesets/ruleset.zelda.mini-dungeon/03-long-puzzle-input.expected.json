@@ -1,0 +1,29 @@
+{
+  "presetId": "zelda.mini-dungeon",
+  "ok": true,
+  "reachableSpaces": ["exit", "s0", "s1", "s2", "s3", "s4", "s5", "s6"],
+  "acquiredTokens": ["key"],
+  "openedGates": [],
+  "solvedPuzzles": ["lockPuzzle"],
+  "diagnostics": [
+    {
+      "id": "backtracking.long-token-return:puzzle:lockPuzzle:key",
+      "ruleId": "backtracking.long-token-return",
+      "severity": "info",
+      "affectedEntities": [
+        { "kind": "puzzle", "id": "lockPuzzle" },
+        { "kind": "token", "id": "key" }
+      ]
+    },
+    {
+      "id": "hint.token-use-too-late:puzzle:lockPuzzle:key",
+      "ruleId": "hint.token-use-too-late",
+      "severity": "warning",
+      "affectedEntities": [
+        { "kind": "puzzle", "id": "lockPuzzle" },
+        { "kind": "token", "id": "key" }
+      ]
+    }
+  ],
+  "timeline": []
+}
