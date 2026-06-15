@@ -1,99 +1,61 @@
 {
-    "schemaVersion":  1,
-    "initializedMarker":  "codex-project-ops-workflow: initialized",
-    "initializedAt":  "2026-06-15 22:35:28 +08:00",
-    "projectName":  "LabyrinthComposer",
-    "repoRoot":  "D:/LabProjects/LabyrinthComposer",
-    "validateSequence":  [
-                             "lint",
-                             "typecheck",
-                             "build",
-                             "test",
-                             "structureCheck",
-                             "docsCheck"
-                         ],
-    "operations":  {
-                       "envCheck":  {
-                                        "commands":  [
-                                                         "node --version",
-                                                         "npx --yes pnpm@11.7.0 --version"
-                                                     ]
-                                    },
-                       "restoreDeps":  {
-                                           "commands":  [
-                                                            "npx --yes pnpm@11.7.0 install"
-                                                        ]
-                                       },
-                       "installDeps":  {
-                                           "commands":  [
-                                                            "npx --yes pnpm@11.7.0 install"
-                                                        ]
-                                       },
-                       "build":  {
-                                     "commands":  [
-                                                      "npx --yes pnpm@11.7.0 build"
-                                                  ]
-                                 },
-                       "test":  {
-                                    "commands":  [
-                                                     "npx --yes pnpm@11.7.0 test"
-                                                 ]
-                                },
-                       "lint":  {
-                                    "commands":  [
-                                                     "npx --yes pnpm@11.7.0 lint"
-                                                 ]
-                                },
-                       "format":  {
-                                      "commands":  [
-                                                       "npx --yes pnpm@11.7.0 format"
-                                                   ]
-                                  },
-                       "typecheck":  {
-                                         "commands":  [
-                                                          "npx --yes pnpm@11.7.0 typecheck"
-                                                      ]
-                                     },
-                       "structureCheck":  {
-                                              "commands":  [
-                                                               "npx --yes pnpm@11.7.0 architecture:check"
-                                                           ]
-                                          },
-                       "codegen":  {
-                                       "commands":  [
-
-                                                    ]
-                                   },
-                       "docsCheck":  {
-                                         "commands":  [
-                                                          "npx --yes pnpm@11.7.0 docs:check"
-                                                      ]
-                                     },
-                       "smoke":  {
-                                     "urls":  [
-
-                                              ],
-                                     "commands":  [
-
-                                                  ]
-                                 },
-                       "package":  {
-                                       "commands":  [
-
-                                                    ]
-                                   },
-                       "releaseDryRun":  {
-                                             "commands":  [
-
-                                                          ]
-                                         }
-                   },
-    "devServer":  {
-                      "startCommand":  "",
-                      "healthUrl":  "",
-                      "readyText":  "",
-                      "startupTimeoutSeconds":  30,
-                      "pidFile":  ".codex/project-ops-devserver.pid"
-                  },
-    "forbiddenPolicy":  "Do not run destructive clean/reset/deploy commands unless the user explicitly asks."
+  "schemaVersion": 1,
+  "initializedMarker": "codex-project-ops-workflow: initialized",
+  "initializedAt": "2026-06-15 22:35:28 +08:00",
+  "projectName": "LabyrinthComposer",
+  "repoRoot": "D:/LabProjects/LabyrinthComposer",
+  "validateSequence": ["lint", "typecheck", "build", "test", "structureCheck", "docsCheck"],
+  "operations": {
+    "envCheck": {
+      "commands": ["node --version", "npx --yes pnpm@11.7.0 --version"]
+    },
+    "restoreDeps": {
+      "commands": ["npx --yes pnpm@11.7.0 install"]
+    },
+    "installDeps": {
+      "commands": ["npx --yes pnpm@11.7.0 install"]
+    },
+    "build": {
+      "commands": ["npx --yes pnpm@11.7.0 build"]
+    },
+    "test": {
+      "commands": ["npx --yes pnpm@11.7.0 test"]
+    },
+    "lint": {
+      "commands": ["npx --yes pnpm@11.7.0 lint"]
+    },
+    "format": {
+      "commands": ["npx --yes pnpm@11.7.0 format"]
+    },
+    "typecheck": {
+      "commands": ["npx --yes pnpm@11.7.0 typecheck"]
+    },
+    "structureCheck": {
+      "commands": ["npx --yes pnpm@11.7.0 architecture:check"]
+    },
+    "codegen": {
+      "commands": []
+    },
+    "docsCheck": {
+      "commands": ["npx --yes pnpm@11.7.0 docs:check"]
+    },
+    "smoke": {
+      "urls": [],
+      "commands": ["npx --yes pnpm@11.7.0 smoke:cli"]
+    },
+    "package": {
+      "commands": []
+    },
+    "releaseDryRun": {
+      "commands": []
+    }
+  },
+  "devServer": {
+    "startCommand": "",
+    "healthUrl": "",
+    "readyText": "",
+    "startupTimeoutSeconds": 30,
+    "pidFile": ".codex/project-ops-devserver.pid"
+  },
+  "forbiddenPolicy": "Do not run destructive clean/reset/deploy commands unless the user explicitly asks."
 }

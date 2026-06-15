@@ -12,6 +12,7 @@
     "format:write": "prettier --write .",
     "labyrinth": "node apps/cli/dist/index.js",
     "lint": "eslint . --max-warnings=0",
+    "smoke:cli": "node apps/cli/dist/index.js validate packages/test-fixtures/samples/horror-clinic.lcproj.json --format text",
     "test": "vitest run",
     "typecheck": "tsc -b --pretty false"
   },
