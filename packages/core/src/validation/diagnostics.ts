@@ -1,4 +1,5 @@
 import type {
+  CauseStep,
   Diagnostic,
   DiagnosticSeverity,
   EntityRef,
@@ -11,10 +12,7 @@ type DiagnosticInput = {
   severity: DiagnosticSeverity;
   message: string;
   affectedEntities: EntityRef[];
-  cause: {
-    entity: EntityRef;
-    message: string;
-  };
+  causeChain: CauseStep[];
   suggestions: FixSuggestion[];
 };
 
@@ -25,12 +23,7 @@ export function createDiagnostic(input: DiagnosticInput): Diagnostic {
     severity: input.severity,
     message: input.message,
     affectedEntities: input.affectedEntities,
-    causeChain: [
-      {
-        entity: input.cause.entity,
-        message: input.cause.message
-      }
-    ],
+    causeChain: input.causeChain,
     suggestions: input.suggestions
   };
 }

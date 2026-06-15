@@ -44,10 +44,12 @@ function missingReferenceDiagnostic(check: ReferenceCheck): Diagnostic {
     severity: 'error',
     message: `${check.owner.kind} "${check.owner.id}" references missing ${check.target.kind} "${check.target.id}".`,
     affectedEntities: [check.owner, check.target],
-    cause: {
-      entity: check.owner,
-      message: `Field "${check.field}" points to ${check.target.kind} "${check.target.id}", but that entity is not present in the project graph.`
-    },
+    causeChain: [
+      {
+        entity: check.owner,
+        message: `Field "${check.field}" points to ${check.target.kind} "${check.target.id}", but that entity is not present in the project graph.`
+      }
+    ],
     suggestions: [
       {
         kind: 'remove_requirement',
