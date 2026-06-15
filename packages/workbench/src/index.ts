@@ -16,3 +16,12 @@ export {
   type WorkbenchStatus,
   type WorkbenchStore
 } from './store/createWorkbenchStore.js';
+export {
+  createProjectRepository,
+  serializeProject,
+  type ProjectOpenResult,
+  type ProjectRepository,
+  type ProjectRepositoryAdapter,
+  type ProjectSaveResult,
+  type SaveTarget
+} from './services/projectRepository.js';

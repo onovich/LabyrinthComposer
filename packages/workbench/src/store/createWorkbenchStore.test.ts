@@ -48,4 +48,30 @@ describe('workbench store', () => {
       'reachability.target-unreachable'
     );
   });
+
+  it('loads a project without marking the store dirty', () => {
+    const store = createWorkbenchStore(projectFixture());
+    const nextProject = {
+      ...projectFixture(),
+      project: {
+        id: 'loaded',
+        name: 'Loaded Project'
+      }
+    };
+
+    store.dispatch({
+      type: 'CreateSpace',
+      payload: {
+        space: {
+          id: 'dirty',
+          name: 'Dirty'
+        }
+      }
+    });
+
+    const snapshot = store.loadProject(nextProject);
+
+    expect(snapshot.dirty).toBe(false);
+    expect(snapshot.project.project.name).toBe('Loaded Project');
+  });
 });

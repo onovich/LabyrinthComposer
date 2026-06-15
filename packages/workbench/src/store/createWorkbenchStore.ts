@@ -16,6 +16,7 @@ export type WorkbenchSnapshot = {
 export type WorkbenchStore = {
   commandBus: CommandBus;
   getSnapshot(): WorkbenchSnapshot;
+  loadProject(project: ProjectGraph): WorkbenchSnapshot;
   dispatch(command: Command): WorkbenchSnapshot;
   undo(): WorkbenchSnapshot;
   redo(): WorkbenchSnapshot;
@@ -44,6 +45,15 @@ export function createWorkbenchStore(initialProject: ProjectGraph): WorkbenchSto
     commandBus,
     getSnapshot() {
       return snapshot;
+    },
+    loadProject(project) {
+      commandBus.dispatch({
+        type: 'LoadProject',
+        payload: {
+          project
+        }
+      });
+      return refresh(false);
     },
     dispatch(command) {
       commandBus.dispatch(command);
