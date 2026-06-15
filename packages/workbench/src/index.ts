@@ -26,8 +26,18 @@ export {
   type SaveTarget
 } from './services/projectRepository.js';
 export {
+  createDiagnosticViewModels,
+  createHighlightedEntitiesForDiagnostic,
+  createValidationSummary,
+  entityRefKey,
+  type DiagnosticViewModel,
+  type ValidationSummaryViewModel
+} from './selectors/diagnosticSelectors.js';
+export {
   createGraphViewModel,
   type ConnectionEdgeViewModel,
+  type GraphValidationState,
   type GraphViewModel,
+  type GraphViewModelOptions,
   type SpaceNodeViewModel
 } from './selectors/graphSelectors.js';

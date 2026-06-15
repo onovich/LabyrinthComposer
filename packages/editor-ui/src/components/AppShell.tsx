@@ -1,5 +1,10 @@
 import type { EntityRef, ProjectGraph } from '@labyrinth/schema';
-import { createGraphViewModel, type WorkbenchSnapshot } from '@labyrinth/workbench';
+import {
+  createDiagnosticViewModels,
+  createGraphViewModel,
+  createValidationSummary,
+  type WorkbenchSnapshot
+} from '@labyrinth/workbench';
 import {
   CirclePlus,
   GitBranchPlus,
@@ -8,24 +13,29 @@ import {
   RotateCw,
   Save,
   Shapes,
+  ShieldCheck,
   Sparkle,
   Waypoints
 } from 'lucide-react';
 
 import { GraphCanvas } from '../graph/GraphCanvas.js';
+import { DiagnosticsPanel } from './DiagnosticsPanel.js';
 import { InspectorPanel } from './InspectorPanel.js';
 
 type AppShellProps = {
   snapshot: WorkbenchSnapshot;
   selectedEntity: EntityRef | null;
+  selectedDiagnosticId: string | null;
   canUndo: boolean;
   canRedo: boolean;
   onSelectEntity(entity: EntityRef | null): void;
+  onSelectDiagnostic(id: string): void;
   onCreateSpace(): void;
   onCreateConnection(): void;
   onCreateGate(): void;
   onCreateToken(): void;
   onCreatePuzzle(): void;
+  onRunValidation(): void;
   onUpdateSpace(id: string, patch: Partial<ProjectGraph['spaces'][string]>): void;
   onUndo(): void;
   onRedo(): void;
@@ -34,20 +44,31 @@ type AppShellProps = {
 export function AppShell({
   snapshot,
   selectedEntity,
+  selectedDiagnosticId,
   canUndo,
   canRedo,
   onSelectEntity,
+  onSelectDiagnostic,
   onCreateSpace,
   onCreateConnection,
   onCreateGate,
   onCreateToken,
   onCreatePuzzle,
+  onRunValidation,
   onUpdateSpace,
   onUndo,
   onRedo
 }: AppShellProps) {
   const projectName = snapshot.project.project.name;
-  const graph = createGraphViewModel(snapshot.project);
+  const diagnostics = createDiagnosticViewModels(snapshot.validation);
+  const selectedDiagnostic = diagnostics.find(
+    (diagnostic) => diagnostic.id === selectedDiagnosticId
+  );
+  const summary = createValidationSummary(snapshot.validation);
+  const graph = createGraphViewModel(snapshot.project, {
+    validation: snapshot.validation,
+    highlightedEntities: selectedDiagnostic?.highlightedEntities ?? []
+  });
   const selectedSpace =
     selectedEntity?.kind === 'space' ? snapshot.project.spaces[selectedEntity.id] : undefined;
 
@@ -59,7 +80,7 @@ export function AppShell({
           <div className="lc-section-label">Project</div>
           <div className="lc-project-title">{projectName}</div>
           <div className="lc-project-meta">
-            {Object.keys(snapshot.project.spaces).length} spaces ·{' '}
+            {Object.keys(snapshot.project.spaces).length} spaces -{' '}
             {Object.keys(snapshot.project.connections).length} connections
           </div>
         </div>
@@ -83,6 +104,10 @@ export function AppShell({
             <button className="lc-tool-button" type="button">
               <Save size={14} />
               Save
+            </button>
+            <button className="lc-tool-button" onClick={onRunValidation} type="button">
+              <ShieldCheck size={14} />
+              Validate
             </button>
             <button className="lc-tool-button" disabled={!canUndo} onClick={onUndo} type="button">
               <RotateCcw size={14} />
@@ -115,9 +140,13 @@ export function AppShell({
               Puzzle
             </button>
           </div>
-          <div className="lc-status-pill">
+          <div className={`lc-status-pill ${summary.ok ? '' : 'lc-status-pill-warning'}`}>
             <Waypoints size={12} />
-            {snapshot.dirty ? 'Unsaved changes' : 'Ready'}
+            {summary.ok
+              ? snapshot.dirty
+                ? 'Unsaved changes'
+                : 'Ready'
+              : `${summary.errorCount} errors / ${summary.warningCount} warnings`}
           </div>
         </header>
         <section className="lc-workbench">
@@ -132,10 +161,12 @@ export function AppShell({
               selectedSpace={selectedSpace}
               onUpdateSpace={onUpdateSpace}
             />
-            <section className="lc-panel-section">
-              <div className="lc-section-label">Diagnostics</div>
-              <p className="lc-panel-copy">Validation arrives in the next implementation round.</p>
-            </section>
+            <DiagnosticsPanel
+              diagnostics={diagnostics}
+              selectedDiagnosticId={selectedDiagnosticId}
+              summary={summary}
+              onSelectDiagnostic={onSelectDiagnostic}
+            />
           </aside>
         </section>
       </main>

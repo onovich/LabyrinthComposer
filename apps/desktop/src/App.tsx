@@ -1,5 +1,5 @@
 import { AppShell } from '@labyrinth/editor-ui';
-import { createWorkbenchStore } from '@labyrinth/workbench';
+import { createHighlightedEntitiesForDiagnostic, createWorkbenchStore } from '@labyrinth/workbench';
 import { SCHEMA_VERSION, type EntityRef, type ProjectGraph } from '@labyrinth/schema';
 import { useMemo, useState } from 'react';
 
@@ -33,9 +33,30 @@ export function App() {
     kind: 'space',
     id: 'start'
   });
+  const [selectedDiagnosticId, setSelectedDiagnosticId] = useState<string | null>(null);
 
   function commit(nextSnapshot = store.getSnapshot()) {
     setSnapshot(nextSnapshot);
+    setSelectedDiagnosticId(null);
+  }
+
+  function selectEntity(entity: EntityRef | null) {
+    setSelectedEntity(entity);
+    setSelectedDiagnosticId(null);
+  }
+
+  function selectDiagnostic(id: string) {
+    const diagnostic = snapshot.validation.diagnostics.find((item) => item.id === id);
+
+    setSelectedDiagnosticId(id);
+
+    const focusEntity = createHighlightedEntitiesForDiagnostic(diagnostic).find(
+      (entity) => entity.kind === 'space' || entity.kind === 'connection'
+    );
+
+    if (focusEntity !== undefined) {
+      setSelectedEntity(focusEntity);
+    }
   }
 
   function nextId(prefix: string, record: Record<string, unknown>) {
@@ -196,6 +217,7 @@ export function App() {
     <AppShell
       canRedo={store.commandBus.canRedo()}
       canUndo={store.commandBus.canUndo()}
+      selectedDiagnosticId={selectedDiagnosticId}
       selectedEntity={selectedEntity}
       snapshot={snapshot}
       onCreateConnection={createConnection}
@@ -204,7 +226,9 @@ export function App() {
       onCreateSpace={createSpace}
       onCreateToken={createToken}
       onRedo={() => commit(store.redo())}
-      onSelectEntity={setSelectedEntity}
+      onRunValidation={() => commit(store.validate())}
+      onSelectDiagnostic={selectDiagnostic}
+      onSelectEntity={selectEntity}
       onUndo={() => commit(store.undo())}
       onUpdateSpace={updateSpace}
     />

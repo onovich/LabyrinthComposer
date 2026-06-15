@@ -17,7 +17,7 @@ export function GraphCanvas({ graph, selectedEntity, onSelectEntity }: GraphCanv
       label: node.title
     },
     selected: selectedEntity?.kind === 'space' && selectedEntity.id === node.id,
-    className: 'lc-flow-node',
+    className: `lc-flow-node lc-flow-node-${node.validationState}`,
     type: 'default'
   }));
   const edges: Edge[] = graph.edges.map((edge) => ({
@@ -25,7 +25,7 @@ export function GraphCanvas({ graph, selectedEntity, onSelectEntity }: GraphCanv
     source: edge.source,
     target: edge.target,
     label: edge.label,
-    className: 'lc-flow-edge'
+    className: `lc-flow-edge lc-flow-edge-${edge.validationState}`
   }));
 
   return (
