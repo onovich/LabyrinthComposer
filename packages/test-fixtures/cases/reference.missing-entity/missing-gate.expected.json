@@ -1,0 +1,19 @@
+{
+  "ok": false,
+  "diagnostics": [
+    {
+      "ruleId": "reference.missing-entity",
+      "severity": "error",
+      "affectedEntities": [
+        {
+          "kind": "connection",
+          "id": "start-exit"
+        },
+        {
+          "kind": "gate",
+          "id": "missing-gate"
+        }
+      ]
+    }
+  ]
+}

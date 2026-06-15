@@ -1,0 +1,282 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://labyrinth-composer.local/schemas/project.schema.json",
+  "title": "Labyrinth Composer Project",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "project",
+    "startSpaceId",
+    "targetSpaceIds",
+    "spaces",
+    "connections",
+    "gates",
+    "tokens",
+    "puzzles",
+    "beats"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "0.1.0"
+    },
+    "project": {
+      "$ref": "#/$defs/projectMetadata"
+    },
+    "startSpaceId": {
+      "$ref": "#/$defs/id"
+    },
+    "targetSpaceIds": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "spaces": {
+      "$ref": "#/$defs/spaceMap"
+    },
+    "connections": {
+      "$ref": "#/$defs/connectionMap"
+    },
+    "gates": {
+      "$ref": "#/$defs/gateMap"
+    },
+    "tokens": {
+      "$ref": "#/$defs/tokenMap"
+    },
+    "puzzles": {
+      "$ref": "#/$defs/puzzleMap"
+    },
+    "beats": {
+      "$ref": "#/$defs/beatMap"
+    },
+    "rulePresetId": {
+      "$ref": "#/$defs/id"
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]*$"
+    },
+    "stringArray": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "projectMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "author": {
+          "type": "string"
+        }
+      }
+    },
+    "space": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "tags": {
+          "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
+    "connection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "fromSpaceId", "toSpaceId"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "fromSpaceId": {
+          "$ref": "#/$defs/id"
+        },
+        "toSpaceId": {
+          "$ref": "#/$defs/id"
+        },
+        "directed": {
+          "type": "boolean"
+        },
+        "gateId": {
+          "$ref": "#/$defs/id"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "kind", "requiredTokenIds"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": ["lock", "ability", "knowledge", "state", "resource"]
+        },
+        "requiredTokenIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "token": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "kind"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": ["item", "ability", "knowledge", "state", "relationship", "resource"]
+        },
+        "locationSpaceId": {
+          "$ref": "#/$defs/id"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "puzzle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "locationSpaceId", "requiredTokenIds", "outputTokenIds"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "locationSpaceId": {
+          "$ref": "#/$defs/id"
+        },
+        "requiredTokenIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "outputTokenIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "uniqueItems": true
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "beat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "spaceId": {
+          "$ref": "#/$defs/id"
+        },
+        "intensity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "spaceMap": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/space"
+      }
+    },
+    "connectionMap": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/connection"
+      }
+    },
+    "gateMap": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/gate"
+      }
+    },
+    "tokenMap": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/token"
+      }
+    },
+    "puzzleMap": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/puzzle"
+      }
+    },
+    "beatMap": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/beat"
+      }
+    }
+  }
+}

@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
     "declaration": true,
     "declarationMap": true,
     "esModuleInterop": true,
@@ -17,6 +18,11 @@
     "sourceMap": true,
     "strict": true,
     "target": "ES2022",
+    "paths": {
+      "@labyrinth/core": ["packages/core/src/index.ts"],
+      "@labyrinth/schema": ["packages/schema/src/index.ts"],
+      "@labyrinth/test-fixtures": ["packages/test-fixtures/src/index.ts"]
+    },
     "verbatimModuleSyntax": true
   }
 }

@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "0.1.0",
+  "project": {
+    "id": "zelda-mini-dungeon",
+    "name": "Zelda Mini Dungeon",
+    "description": "A compact lock-and-key dungeon used as the happy-path spatial puzzle sample."
+  },
+  "startSpaceId": "entrance",
+  "targetSpaceIds": ["boss-room"],
+  "spaces": {
+    "entrance": {
+      "id": "entrance",
+      "name": "Entrance"
+    },
+    "key-alcove": {
+      "id": "key-alcove",
+      "name": "Key Alcove"
+    },
+    "locked-hall": {
+      "id": "locked-hall",
+      "name": "Locked Hall"
+    },
+    "boss-room": {
+      "id": "boss-room",
+      "name": "Boss Room"
+    }
+  },
+  "connections": {
+    "entrance-key-alcove": {
+      "id": "entrance-key-alcove",
+      "fromSpaceId": "entrance",
+      "toSpaceId": "key-alcove"
+    },
+    "key-alcove-locked-hall": {
+      "id": "key-alcove-locked-hall",
+      "fromSpaceId": "key-alcove",
+      "toSpaceId": "locked-hall",
+      "gateId": "small-key-gate"
+    },
+    "locked-hall-boss-room": {
+      "id": "locked-hall-boss-room",
+      "fromSpaceId": "locked-hall",
+      "toSpaceId": "boss-room"
+    }
+  },
+  "gates": {
+    "small-key-gate": {
+      "id": "small-key-gate",
+      "name": "Small Key Gate",
+      "kind": "lock",
+      "requiredTokenIds": ["small-key"]
+    }
+  },
+  "tokens": {
+    "small-key": {
+      "id": "small-key",
+      "name": "Small Key",
+      "kind": "item",
+      "locationSpaceId": "key-alcove"
+    }
+  },
+  "puzzles": {},
+  "beats": {
+    "intro": {
+      "id": "intro",
+      "name": "Read the locked door",
+      "spaceId": "entrance",
+      "intensity": 0.2
+    },
+    "payoff": {
+      "id": "payoff",
+      "name": "Open the boss route",
+      "spaceId": "locked-hall",
+      "intensity": 0.8
+    }
+  },
+  "rulePresetId": "zelda"
+}

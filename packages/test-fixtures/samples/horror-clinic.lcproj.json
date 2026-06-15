@@ -1,0 +1,113 @@
+{
+  "schemaVersion": "0.1.0",
+  "project": {
+    "id": "horror-clinic",
+    "name": "Horror Clinic",
+    "description": "A horror investigation flow with knowledge and item gates."
+  },
+  "startSpaceId": "waiting-room",
+  "targetSpaceIds": ["operating-theater"],
+  "spaces": {
+    "waiting-room": {
+      "id": "waiting-room",
+      "name": "Waiting Room"
+    },
+    "records-office": {
+      "id": "records-office",
+      "name": "Records Office"
+    },
+    "maintenance": {
+      "id": "maintenance",
+      "name": "Maintenance Closet"
+    },
+    "basement": {
+      "id": "basement",
+      "name": "Basement Ward"
+    },
+    "operating-theater": {
+      "id": "operating-theater",
+      "name": "Operating Theater"
+    }
+  },
+  "connections": {
+    "waiting-room-records-office": {
+      "id": "waiting-room-records-office",
+      "fromSpaceId": "waiting-room",
+      "toSpaceId": "records-office"
+    },
+    "records-office-maintenance": {
+      "id": "records-office-maintenance",
+      "fromSpaceId": "records-office",
+      "toSpaceId": "maintenance"
+    },
+    "maintenance-basement": {
+      "id": "maintenance-basement",
+      "fromSpaceId": "maintenance",
+      "toSpaceId": "basement",
+      "gateId": "basement-code-gate"
+    },
+    "basement-operating-theater": {
+      "id": "basement-operating-theater",
+      "fromSpaceId": "basement",
+      "toSpaceId": "operating-theater",
+      "gateId": "power-restored-gate"
+    }
+  },
+  "gates": {
+    "basement-code-gate": {
+      "id": "basement-code-gate",
+      "name": "Basement Keypad",
+      "kind": "knowledge",
+      "requiredTokenIds": ["basement-code"]
+    },
+    "power-restored-gate": {
+      "id": "power-restored-gate",
+      "name": "Powered Surgical Door",
+      "kind": "state",
+      "requiredTokenIds": ["power-restored"]
+    }
+  },
+  "tokens": {
+    "basement-code": {
+      "id": "basement-code",
+      "name": "Basement Code",
+      "kind": "knowledge",
+      "locationSpaceId": "records-office"
+    },
+    "fuse": {
+      "id": "fuse",
+      "name": "Ceramic Fuse",
+      "kind": "item",
+      "locationSpaceId": "maintenance"
+    },
+    "power-restored": {
+      "id": "power-restored",
+      "name": "Power Restored",
+      "kind": "state"
+    }
+  },
+  "puzzles": {
+    "repair-breaker": {
+      "id": "repair-breaker",
+      "name": "Repair the Breaker",
+      "locationSpaceId": "basement",
+      "requiredTokenIds": ["fuse"],
+      "outputTokenIds": ["power-restored"]
+    }
+  },
+  "beats": {
+    "first-scare": {
+      "id": "first-scare",
+      "name": "Flickering hall lights",
+      "spaceId": "records-office",
+      "intensity": 0.5
+    },
+    "reveal": {
+      "id": "reveal",
+      "name": "The theater opens",
+      "spaceId": "operating-theater",
+      "intensity": 1
+    }
+  },
+  "rulePresetId": "horror"
+}

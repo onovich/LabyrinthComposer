@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "0.1.0",
+  "project": {
+    "id": "narrative-knowledge-lock",
+    "name": "Narrative Knowledge Lock",
+    "description": "A conversation-led knowledge gate sample for non-physical spaces."
+  },
+  "startSpaceId": "prologue",
+  "targetSpaceIds": ["archive-memory"],
+  "spaces": {
+    "prologue": {
+      "id": "prologue",
+      "name": "Prologue"
+    },
+    "market": {
+      "id": "market",
+      "name": "Market Conversation"
+    },
+    "library": {
+      "id": "library",
+      "name": "Old Library"
+    },
+    "archive-memory": {
+      "id": "archive-memory",
+      "name": "Archive Memory"
+    }
+  },
+  "connections": {
+    "prologue-market": {
+      "id": "prologue-market",
+      "fromSpaceId": "prologue",
+      "toSpaceId": "market"
+    },
+    "market-library": {
+      "id": "market-library",
+      "fromSpaceId": "market",
+      "toSpaceId": "library"
+    },
+    "library-archive-memory": {
+      "id": "library-archive-memory",
+      "fromSpaceId": "library",
+      "toSpaceId": "archive-memory",
+      "gateId": "true-name-gate"
+    }
+  },
+  "gates": {
+    "true-name-gate": {
+      "id": "true-name-gate",
+      "name": "True Name Recall",
+      "kind": "knowledge",
+      "requiredTokenIds": ["true-name"]
+    }
+  },
+  "tokens": {
+    "rumor": {
+      "id": "rumor",
+      "name": "Market Rumor",
+      "kind": "knowledge",
+      "locationSpaceId": "market"
+    },
+    "true-name": {
+      "id": "true-name",
+      "name": "The Archivist's True Name",
+      "kind": "knowledge"
+    }
+  },
+  "puzzles": {
+    "cross-reference-rumor": {
+      "id": "cross-reference-rumor",
+      "name": "Cross-reference the Rumor",
+      "locationSpaceId": "library",
+      "requiredTokenIds": ["rumor"],
+      "outputTokenIds": ["true-name"]
+    }
+  },
+  "beats": {
+    "rumor-hook": {
+      "id": "rumor-hook",
+      "name": "A stranger mentions the missing archivist",
+      "spaceId": "market",
+      "intensity": 0.3
+    },
+    "memory-unlock": {
+      "id": "memory-unlock",
+      "name": "Memory opens around the true name",
+      "spaceId": "archive-memory",
+      "intensity": 0.9
+    }
+  },
+  "rulePresetId": "narrative"
+}

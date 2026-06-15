@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "0.1.0",
+  "project": {
+    "id": "missing-gate-reference",
+    "name": "Missing Gate Reference"
+  },
+  "startSpaceId": "start",
+  "targetSpaceIds": ["exit"],
+  "spaces": {
+    "start": {
+      "id": "start",
+      "name": "Start"
+    },
+    "exit": {
+      "id": "exit",
+      "name": "Exit"
+    }
+  },
+  "connections": {
+    "start-exit": {
+      "id": "start-exit",
+      "fromSpaceId": "start",
+      "toSpaceId": "exit",
+      "gateId": "missing-gate"
+    }
+  },
+  "gates": {},
+  "tokens": {},
+  "puzzles": {},
+  "beats": {}
+}
