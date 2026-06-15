@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@labyrinth/editor-ui": "workspace:*",
+    "@labyrinth/schema": "workspace:*",
     "@labyrinth/workbench": "workspace:*",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"

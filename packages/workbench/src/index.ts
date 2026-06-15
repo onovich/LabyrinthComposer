@@ -1,22 +1,18 @@
-import { validateProject } from '@labyrinth/core';
-import type { ProjectGraph, ValidationResult } from '@labyrinth/schema';
-
-export type WorkbenchStatus = 'idle' | 'validating';
-
-export type WorkbenchSnapshot = {
-  project: ProjectGraph | null;
-  validation: ValidationResult | null;
-  status: WorkbenchStatus;
-};
-
-export function createEmptyWorkbenchSnapshot(): WorkbenchSnapshot {
-  return {
-    project: null,
-    validation: null,
-    status: 'idle'
-  };
-}
-
-export function validateWorkbenchProject(project: ProjectGraph): ValidationResult {
-  return validateProject(project);
-}
+export { createCommandBus, type CommandBus } from './commands/commandBus.js';
+export {
+  canRedo,
+  canUndo,
+  createCommandHistory,
+  executeCommand,
+  redoCommand,
+  undoCommand,
+  type CommandHistory
+} from './commands/commandHistory.js';
+export { applyCommand } from './commands/commandHandlers.js';
+export type { Command, CommandResult } from './commands/commandTypes.js';
+export {
+  createWorkbenchStore,
+  type WorkbenchSnapshot,
+  type WorkbenchStatus,
+  type WorkbenchStore
+} from './store/createWorkbenchStore.js';

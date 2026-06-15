@@ -66,6 +66,9 @@ importers:
       '@labyrinth/editor-ui':
         specifier: workspace:*
         version: link:../../packages/editor-ui
+      '@labyrinth/schema':
+        specifier: workspace:*
+        version: link:../../packages/schema
       '@labyrinth/workbench':
         specifier: workspace:*
         version: link:../../packages/workbench
