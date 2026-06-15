@@ -1,0 +1,76 @@
+import { readdir, readFile, stat } from 'node:fs/promises';
+import { join, relative, sep } from 'node:path';
+
+const rootDir = new URL('..', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
+const sourceRoots = ['packages/core/src', 'packages/schema/src', 'packages/test-fixtures/src', 'apps/cli/src'];
+const importPattern = /(?:import|export)\s+(?:type\s+)?(?:[^'"]*from\s+)?['"]([^'"]+)['"]/g;
+
+async function collectFiles(dir) {
+  const entries = await readdir(dir);
+  const files = [];
+
+  for (const entry of entries) {
+    const absolute = join(dir, entry);
+    const entryStat = await stat(absolute);
+
+    if (entryStat.isDirectory()) {
+      files.push(...(await collectFiles(absolute)));
+    } else if (entry.endsWith('.ts')) {
+      files.push(absolute);
+    }
+  }
+
+  return files;
+}
+
+function toProjectPath(absolutePath) {
+  return relative(rootDir, absolutePath).split(sep).join('/');
+}
+
+function isForbiddenCoreImport(specifier) {
+  return (
+    specifier.startsWith('node:') ||
+    ['fs', 'path', 'process', 'react', '@labyrinth/cli'].includes(specifier) ||
+    specifier.startsWith('apps/')
+  );
+}
+
+function isForbiddenSchemaImport(specifier) {
+  return specifier === '@labyrinth/core' || specifier.startsWith('@labyrinth/core/');
+}
+
+const violations = [];
+
+for (const root of sourceRoots) {
+  const files = await collectFiles(join(rootDir, root));
+
+  for (const file of files) {
+    const projectPath = toProjectPath(file);
+    const content = await readFile(file, 'utf8');
+    const imports = [...content.matchAll(importPattern)].map((match) => match[1]);
+
+    for (const specifier of imports) {
+      if (projectPath.startsWith('packages/core/') && isForbiddenCoreImport(specifier)) {
+        violations.push(`${projectPath} imports forbidden core dependency "${specifier}"`);
+      }
+
+      if (projectPath.startsWith('packages/schema/') && isForbiddenSchemaImport(specifier)) {
+        violations.push(`${projectPath} imports forbidden schema dependency "${specifier}"`);
+      }
+
+      if (projectPath.startsWith('packages/') && specifier.startsWith('@labyrinth/cli')) {
+        violations.push(`${projectPath} imports CLI from a package`);
+      }
+    }
+  }
+}
+
+if (violations.length > 0) {
+  console.error('Architecture check failed:');
+  for (const violation of violations) {
+    console.error(`- ${violation}`);
+  }
+  process.exit(1);
+}
+
+console.log('Architecture check passed.');

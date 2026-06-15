@@ -38,6 +38,17 @@ C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\ReleaseDry
 
 lint, typecheck, build, test, structureCheck, docsCheck
 
+Configured commands:
+
+- EnvCheck: `node --version`, `npx --yes pnpm@11.7.0 --version`
+- Install/Restore deps: `npx --yes pnpm@11.7.0 install`
+- Lint: `npx --yes pnpm@11.7.0 lint`
+- Typecheck: `npx --yes pnpm@11.7.0 typecheck`
+- Build: `npx --yes pnpm@11.7.0 build`
+- Test: `npx --yes pnpm@11.7.0 test`
+- Structure check: `npx --yes pnpm@11.7.0 architecture:check`
+- Docs check: `npx --yes pnpm@11.7.0 docs:check`
+
 ## Dev Server
 
 Start command: ``

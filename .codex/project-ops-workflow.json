@@ -15,47 +15,48 @@
     "operations":  {
                        "envCheck":  {
                                         "commands":  [
-
+                                                         "node --version",
+                                                         "npx --yes pnpm@11.7.0 --version"
                                                      ]
                                     },
                        "restoreDeps":  {
                                            "commands":  [
-
+                                                            "npx --yes pnpm@11.7.0 install"
                                                         ]
                                        },
                        "installDeps":  {
                                            "commands":  [
-
+                                                            "npx --yes pnpm@11.7.0 install"
                                                         ]
                                        },
                        "build":  {
                                      "commands":  [
-
+                                                      "npx --yes pnpm@11.7.0 build"
                                                   ]
                                  },
                        "test":  {
                                     "commands":  [
-
+                                                     "npx --yes pnpm@11.7.0 test"
                                                  ]
                                 },
                        "lint":  {
                                     "commands":  [
-
+                                                     "npx --yes pnpm@11.7.0 lint"
                                                  ]
                                 },
                        "format":  {
                                       "commands":  [
-
+                                                       "npx --yes pnpm@11.7.0 format"
                                                    ]
                                   },
                        "typecheck":  {
                                          "commands":  [
-
+                                                          "npx --yes pnpm@11.7.0 typecheck"
                                                       ]
                                      },
                        "structureCheck":  {
                                               "commands":  [
-
+                                                               "npx --yes pnpm@11.7.0 architecture:check"
                                                            ]
                                           },
                        "codegen":  {
@@ -65,7 +66,7 @@
                                    },
                        "docsCheck":  {
                                          "commands":  [
-
+                                                          "npx --yes pnpm@11.7.0 docs:check"
                                                       ]
                                      },
                        "smoke":  {
