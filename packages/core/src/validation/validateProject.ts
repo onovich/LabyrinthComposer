@@ -1,6 +1,10 @@
 import type { ProjectGraph, ValidationResult } from '@labyrinth/schema';
 
 import { validateReferences } from '../graph/references.js';
+import { validateBacktracking } from '../metrics/backtracking.js';
+import { validateCircularDependencies } from './dependencies.js';
+import { validateTokenLockedBehindOwnGate } from './deadlocks.js';
+import { validateMissingPuzzleInputs } from './missingInput.js';
 import {
   evaluateReachability,
   validateProjectAnchors,
@@ -14,6 +18,10 @@ export function validateProject(project: ProjectGraph): ValidationResult {
   const diagnostics = [
     ...anchorDiagnostics,
     ...referenceDiagnostics,
+    ...validateTokenLockedBehindOwnGate(project, reachability),
+    ...validateCircularDependencies(project),
+    ...validateMissingPuzzleInputs(project, reachability),
+    ...validateBacktracking(project),
     ...validateReachableTargets(project, reachability.reachableSpaces)
   ];
 

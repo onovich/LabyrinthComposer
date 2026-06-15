@@ -1,0 +1,13 @@
+{
+  "ok": false,
+  "diagnostics": [
+    {
+      "ruleId": "dependency.circular-token-requirement",
+      "severity": "error",
+      "affectedEntities": [
+        { "kind": "puzzle", "id": "clue-puzzle" },
+        { "kind": "token", "id": "clue" }
+      ]
+    }
+  ]
+}

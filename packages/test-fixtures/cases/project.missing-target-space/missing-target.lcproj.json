@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "0.1.0",
+  "project": { "id": "missing-target", "name": "Missing Target" },
+  "startSpaceId": "start",
+  "targetSpaceIds": ["missing"],
+  "spaces": { "start": { "id": "start", "name": "Start" } },
+  "connections": {},
+  "gates": {},
+  "tokens": {},
+  "puzzles": {},
+  "beats": {}
+}

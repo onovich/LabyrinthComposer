@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "0.1.0",
+  "project": { "id": "puzzle-output-chain", "name": "Puzzle Output Chain" },
+  "startSpaceId": "start",
+  "targetSpaceIds": ["exit"],
+  "spaces": {
+    "start": { "id": "start", "name": "Start" },
+    "machine": { "id": "machine", "name": "Machine" },
+    "exit": { "id": "exit", "name": "Exit" }
+  },
+  "connections": {
+    "start-machine": { "id": "start-machine", "fromSpaceId": "start", "toSpaceId": "machine" },
+    "machine-exit": {
+      "id": "machine-exit",
+      "fromSpaceId": "machine",
+      "toSpaceId": "exit",
+      "gateId": "power-gate"
+    }
+  },
+  "gates": {
+    "power-gate": {
+      "id": "power-gate",
+      "name": "Power Gate",
+      "kind": "state",
+      "requiredTokenIds": ["power"]
+    }
+  },
+  "tokens": {
+    "fuse": { "id": "fuse", "name": "Fuse", "kind": "item", "locationSpaceId": "start" },
+    "power": { "id": "power", "name": "Power", "kind": "state" }
+  },
+  "puzzles": {
+    "repair": {
+      "id": "repair",
+      "name": "Repair",
+      "locationSpaceId": "machine",
+      "requiredTokenIds": ["fuse"],
+      "outputTokenIds": ["power"]
+    }
+  },
+  "beats": {}
+}

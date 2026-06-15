@@ -1,0 +1,14 @@
+{
+  "ok": false,
+  "diagnostics": [
+    {
+      "ruleId": "reachability.token-locked-behind-own-gate",
+      "severity": "error",
+      "affectedEntities": [
+        { "kind": "gate", "id": "gate" },
+        { "kind": "token", "id": "key" },
+        { "kind": "space", "id": "locked" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "0.1.0",
+  "project": { "id": "key-long-return", "name": "Key Long Return" },
+  "startSpaceId": "s0",
+  "targetSpaceIds": ["exit"],
+  "spaces": {
+    "s0": { "id": "s0", "name": "S0" },
+    "s1": { "id": "s1", "name": "S1" },
+    "s2": { "id": "s2", "name": "S2" },
+    "s3": { "id": "s3", "name": "S3" },
+    "s4": { "id": "s4", "name": "S4" },
+    "s5": { "id": "s5", "name": "S5" },
+    "exit": { "id": "exit", "name": "Exit" }
+  },
+  "connections": {
+    "s0-s1": { "id": "s0-s1", "fromSpaceId": "s0", "toSpaceId": "s1" },
+    "s1-s2": { "id": "s1-s2", "fromSpaceId": "s1", "toSpaceId": "s2" },
+    "s2-s3": { "id": "s2-s3", "fromSpaceId": "s2", "toSpaceId": "s3" },
+    "s3-s4": { "id": "s3-s4", "fromSpaceId": "s3", "toSpaceId": "s4" },
+    "s4-s5": { "id": "s4-s5", "fromSpaceId": "s4", "toSpaceId": "s5" },
+    "s5-exit": { "id": "s5-exit", "fromSpaceId": "s5", "toSpaceId": "exit", "gateId": "gate" }
+  },
+  "gates": {
+    "gate": { "id": "gate", "name": "Gate", "kind": "lock", "requiredTokenIds": ["key"] }
+  },
+  "tokens": { "key": { "id": "key", "name": "Key", "kind": "item", "locationSpaceId": "s0" } },
+  "puzzles": {},
+  "beats": {}
+}

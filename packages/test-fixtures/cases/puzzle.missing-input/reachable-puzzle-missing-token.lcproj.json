@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "0.1.0",
+  "project": { "id": "reachable-puzzle-missing-token", "name": "Reachable Puzzle Missing Token" },
+  "startSpaceId": "start",
+  "targetSpaceIds": ["start"],
+  "spaces": { "start": { "id": "start", "name": "Start" } },
+  "connections": {},
+  "gates": {},
+  "tokens": { "fuse": { "id": "fuse", "name": "Fuse", "kind": "item" } },
+  "puzzles": {
+    "breaker": {
+      "id": "breaker",
+      "name": "Breaker",
+      "locationSpaceId": "start",
+      "requiredTokenIds": ["fuse"],
+      "outputTokenIds": []
+    }
+  },
+  "beats": {}
+}

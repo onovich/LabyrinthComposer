@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "0.1.0",
+  "project": { "id": "gate-without-token", "name": "Gate Without Token" },
+  "startSpaceId": "start",
+  "targetSpaceIds": ["exit"],
+  "spaces": {
+    "start": { "id": "start", "name": "Start" },
+    "exit": { "id": "exit", "name": "Exit" }
+  },
+  "connections": {
+    "start-exit": {
+      "id": "start-exit",
+      "fromSpaceId": "start",
+      "toSpaceId": "exit",
+      "gateId": "gate"
+    }
+  },
+  "gates": {
+    "gate": { "id": "gate", "name": "Gate", "kind": "lock", "requiredTokenIds": ["key"] }
+  },
+  "tokens": { "key": { "id": "key", "name": "Key", "kind": "item" } },
+  "puzzles": {},
+  "beats": {}
+}

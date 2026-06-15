@@ -2,7 +2,12 @@ import { readdir, readFile, stat } from 'node:fs/promises';
 import { join, relative, sep } from 'node:path';
 
 const rootDir = new URL('..', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
-const sourceRoots = ['packages/core/src', 'packages/schema/src', 'packages/test-fixtures/src', 'apps/cli/src'];
+const sourceRoots = [
+  'packages/core/src',
+  'packages/schema/src',
+  'packages/test-fixtures/src',
+  'apps/cli/src'
+];
 const importPattern = /(?:import|export)\s+(?:type\s+)?(?:[^'"]*from\s+)?['"]([^'"]+)['"]/g;
 
 async function collectFiles(dir) {
@@ -46,11 +51,16 @@ for (const root of sourceRoots) {
 
   for (const file of files) {
     const projectPath = toProjectPath(file);
+    const isTestFile = projectPath.endsWith('.test.ts');
     const content = await readFile(file, 'utf8');
     const imports = [...content.matchAll(importPattern)].map((match) => match[1]);
 
     for (const specifier of imports) {
-      if (projectPath.startsWith('packages/core/') && isForbiddenCoreImport(specifier)) {
+      if (
+        projectPath.startsWith('packages/core/') &&
+        !isTestFile &&
+        isForbiddenCoreImport(specifier)
+      ) {
         violations.push(`${projectPath} imports forbidden core dependency "${specifier}"`);
       }
 

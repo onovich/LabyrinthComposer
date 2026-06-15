@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "0.1.0",
+  "project": { "id": "missing-start", "name": "Missing Start" },
+  "startSpaceId": "missing",
+  "targetSpaceIds": ["exit"],
+  "spaces": { "exit": { "id": "exit", "name": "Exit" } },
+  "connections": {},
+  "gates": {},
+  "tokens": {},
+  "puzzles": {},
+  "beats": {}
+}

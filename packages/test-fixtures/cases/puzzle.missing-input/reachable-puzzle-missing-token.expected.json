@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "diagnostics": [
+    {
+      "ruleId": "puzzle.missing-input",
+      "severity": "warning",
+      "affectedEntities": [
+        { "kind": "puzzle", "id": "breaker" },
+        { "kind": "token", "id": "fuse" }
+      ]
+    }
+  ]
+}

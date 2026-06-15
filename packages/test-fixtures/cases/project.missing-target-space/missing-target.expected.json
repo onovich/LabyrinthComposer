@@ -1,0 +1,10 @@
+{
+  "ok": false,
+  "diagnostics": [
+    {
+      "ruleId": "project.missing-target-space",
+      "severity": "error",
+      "affectedEntities": [{ "kind": "space", "id": "missing" }]
+    }
+  ]
+}

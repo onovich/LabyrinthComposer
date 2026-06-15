@@ -1,0 +1,13 @@
+{
+  "ok": false,
+  "diagnostics": [
+    {
+      "ruleId": "reference.missing-entity",
+      "severity": "error",
+      "affectedEntities": [
+        { "kind": "puzzle", "id": "puzzle" },
+        { "kind": "token", "id": "missing-output" }
+      ]
+    }
+  ]
+}

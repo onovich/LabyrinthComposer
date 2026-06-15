@@ -42,7 +42,9 @@ function pushEvent(events: ValidationTraceEvent[], event: ValidationTraceEvent):
   events.push(event);
 }
 
-export function evaluateReachability(project: ProjectGraph): Omit<ValidationResult, 'diagnostics' | 'ok'> {
+export function evaluateReachability(
+  project: ProjectGraph
+): Omit<ValidationResult, 'diagnostics' | 'ok'> {
   const state: ReachabilityState = {
     reachableSpaces: new Set(),
     acquiredTokens: new Set(),
@@ -112,7 +114,10 @@ export function evaluateReachability(project: ProjectGraph): Omit<ValidationResu
     }
 
     for (const [id, gate] of sortedEntries(project.gates)) {
-      if (hasEveryToken(gate.requiredTokenIds, state.acquiredTokens) && !state.openedGates.has(id)) {
+      if (
+        hasEveryToken(gate.requiredTokenIds, state.acquiredTokens) &&
+        !state.openedGates.has(id)
+      ) {
         state.openedGates.add(id);
         pushEvent(events, {
           kind: 'gate_opened',
@@ -126,7 +131,8 @@ export function evaluateReachability(project: ProjectGraph): Omit<ValidationResu
 
     for (const direction of getConnectionDirections(project)) {
       const canTraverse =
-        direction.connection.gateId === undefined || state.openedGates.has(direction.connection.gateId);
+        direction.connection.gateId === undefined ||
+        state.openedGates.has(direction.connection.gateId);
 
       if (
         canTraverse &&

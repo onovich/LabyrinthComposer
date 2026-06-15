@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "0.1.0",
+  "project": { "id": "puzzle-self-output", "name": "Puzzle Self Output" },
+  "startSpaceId": "start",
+  "targetSpaceIds": ["start"],
+  "spaces": { "start": { "id": "start", "name": "Start" } },
+  "connections": {},
+  "gates": {},
+  "tokens": { "clue": { "id": "clue", "name": "Clue", "kind": "knowledge" } },
+  "puzzles": {
+    "clue-puzzle": {
+      "id": "clue-puzzle",
+      "name": "Clue Puzzle",
+      "locationSpaceId": "start",
+      "requiredTokenIds": ["clue"],
+      "outputTokenIds": ["clue"]
+    }
+  },
+  "beats": {}
+}

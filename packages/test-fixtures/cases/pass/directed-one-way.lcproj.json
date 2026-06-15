@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "0.1.0",
+  "project": { "id": "directed-one-way", "name": "Directed One Way" },
+  "startSpaceId": "start",
+  "targetSpaceIds": ["drop"],
+  "spaces": {
+    "start": { "id": "start", "name": "Start" },
+    "drop": { "id": "drop", "name": "Drop" }
+  },
+  "connections": {
+    "start-drop": {
+      "id": "start-drop",
+      "fromSpaceId": "start",
+      "toSpaceId": "drop",
+      "directed": true
+    }
+  },
+  "gates": {},
+  "tokens": {},
+  "puzzles": {},
+  "beats": {}
+}

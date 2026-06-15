@@ -1,0 +1,13 @@
+{
+  "ok": false,
+  "diagnostics": [
+    {
+      "ruleId": "reference.missing-entity",
+      "severity": "error",
+      "affectedEntities": [
+        { "kind": "gate", "id": "gate" },
+        { "kind": "token", "id": "missing-key" }
+      ]
+    }
+  ]
+}

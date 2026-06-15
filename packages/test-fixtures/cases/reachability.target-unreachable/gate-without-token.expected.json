@@ -1,0 +1,13 @@
+{
+  "ok": false,
+  "diagnostics": [
+    {
+      "ruleId": "reachability.target-unreachable",
+      "severity": "error",
+      "affectedEntities": [
+        { "kind": "space", "id": "start" },
+        { "kind": "space", "id": "exit" }
+      ]
+    }
+  ]
+}

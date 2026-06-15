@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "diagnostics": [
+    {
+      "ruleId": "backtracking.long-token-return",
+      "severity": "warning",
+      "affectedEntities": [
+        { "kind": "token", "id": "key" },
+        { "kind": "gate", "id": "gate" }
+      ]
+    }
+  ]
+}

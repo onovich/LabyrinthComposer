@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "0.1.0",
+  "project": { "id": "open-connection", "name": "Open Connection" },
+  "startSpaceId": "start",
+  "targetSpaceIds": ["exit"],
+  "spaces": {
+    "start": { "id": "start", "name": "Start" },
+    "exit": { "id": "exit", "name": "Exit" }
+  },
+  "connections": {
+    "start-exit": { "id": "start-exit", "fromSpaceId": "start", "toSpaceId": "exit" }
+  },
+  "gates": {},
+  "tokens": {},
+  "puzzles": {},
+  "beats": {}
+}

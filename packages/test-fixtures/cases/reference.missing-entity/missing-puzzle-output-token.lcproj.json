@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "0.1.0",
+  "project": { "id": "missing-puzzle-output-token", "name": "Missing Puzzle Output Token" },
+  "startSpaceId": "start",
+  "targetSpaceIds": ["start"],
+  "spaces": { "start": { "id": "start", "name": "Start" } },
+  "connections": {},
+  "gates": {},
+  "tokens": {},
+  "puzzles": {
+    "puzzle": {
+      "id": "puzzle",
+      "name": "Puzzle",
+      "locationSpaceId": "start",
+      "requiredTokenIds": [],
+      "outputTokenIds": ["missing-output"]
+    }
+  },
+  "beats": {}
+}

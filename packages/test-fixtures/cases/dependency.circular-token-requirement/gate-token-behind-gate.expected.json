@@ -1,0 +1,13 @@
+{
+  "ok": false,
+  "diagnostics": [
+    {
+      "ruleId": "dependency.circular-token-requirement",
+      "severity": "error",
+      "affectedEntities": [
+        { "kind": "gate", "id": "gate" },
+        { "kind": "token", "id": "key" }
+      ]
+    }
+  ]
+}
