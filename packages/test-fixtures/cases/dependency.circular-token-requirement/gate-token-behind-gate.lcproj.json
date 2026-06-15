@@ -18,7 +18,15 @@
   "gates": {
     "gate": { "id": "gate", "name": "Gate", "kind": "lock", "requiredTokenIds": ["key"] }
   },
-  "tokens": { "key": { "id": "key", "name": "Key", "kind": "item", "locationSpaceId": "locked" } },
-  "puzzles": {},
+  "tokens": { "key": { "id": "key", "name": "Key", "kind": "item" } },
+  "puzzles": {
+    "make-key": {
+      "id": "make-key",
+      "name": "Make Key",
+      "locationSpaceId": "locked",
+      "requiredTokenIds": [],
+      "outputTokenIds": ["key"]
+    }
+  },
   "beats": {}
 }

@@ -6,6 +6,7 @@
       "severity": "error",
       "affectedEntities": [
         { "kind": "gate", "id": "gate" },
+        { "kind": "puzzle", "id": "make-key" },
         { "kind": "token", "id": "key" }
       ]
     }

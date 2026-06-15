@@ -21,6 +21,8 @@ type ExpectedValidation = {
   diagnostics: ExpectedDiagnostic[];
 };
 
+type ActualDiagnosticSummary = ExpectedDiagnostic;
+
 function collectProjectFiles(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const path = join(dir, entry.name);
@@ -45,6 +47,28 @@ function validateFixture(path: string) {
   }
 
   return validateProject(parsed.project);
+}
+
+function compareDiagnosticSummary(left: ActualDiagnosticSummary, right: ActualDiagnosticSummary) {
+  return JSON.stringify(left).localeCompare(JSON.stringify(right));
+}
+
+function sortAffectedEntities(affectedEntities: ExpectedDiagnostic['affectedEntities']) {
+  return [...affectedEntities].sort((left, right) =>
+    `${left.kind}:${left.id}`.localeCompare(`${right.kind}:${right.id}`)
+  );
+}
+
+function summarizeDiagnostics(diagnostics: ReturnType<typeof validateFixture>['diagnostics']) {
+  return diagnostics
+    .map(
+      (diagnostic): ActualDiagnosticSummary => ({
+        ruleId: diagnostic.ruleId,
+        severity: diagnostic.severity,
+        affectedEntities: sortAffectedEntities(diagnostic.affectedEntities)
+      })
+    )
+    .sort(compareDiagnosticSummary);
 }
 
 describe('fixture validation', () => {
@@ -73,20 +97,16 @@ describe('fixture validation', () => {
         caseFile.replace(/\.lcproj\.json$/, '.expected.json')
       ) as ExpectedValidation;
       const result = validateFixture(caseFile);
+      const expectedDiagnostics = [...expected.diagnostics].sort(compareDiagnosticSummary);
+      const normalizedExpectedDiagnostics = expectedDiagnostics.map((diagnostic) => ({
+        ...diagnostic,
+        affectedEntities: sortAffectedEntities(diagnostic.affectedEntities)
+      }));
 
       expect(result.ok, caseFile).toBe(expected.ok);
-
-      for (const expectedDiagnostic of expected.diagnostics) {
-        expect(result.diagnostics, caseFile).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({
-              ruleId: expectedDiagnostic.ruleId,
-              severity: expectedDiagnostic.severity,
-              affectedEntities: expectedDiagnostic.affectedEntities
-            })
-          ])
-        );
-      }
+      expect(summarizeDiagnostics(result.diagnostics), caseFile).toEqual(
+        normalizedExpectedDiagnostics
+      );
     }
   });
 });
