@@ -97,4 +97,45 @@ describe('workbench store', () => {
       'reachability.target-unreachable'
     );
   });
+
+  it('revalidates snapshots with the selected rule preset and project exceptions', () => {
+    const project = {
+      ...projectFixture(),
+      beats: {
+        a: {
+          id: 'a',
+          name: 'A',
+          intensity: 0.5,
+          order: 1
+        },
+        b: {
+          id: 'b',
+          name: 'B',
+          intensity: 0.51,
+          order: 2
+        },
+        c: {
+          id: 'c',
+          name: 'C',
+          intensity: 0.52,
+          order: 3
+        }
+      }
+    } satisfies ProjectGraph;
+    const store = createWorkbenchStore(project);
+
+    expect(store.getSnapshot().validation.diagnostics).toEqual([]);
+
+    const snapshot = store.dispatch({
+      type: 'SetRulePreset',
+      payload: {
+        rulePresetId: 'horror.clinic'
+      }
+    });
+
+    expect(snapshot.rulePreset.id).toBe('horror.clinic');
+    expect(snapshot.validation.diagnostics.map((diagnostic) => diagnostic.ruleId)).toContain(
+      'timeline.intensity-flat'
+    );
+  });
 });

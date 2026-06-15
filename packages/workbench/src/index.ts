@@ -43,3 +43,19 @@ export {
   type GraphViewModel,
   type GraphViewModelOptions
 } from './selectors/graphSelectors.js';
+export {
+  createReportViewModel,
+  type ReportDiagnosticSummary,
+  type ReportViewModel
+} from './selectors/reportSelectors.js';
+export {
+  createRulePresetViewModel,
+  type RulePresetOptionViewModel,
+  type RulePresetViewModel,
+  type RuleThresholdViewModel
+} from './selectors/rulePresetSelectors.js';
+export {
+  createTimelineViewModel,
+  type TimelineBeatViewModel,
+  type TimelineViewModel
+} from './selectors/timelineSelectors.js';

@@ -301,6 +301,101 @@ function applyUpdateBeat(project: ProjectGraph, command: Extract<Command, { type
   return next;
 }
 
+function applyReorderBeat(
+  project: ProjectGraph,
+  command: Extract<Command, { type: 'ReorderBeat' }>
+) {
+  const next = cloneProject(project);
+  const existing = next.beats[command.payload.id];
+
+  if (existing === undefined) {
+    throw new Error(`Beat "${command.payload.id}" does not exist.`);
+  }
+
+  next.beats[command.payload.id] = {
+    ...existing,
+    order: command.payload.order
+  };
+
+  return next;
+}
+
+function applySetRulePreset(
+  project: ProjectGraph,
+  command: Extract<Command, { type: 'SetRulePreset' }>
+) {
+  const next = cloneProject(project);
+
+  next.rulePresetId = command.payload.rulePresetId;
+  return next;
+}
+
+function applyUpdateRuleOverride(
+  project: ProjectGraph,
+  command: Extract<Command, { type: 'UpdateRuleOverride' }>
+) {
+  const next = cloneProject(project);
+  const overrides = next.ruleOverrides ?? [];
+
+  next.ruleOverrides = [
+    ...overrides.filter((override) => override.ruleId !== command.payload.override.ruleId),
+    { ...command.payload.override }
+  ].sort((left, right) => left.ruleId.localeCompare(right.ruleId));
+
+  return next;
+}
+
+function applyRemoveRuleOverride(
+  project: ProjectGraph,
+  command: Extract<Command, { type: 'RemoveRuleOverride' }>
+) {
+  const next = cloneProject(project);
+  const overrides = (next.ruleOverrides ?? []).filter(
+    (override) => override.ruleId !== command.payload.ruleId
+  );
+
+  if (overrides.length === 0) {
+    delete next.ruleOverrides;
+  } else {
+    next.ruleOverrides = overrides;
+  }
+
+  return next;
+}
+
+function applyAddDiagnosticException(
+  project: ProjectGraph,
+  command: Extract<Command, { type: 'AddDiagnosticException' }>
+) {
+  const next = cloneProject(project);
+  const exceptions = next.diagnosticExceptions ?? [];
+
+  next.diagnosticExceptions = [
+    ...exceptions.filter((exception) => exception.id !== command.payload.exception.id),
+    { ...command.payload.exception }
+  ].sort((left, right) => left.id.localeCompare(right.id));
+
+  return next;
+}
+
+function applyRemoveDiagnosticException(
+  project: ProjectGraph,
+  command: Extract<Command, { type: 'RemoveDiagnosticException' }>
+) {
+  const next = cloneProject(project);
+  const exceptions = (next.diagnosticExceptions ?? []).filter(
+    (exception) => exception.id !== command.payload.id
+  );
+
+  if (exceptions.length === 0) {
+    delete next.diagnosticExceptions;
+  } else {
+    next.diagnosticExceptions = exceptions;
+  }
+
+  return next;
+}
+
 export function applyCommand(project: ProjectGraph, command: Command): CommandResult {
   switch (command.type) {
     case 'LoadProject':
@@ -354,6 +449,30 @@ export function applyCommand(project: ProjectGraph, command: Command): CommandRe
     case 'UpdateBeat':
       return {
         project: applyUpdateBeat(project, command)
+      };
+    case 'ReorderBeat':
+      return {
+        project: applyReorderBeat(project, command)
+      };
+    case 'SetRulePreset':
+      return {
+        project: applySetRulePreset(project, command)
+      };
+    case 'UpdateRuleOverride':
+      return {
+        project: applyUpdateRuleOverride(project, command)
+      };
+    case 'RemoveRuleOverride':
+      return {
+        project: applyRemoveRuleOverride(project, command)
+      };
+    case 'AddDiagnosticException':
+      return {
+        project: applyAddDiagnosticException(project, command)
+      };
+    case 'RemoveDiagnosticException':
+      return {
+        project: applyRemoveDiagnosticException(project, command)
       };
   }
 }

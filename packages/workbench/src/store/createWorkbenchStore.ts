@@ -1,5 +1,6 @@
-import { validateProject } from '@labyrinth/core';
-import type { ProjectGraph, ValidationResult } from '@labyrinth/schema';
+import { validateProjectWithRules } from '@labyrinth/core';
+import { getRulePreset } from '@labyrinth/rulesets';
+import type { ProjectGraph, RulePreset, ValidationResult } from '@labyrinth/schema';
 
 import { createCommandBus, type CommandBus } from '../commands/commandBus.js';
 import type { Command } from '../commands/commandTypes.js';
@@ -8,6 +9,7 @@ export type WorkbenchStatus = 'idle' | 'validating';
 
 export type WorkbenchSnapshot = {
   project: ProjectGraph;
+  rulePreset: RulePreset;
   validation: ValidationResult;
   status: WorkbenchStatus;
   dirty: boolean;
@@ -25,9 +27,16 @@ export type WorkbenchStore = {
 };
 
 function makeSnapshot(project: ProjectGraph, dirty: boolean): WorkbenchSnapshot {
+  const rulePreset = getRulePreset(project.rulePresetId);
+
   return {
     project,
-    validation: validateProject(project),
+    rulePreset,
+    validation: validateProjectWithRules(project, {
+      preset: rulePreset,
+      overrides: project.ruleOverrides,
+      exceptions: project.diagnosticExceptions
+    }),
     status: 'idle',
     dirty
   };

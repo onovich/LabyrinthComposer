@@ -154,6 +154,128 @@ describe('command bus', () => {
     expect(bus.getProject().beats.beat).toBeDefined();
   });
 
+  it('updates rule preset, overrides, exceptions, and beat order through undoable commands', () => {
+    const bus = createCommandBus(projectFixture());
+
+    bus.dispatch({
+      type: 'UpdateBeat',
+      payload: {
+        beat: {
+          id: 'beat',
+          name: 'Beat',
+          spaceId: 'start',
+          order: 2
+        }
+      }
+    });
+    bus.dispatch({
+      type: 'SetRulePreset',
+      payload: {
+        rulePresetId: 'horror.clinic'
+      }
+    });
+    bus.dispatch({
+      type: 'UpdateRuleOverride',
+      payload: {
+        override: {
+          ruleId: 'timeline.intensity-flat',
+          thresholdOverrides: {
+            flatIntensityDelta: 0.05
+          },
+          severity: 'warning'
+        }
+      }
+    });
+    bus.dispatch({
+      type: 'AddDiagnosticException',
+      payload: {
+        exception: {
+          id: 'exception-1',
+          ruleId: 'timeline.intensity-flat',
+          entityRefs: [{ kind: 'beat', id: 'beat' }],
+          reason: 'Flat pacing is intentional.'
+        }
+      }
+    });
+    bus.dispatch({
+      type: 'ReorderBeat',
+      payload: {
+        id: 'beat',
+        order: 1
+      }
+    });
+
+    expect(bus.getProject()).toEqual(
+      expect.objectContaining({
+        rulePresetId: 'horror.clinic',
+        ruleOverrides: [
+          {
+            ruleId: 'timeline.intensity-flat',
+            thresholdOverrides: {
+              flatIntensityDelta: 0.05
+            },
+            severity: 'warning'
+          }
+        ],
+        diagnosticExceptions: [
+          {
+            id: 'exception-1',
+            ruleId: 'timeline.intensity-flat',
+            entityRefs: [{ kind: 'beat', id: 'beat' }],
+            reason: 'Flat pacing is intentional.'
+          }
+        ]
+      })
+    );
+    expect(bus.getProject().beats.beat?.order).toBe(1);
+
+    bus.undo();
+    expect(bus.getProject().beats.beat?.order).toBe(2);
+
+    bus.redo();
+    expect(bus.getProject().beats.beat?.order).toBe(1);
+  });
+
+  it('can remove rule overrides and diagnostic exceptions', () => {
+    const project = applyCommand(
+      applyCommand(projectFixture(), {
+        type: 'UpdateRuleOverride',
+        payload: {
+          override: {
+            ruleId: 'hint.token-use-too-late',
+            disabled: true
+          }
+        }
+      }).project,
+      {
+        type: 'AddDiagnosticException',
+        payload: {
+          exception: {
+            id: 'exception-1',
+            ruleId: 'hint.token-use-too-late',
+            entityRefs: [{ kind: 'token', id: 'key' }]
+          }
+        }
+      }
+    ).project;
+
+    const withoutOverride = applyCommand(project, {
+      type: 'RemoveRuleOverride',
+      payload: {
+        ruleId: 'hint.token-use-too-late'
+      }
+    }).project;
+    const withoutException = applyCommand(withoutOverride, {
+      type: 'RemoveDiagnosticException',
+      payload: {
+        id: 'exception-1'
+      }
+    }).project;
+
+    expect(withoutException.ruleOverrides).toBeUndefined();
+    expect(withoutException.diagnosticExceptions).toBeUndefined();
+  });
+
   it('updates inspector-owned fields through commands', () => {
     const bus = createCommandBus(projectFixture());
 

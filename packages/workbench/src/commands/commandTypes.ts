@@ -2,11 +2,14 @@ import type {
   Beat,
   Connection,
   ConnectionId,
+  DiagnosticException,
   Gate,
   GateId,
   ProjectGraph,
   Puzzle,
   PuzzleId,
+  RulePresetId,
+  RulePresetOverride,
   Space,
   SpaceId,
   Token,
@@ -117,6 +120,49 @@ export type UpdateBeatCommand = {
   };
 };
 
+export type ReorderBeatCommand = {
+  type: 'ReorderBeat';
+  payload: {
+    id: string;
+    order: number;
+  };
+};
+
+export type SetRulePresetCommand = {
+  type: 'SetRulePreset';
+  payload: {
+    rulePresetId: RulePresetId;
+  };
+};
+
+export type UpdateRuleOverrideCommand = {
+  type: 'UpdateRuleOverride';
+  payload: {
+    override: RulePresetOverride;
+  };
+};
+
+export type RemoveRuleOverrideCommand = {
+  type: 'RemoveRuleOverride';
+  payload: {
+    ruleId: string;
+  };
+};
+
+export type AddDiagnosticExceptionCommand = {
+  type: 'AddDiagnosticException';
+  payload: {
+    exception: DiagnosticException;
+  };
+};
+
+export type RemoveDiagnosticExceptionCommand = {
+  type: 'RemoveDiagnosticException';
+  payload: {
+    id: string;
+  };
+};
+
 export type Command =
   | LoadProjectCommand
   | CreateSpaceCommand
@@ -130,7 +176,13 @@ export type Command =
   | MoveTokenCommand
   | CreatePuzzleCommand
   | UpdatePuzzleCommand
-  | UpdateBeatCommand;
+  | UpdateBeatCommand
+  | ReorderBeatCommand
+  | SetRulePresetCommand
+  | UpdateRuleOverrideCommand
+  | RemoveRuleOverrideCommand
+  | AddDiagnosticExceptionCommand
+  | RemoveDiagnosticExceptionCommand;
 
 export type CommandResult = {
   project: ProjectGraph;

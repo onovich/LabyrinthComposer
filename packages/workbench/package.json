@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@labyrinth/core": "workspace:*",
+    "@labyrinth/rulesets": "workspace:*",
     "@labyrinth/schema": "workspace:*"
   }
 }
