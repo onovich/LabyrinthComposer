@@ -33,19 +33,21 @@ function projectFixture(): ProjectGraph {
 
 function createMemoryAdapter(
   text: string
-): ProjectRepositoryAdapter & { savedText: string | null } {
+): ProjectRepositoryAdapter & { savedText: string | null; savedTargets: string[] } {
   return {
     savedText: null,
+    savedTargets: [],
     async openText() {
       return {
         text,
         path: 'memory/project.lcproj.json'
       };
     },
-    async saveText(nextText) {
+    async saveText(nextText, target) {
       this.savedText = nextText;
+      this.savedTargets.push(target?.path ?? '(untitled)');
       return {
-        path: 'memory/project.lcproj.json'
+        path: target?.path ?? 'memory/project.lcproj.json'
       };
     },
     async saveTextAs(nextText) {
@@ -88,6 +90,55 @@ describe('project repository', () => {
     const openResult = await roundTrip.openProject();
 
     expect(openResult.ok).toBe(true);
+  });
+
+  it('uses the same canonical serialization for save current and save as', async () => {
+    const adapter = createMemoryAdapter(serializeProject(projectFixture()));
+    const repository = createProjectRepository(adapter);
+    const currentSave = await repository.saveProject(projectFixture(), {
+      path: 'memory/current.lcproj.json'
+    });
+
+    expect(currentSave).toEqual({
+      ok: true,
+      path: 'memory/current.lcproj.json'
+    });
+    expect(adapter.savedTargets).toEqual(['memory/current.lcproj.json']);
+    expect(adapter.savedText).toBe(serializeProject(projectFixture()));
+
+    const saveAs = await repository.saveProjectAs(projectFixture());
+
+    expect(saveAs).toEqual({
+      ok: true,
+      path: 'memory/project-copy.lcproj.json'
+    });
+    expect(adapter.savedText).toBe(serializeProject(projectFixture()));
+  });
+
+  it('returns save failures without reporting a saved path', async () => {
+    const repository = createProjectRepository({
+      async openText() {
+        return {
+          text: serializeProject(projectFixture()),
+          path: 'memory/project.lcproj.json'
+        };
+      },
+      async saveText() {
+        throw new Error('disk full');
+      },
+      async saveTextAs() {
+        throw new Error('disk full');
+      }
+    });
+
+    await expect(repository.saveProject(projectFixture())).resolves.toEqual({
+      ok: false,
+      message: 'Project save failed: Error: disk full'
+    });
+    await expect(repository.saveProjectAs(projectFixture())).resolves.toEqual({
+      ok: false,
+      message: 'Project save failed: Error: disk full'
+    });
   });
 
   it('returns schema issues for malformed project files', async () => {

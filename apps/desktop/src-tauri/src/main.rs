@@ -1,6 +1,7 @@
 use std::{
     fs,
     path::{Path, PathBuf},
+    time::{SystemTime, UNIX_EPOCH},
 };
 
 use serde::Serialize;
@@ -76,6 +77,82 @@ fn read_project_text(path: &Path) -> Result<String, String> {
         .map_err(|error| format!("Failed to read project file: {error}"))
 }
 
+fn unique_sidecar_path(path: &Path, label: &str) -> Result<PathBuf, String> {
+    let parent = path
+        .parent()
+        .ok_or_else(|| "Project path must have a parent directory.".to_string())?;
+    let file_name = path
+        .file_name()
+        .and_then(|value| value.to_str())
+        .ok_or_else(|| "Project path contains invalid UTF-8.".to_string())?;
+    let nonce = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_err(|error| format!("System clock error while saving project: {error}"))?
+        .as_nanos();
+
+    Ok(parent.join(format!(
+        ".{file_name}.{label}-{}-{nonce}",
+        std::process::id()
+    )))
+}
+
+fn cleanup_sidecar(path: &Path) {
+    let _ = fs::remove_file(path);
+}
+
+fn restore_backup(backup_path: &Path, target_path: &Path) {
+    if backup_path.exists() {
+        let _ = fs::rename(backup_path, target_path).or_else(|_| {
+            fs::copy(backup_path, target_path)?;
+            fs::remove_file(backup_path)
+        });
+    }
+}
+
+fn replace_file_with_staged_text(path: &Path, text: &str) -> Result<(), String> {
+    let temp_path = unique_sidecar_path(path, "tmp")?;
+    let backup_path = unique_sidecar_path(path, "backup")?;
+
+    replace_file_with_staged_text_at(path, text, &temp_path, &backup_path)
+}
+
+fn replace_file_with_staged_text_at(
+    path: &Path,
+    text: &str,
+    temp_path: &Path,
+    backup_path: &Path,
+) -> Result<(), String> {
+    cleanup_sidecar(temp_path);
+    cleanup_sidecar(backup_path);
+
+    fs::write(temp_path, text).map_err(|error| format!("Failed to stage project save: {error}"))?;
+
+    if !path.exists() {
+        return fs::rename(temp_path, path)
+            .map_err(|error| format!("Failed to finalize project save: {error}"));
+    }
+
+    fs::copy(path, backup_path)
+        .map_err(|error| format!("Failed to prepare project save backup: {error}"))?;
+    if let Err(error) = fs::remove_file(path) {
+        cleanup_sidecar(temp_path);
+        cleanup_sidecar(backup_path);
+        return Err(format!("Failed to replace existing project file: {error}"));
+    }
+
+    match fs::rename(temp_path, path) {
+        Ok(()) => {
+            cleanup_sidecar(backup_path);
+            Ok(())
+        }
+        Err(error) => {
+            restore_backup(backup_path, path);
+            cleanup_sidecar(temp_path);
+            Err(format!("Failed to finalize project save: {error}"))
+        }
+    }
+}
+
 fn write_project_text(path: &Path, text: &str) -> Result<(), String> {
     let canonical_path = canonical_project_path(path)?;
 
@@ -84,8 +161,7 @@ fn write_project_text(path: &Path, text: &str) -> Result<(), String> {
             .map_err(|error| format!("Failed to create project package: {error}"))?;
     }
 
-    fs::write(&canonical_path, text)
-        .map_err(|error| format!("Failed to save project file: {error}"))
+    replace_file_with_staged_text(&canonical_path, text)
 }
 
 fn ensure_supported_report_path(path: &Path, format: &str) -> Result<(), String> {
@@ -286,7 +362,6 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::time::{SystemTime, UNIX_EPOCH};
 
     const PROJECT_TEXT: &str = "{\"schemaVersion\":\"0.1.0\"}\n";
 
@@ -298,6 +373,18 @@ mod tests {
 
         std::env::temp_dir().join(format!(
             "labyrinth-composer-{name}-{}-{nonce}.lcproj",
+            std::process::id()
+        ))
+    }
+
+    fn temp_project_file_path(name: &str) -> PathBuf {
+        let nonce = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("system clock is before unix epoch")
+            .as_nanos();
+
+        std::env::temp_dir().join(format!(
+            "labyrinth-composer-{name}-{}-{nonce}.lcproj.json",
             std::process::id()
         ))
     }
@@ -345,6 +432,45 @@ mod tests {
         );
 
         let _ = fs::remove_dir_all(package_path);
+    }
+
+    #[test]
+    fn file_write_replaces_existing_project_text() {
+        let file_path = temp_project_file_path("replace");
+
+        fs::write(&file_path, "old").expect("write old project");
+
+        write_project_text(&file_path, PROJECT_TEXT).expect("replace project file");
+
+        assert_eq!(
+            fs::read_to_string(&file_path).expect("read saved project"),
+            PROJECT_TEXT
+        );
+
+        let _ = fs::remove_file(file_path);
+    }
+
+    #[test]
+    fn file_write_failure_preserves_existing_project_text() {
+        let file_path = temp_project_file_path("backup-failure");
+        let temp_path = temp_project_file_path("backup-failure-temp");
+        let backup_path = temp_package_path("backup-failure-sidecar");
+
+        fs::write(&file_path, "old").expect("write old project");
+        fs::create_dir_all(&backup_path).expect("reserve backup sidecar as directory");
+
+        let result =
+            replace_file_with_staged_text_at(&file_path, PROJECT_TEXT, &temp_path, &backup_path);
+
+        assert!(result.is_err());
+        assert_eq!(
+            fs::read_to_string(&file_path).expect("read preserved project"),
+            "old"
+        );
+
+        let _ = fs::remove_file(file_path);
+        let _ = fs::remove_file(temp_path);
+        let _ = fs::remove_dir_all(backup_path);
     }
 
     #[test]
