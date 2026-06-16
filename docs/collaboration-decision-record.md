@@ -33,3 +33,17 @@ Required before productization:
 Architectural consequence:
 
 Collaboration remains a decision gate, not a hidden dependency. Project truth stays in `ProjectGraph`, review threads remain ordinary project data, and provider/session state stays outside the main application until a later phase explicitly accepts it.
+
+## Phase 6 Clarification
+
+Phase 6 keeps the collaboration prototype as a session adapter over commands. Productization cannot require or permit presence, cursors, peer ids, provider state, connection status, retry queues, or Yjs updates to enter `ProjectGraph`.
+
+Decision gate semantics:
+
+- `presencePolicy` is `session-only`.
+- `providerStatePolicy` is `host-session-only`.
+- `projectGraphStoresPresence` must remain `false`.
+- `packages/workbench`, `packages/schema`, `packages/core`, and `packages/editor-ui` must not depend on `@labyrinth/collaboration-prototype` or `yjs`.
+- `canEnableCollaborationByDefault` may only return true for an accepted productization gate when the workbench remains collaboration-free and all required pre-productization items are complete.
+
+Collaboration productization therefore means accepting a constrained session collaboration path, not turning the portable project file into a CRDT document.
