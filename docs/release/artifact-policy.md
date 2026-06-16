@@ -1,6 +1,6 @@
 # Release Artifact Policy
 
-Date: 2026-06-16
+Date: 2026-06-17
 
 This policy defines Release Candidate artifacts for Labyrinth Composer. It does not authorize publishing, signing, store upload, or GitHub Release creation.
 
@@ -58,7 +58,7 @@ These paths are generated and must stay out of git:
 
 ## Signing And Publishing
 
-Signing and publishing are explicit future release-stage actions. Phase 5 release gates must not:
+Signing and publishing are explicit future release-stage actions. Phase 4 productization gates must not:
 
 - create a GitHub Release
 - upload to a store, Steam, CDN, or network share

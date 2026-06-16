@@ -1,8 +1,8 @@
 # `.lcproj` Package Assets
 
-Date: 2026-06-16
+Date: 2026-06-17
 
-Phase 5 introduces a minimal `AssetRef` contract for package-local asset references. This is a reference model, not a file-content model.
+Phase 4 productization keeps a minimal `AssetRef` contract for package-local asset references. This is a reference model, not a file-content model.
 
 ## Project Truth
 
@@ -46,7 +46,7 @@ assets/audio/door-open.wav
 assets/notes/clue-sheet.md
 ```
 
-Schema validation rejects absolute paths, backslashes, and `..` traversal segments. It does not require the asset file to exist, because schema parsing must stay portable and offline.
+Schema validation rejects absolute paths, backslashes, `..` traversal segments, and unknown asset kinds. It does not require the asset file to exist, because schema parsing must stay portable and offline.
 
 ## Manifest
 

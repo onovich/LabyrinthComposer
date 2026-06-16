@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 import { SCHEMA_VERSION, type ProjectGraph, type RulePreset, type ValidationResult } from '@labyrinth/schema';
 
@@ -152,5 +154,104 @@ describe('engine export model', () => {
     expect(json).not.toContain('reactFlow');
     expect(json).not.toContain('selectedEntity');
     expect(json).not.toContain('viewport');
+  });
+
+  it('keeps the checked-in importer sample aligned with the engine export contract', () => {
+    const importerProject: ProjectGraph = {
+      schemaVersion: SCHEMA_VERSION,
+      project: {
+        id: 'importer-sample',
+        name: 'Importer Sample'
+      },
+      rulePresetId: 'zelda.mini-dungeon',
+      startSpaceId: 'entry',
+      targetSpaceIds: ['locked-door'],
+      spaces: {
+        entry: {
+          id: 'entry',
+          name: 'Entry Hall',
+          tags: ['start']
+        },
+        'key-room': {
+          id: 'key-room',
+          name: 'Key Room'
+        },
+        'locked-door': {
+          id: 'locked-door',
+          name: 'Locked Door'
+        }
+      },
+      connections: {
+        'entry-key-room': {
+          id: 'entry-key-room',
+          fromSpaceId: 'entry',
+          toSpaceId: 'key-room'
+        },
+        'key-room-locked-door': {
+          id: 'key-room-locked-door',
+          fromSpaceId: 'key-room',
+          toSpaceId: 'locked-door',
+          gateId: 'brass-key-gate'
+        }
+      },
+      gates: {
+        'brass-key-gate': {
+          id: 'brass-key-gate',
+          name: 'Brass Key Gate',
+          kind: 'lock',
+          requiredTokenIds: ['brass-key']
+        }
+      },
+      tokens: {
+        'brass-key': {
+          id: 'brass-key',
+          name: 'Brass Key',
+          kind: 'item',
+          locationSpaceId: 'key-room'
+        }
+      },
+      puzzles: {},
+      beats: {
+        'beat-entry': {
+          id: 'beat-entry',
+          name: 'Enter the hall',
+          spaceId: 'entry',
+          kind: 'discovery',
+          intensity: 0.2,
+          order: 1
+        },
+        'beat-door': {
+          id: 'beat-door',
+          name: 'Open the locked door',
+          spaceId: 'locked-door',
+          kind: 'reward',
+          intensity: 0.5,
+          order: 2
+        }
+      }
+    };
+    const importerValidation: ValidationResult = {
+      ok: true,
+      reachableSpaces: ['entry', 'key-room', 'locked-door'],
+      acquiredTokens: ['brass-key'],
+      openedGates: ['brass-key-gate'],
+      solvedPuzzles: [],
+      trace: [],
+      diagnostics: []
+    };
+    const samplePath = join(process.cwd(), 'examples/engine-export/sample-engine-export.json');
+    const expected = JSON.parse(readFileSync(samplePath, 'utf8')) as unknown;
+    const actual = JSON.parse(
+      formatEngineExportJson(
+        createEngineExport(
+          importerProject,
+          importerValidation,
+          rulePreset,
+          '2026-06-16T00:00:00.000Z'
+        )
+      )
+    ) as unknown;
+
+    expect(actual).toEqual(expected);
   });
 });

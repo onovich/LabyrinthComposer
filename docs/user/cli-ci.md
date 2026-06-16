@@ -1,6 +1,6 @@
 # CLI And CI
 
-Date: 2026-06-16
+Date: 2026-06-17
 
 ## CLI Commands
 
@@ -28,6 +28,8 @@ Export:
 node apps/cli/dist/index.js export <project-file-or-package> --target engine-json [--out file-or-package]
 node apps/cli/dist/index.js export --list-targets
 ```
+
+When `--out` points to a `.lcproj` package, report and export commands write generated files under package artifact directories such as `reports/` and `exports/`. They do not modify `project.json`, and validation still reads only `project.json`.
 
 Exit codes:
 

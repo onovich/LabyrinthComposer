@@ -1,6 +1,6 @@
 # Release Candidate Checklist
 
-Date: 2026-06-16
+Date: 2026-06-17
 
 Use this checklist for local RC verification. It validates release readiness and produces inspectable artifacts, but it does not publish anything.
 
@@ -20,6 +20,8 @@ The wrapper runs:
 - `cargo fmt --check --manifest-path apps/desktop/src-tauri/Cargo.toml`
 - `cargo check --manifest-path apps/desktop/src-tauri/Cargo.toml`
 - `pnpm release:dry-run`
+
+The Playwright E2E gate covers the productized single-user workflow at `1440x1000` and the mobile acceptance viewport at `390x844`.
 
 ## Expected Local Outputs
 
