@@ -118,17 +118,21 @@ button {
 }
 
 .lc-shell {
+  height: 100vh;
   display: grid;
   grid-template-columns: 216px minmax(0, 1fr);
   min-height: 100vh;
+  overflow: hidden;
   background: var(--page);
 }
 
 .lc-sidebar {
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 20px;
   padding: 18px 14px;
+  overflow: auto;
   background: var(--sidebar);
   border-right: 1px solid var(--line-soft);
 }
@@ -219,6 +223,7 @@ button {
 
 .lc-main {
   min-width: 0;
+  min-height: 0;
   display: grid;
   grid-template-rows: 40px minmax(0, 1fr);
 }
@@ -252,11 +257,16 @@ button {
 }
 
 .lc-status-pill {
+  min-width: 0;
   display: inline-flex;
   align-items: center;
+  flex: 0 1 auto;
   gap: 6px;
   color: var(--muted);
   font-size: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .lc-status-pill-warning {
@@ -273,8 +283,9 @@ button {
   grid-template-areas:
     'graph inspector'
     'validation inspector';
-  grid-template-columns: minmax(0, 1fr) 336px;
+  grid-template-columns: minmax(0, 1fr) minmax(304px, 336px);
   grid-template-rows: minmax(0, 1fr) 240px;
+  overflow: hidden;
 }
 
 .lc-graph-canvas {
@@ -394,18 +405,31 @@ button {
 
 .lc-right-panel {
   grid-area: inspector;
+  min-height: 0;
   display: grid;
   align-content: start;
-  gap: 20px;
-  padding: 16px;
+  gap: 14px;
+  padding: 14px;
   overflow: auto;
   background: var(--surface-soft);
   border-left: 1px solid var(--line-soft);
 }
 
+.lc-right-panel > .lc-panel-section {
+  gap: 7px;
+  padding-bottom: 13px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.lc-right-panel > .lc-panel-section:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
 .lc-validation-panel {
   grid-area: validation;
   min-width: 0;
+  min-height: 0;
   overflow: auto;
   padding: 12px 14px;
   background: rgba(255, 255, 255, 0.76);
@@ -841,7 +865,7 @@ button {
 }
 
 .lc-report-markdown-preview {
-  max-height: 180px;
+  max-height: 148px;
   margin: 0;
   overflow: auto;
   padding: 8px;
@@ -1057,13 +1081,23 @@ button {
   }
 
   .lc-shell {
+    height: auto;
     grid-template-columns: 1fr;
+    overflow: visible;
   }
 
   .lc-sidebar {
-    min-height: 128px;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    align-content: start;
+    gap: 12px 16px;
     border-right: 0;
     border-bottom: 1px solid var(--line-soft);
+  }
+
+  .lc-brand {
+    grid-column: 1 / -1;
   }
 
   .lc-workbench {
@@ -1072,7 +1106,8 @@ button {
       'inspector'
       'validation';
     grid-template-columns: 1fr;
-    grid-template-rows: minmax(420px, 1fr) auto auto;
+    grid-template-rows: minmax(380px, 54vh) auto auto;
+    overflow: visible;
   }
 
   .lc-main {
@@ -1081,11 +1116,13 @@ button {
 
   .lc-topbar {
     flex-wrap: wrap;
+    justify-content: flex-start;
     min-height: 72px;
     padding: 8px 14px;
   }
 
   .lc-right-panel {
+    gap: 12px;
     border-left: 0;
     border-top: 1px solid var(--line-soft);
   }
@@ -1109,6 +1146,7 @@ button {
   }
 
   .lc-sidebar {
+    grid-template-columns: 1fr;
     padding: 14px;
   }
 
@@ -1116,9 +1154,45 @@ button {
     gap: 8px;
   }
 
+  .lc-toolbar-group {
+    width: 100%;
+  }
+
   .lc-tool-button {
     max-width: 100%;
     white-space: normal;
+  }
+
+  .lc-status-pill {
+    width: 100%;
+    white-space: normal;
+  }
+
+  .lc-workbench {
+    grid-template-rows: minmax(320px, 58vh) auto auto;
+  }
+
+  .lc-right-panel,
+  .lc-validation-panel {
+    padding: 12px;
+  }
+
+  .lc-export-summary,
+  .lc-report-summary,
+  .lc-review-summary,
+  .lc-review-compose,
+  .lc-timeline-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .lc-review-thread-header,
+  .lc-review-comment div {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .lc-threshold-row {
+    grid-template-columns: minmax(0, 1fr) 72px;
   }
 
   .lc-validation-grid,

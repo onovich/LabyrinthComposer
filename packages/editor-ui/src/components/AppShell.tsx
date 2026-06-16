@@ -259,7 +259,19 @@ export function AppShell({
             onSelectEntity={onSelectEntity}
             selectedEntity={selectedEntity}
           />
-          <aside className="lc-right-panel" aria-label="Inspector">
+          <aside className="lc-right-panel" aria-label="Project tools">
+            <ExportPanel viewModel={exportView} onExportEngineJson={onExportEngineJson} />
+            <ReviewPanel
+              selectedEntity={selectedEntity}
+              summary={reviewSummary}
+              threads={reviewThreads}
+              onAddComment={onAddReviewComment}
+              onAddThread={onAddReviewThread}
+              onRemoveComment={onRemoveReviewComment}
+              onSelectTarget={onSelectEntity}
+              onUpdateThreadStatus={onUpdateReviewThreadStatus}
+            />
+            <ReportPanel viewModel={report} onExportReport={onExportReport} />
             <RulePresetPanel
               viewModel={rulePreset}
               onSelectPreset={onSetRulePreset}
@@ -280,18 +292,6 @@ export function AppShell({
               onUpdateSpace={onUpdateSpace}
               onUpdateToken={onUpdateToken}
             />
-            <ExportPanel viewModel={exportView} onExportEngineJson={onExportEngineJson} />
-            <ReviewPanel
-              selectedEntity={selectedEntity}
-              summary={reviewSummary}
-              threads={reviewThreads}
-              onAddComment={onAddReviewComment}
-              onAddThread={onAddReviewThread}
-              onRemoveComment={onRemoveReviewComment}
-              onSelectTarget={onSelectEntity}
-              onUpdateThreadStatus={onUpdateReviewThreadStatus}
-            />
-            <ReportPanel viewModel={report} onExportReport={onExportReport} />
           </aside>
           <div className="lc-validation-panel">
             <DiagnosticsPanel
