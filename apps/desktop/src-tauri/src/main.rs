@@ -54,6 +54,20 @@ fn ensure_supported_report_path(path: &Path, format: &str) -> Result<(), String>
     }
 }
 
+fn ensure_supported_engine_export_path(path: &Path) -> Result<(), String> {
+    let extension = path
+        .extension()
+        .and_then(|value| value.to_str())
+        .unwrap_or_default()
+        .to_ascii_lowercase();
+
+    if extension == "json" {
+        Ok(())
+    } else {
+        Err("Engine exports must use .json.".to_string())
+    }
+}
+
 fn normalize_path(path: &Path) -> Result<String, String> {
     path.to_str()
         .map(ToOwned::to_owned)
@@ -159,6 +173,33 @@ fn save_report_file_as(
     }))
 }
 
+#[tauri::command]
+fn save_engine_export_file_as(
+    app: tauri::AppHandle,
+    text: String,
+) -> Result<Option<SaveProjectFileResult>, String> {
+    let Some(path) = app
+        .dialog()
+        .file()
+        .add_filter("Engine Export JSON", &["json"])
+        .set_file_name("engine-export.json")
+        .blocking_save_file()
+    else {
+        return Ok(None);
+    };
+    let path = path
+        .into_path()
+        .map_err(|_| "Selected engine export path is not a local filesystem path.".to_string())?;
+
+    ensure_supported_engine_export_path(&path)?;
+    fs::write(&path, text)
+        .map_err(|error| format!("Failed to save engine export file: {error}"))?;
+
+    Ok(Some(SaveProjectFileResult {
+        path: normalize_path(&path)?,
+    }))
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -166,7 +207,8 @@ fn main() {
             open_project_file,
             save_project_file,
             save_project_file_as,
-            save_report_file_as
+            save_report_file_as,
+            save_engine_export_file_as
         ])
         .run(tauri::generate_context!())
         .expect("failed to run Labyrinth Composer");

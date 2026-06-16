@@ -8,6 +8,7 @@ type ReportFormat = 'markdown' | 'json';
 export type DesktopAdapters = {
   projectRepository: ProjectRepository;
   reportRepository: ReportRepository;
+  engineExportRepository: EngineExportRepository;
 };
 
 export type ReportSaveResult =
@@ -22,6 +23,10 @@ export type ReportSaveResult =
 
 export type ReportRepository = {
   saveReportAs(text: string, format: ReportFormat): Promise<ReportSaveResult>;
+};
+
+export type EngineExportRepository = {
+  saveEngineExportAs(text: string): Promise<ReportSaveResult>;
 };
 
 type ProjectFileResult = {
@@ -39,6 +44,7 @@ export type TauriProjectFileClient = {
   saveProjectFile(text: string, path: string): Promise<SaveProjectFileResult>;
   saveProjectFileAs(text: string): Promise<SaveProjectFileResult | null>;
   saveReportFileAs(text: string, format: ReportFormat): Promise<SaveProjectFileResult | null>;
+  saveEngineExportFileAs(text: string): Promise<SaveProjectFileResult | null>;
 };
 
 const samplePath = 'packages/test-fixtures/samples/horror-clinic.lcproj.json';
@@ -50,6 +56,10 @@ function reportFileName(format: ReportFormat): string {
 
 function reportMimeType(format: ReportFormat): string {
   return format === 'json' ? 'application/json' : 'text/markdown';
+}
+
+function engineExportFileName(): string {
+  return 'engine-export.json';
 }
 
 function downloadText(text: string, filename: string, mimeType = 'application/json') {
@@ -88,6 +98,11 @@ const defaultTauriProjectFileClient: TauriProjectFileClient = {
   saveReportFileAs(text, format) {
     return invoke<SaveProjectFileResult | null>('save_report_file_as', {
       format,
+      text
+    });
+  },
+  saveEngineExportFileAs(text) {
+    return invoke<SaveProjectFileResult | null>('save_engine_export_file_as', {
       text
     });
   }
@@ -180,6 +195,37 @@ export function createDesktopAdapters(
           return {
             ok: false,
             message: `Report save failed: ${String(error)}`
+          };
+        }
+      }
+    },
+    engineExportRepository: {
+      async saveEngineExportAs(text) {
+        try {
+          if (tauriProjectFileClient.isAvailable()) {
+            const saved = await tauriProjectFileClient.saveEngineExportFileAs(text);
+
+            if (saved === null) {
+              throw new Error('Engine export save was cancelled.');
+            }
+
+            return {
+              ok: true,
+              path: saved.path
+            };
+          }
+
+          const filename = engineExportFileName();
+          downloadText(text, filename, 'application/json');
+
+          return {
+            ok: true,
+            path: filename
+          };
+        } catch (error) {
+          return {
+            ok: false,
+            message: `Engine export save failed: ${String(error)}`
           };
         }
       }

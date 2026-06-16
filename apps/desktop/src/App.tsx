@@ -1,6 +1,7 @@
 import { AppShell, type TemplateCardViewModel } from '@labyrinth/editor-ui';
 import {
   createHighlightedEntitiesForDiagnostic,
+  createEngineExportText,
   createReportText,
   createWorkbenchStore,
   parseProjectText,
@@ -537,6 +538,19 @@ export function App() {
     setOperationMessage(`Exported ${result.path ?? `${format} report`}`);
   }
 
+  async function exportEngineJson() {
+    const result = await adapters.engineExportRepository.saveEngineExportAs(
+      createEngineExportText(snapshot)
+    );
+
+    if (!result.ok) {
+      setOperationMessage(result.message);
+      return;
+    }
+
+    setOperationMessage(`Exported ${result.path ?? 'engine export'}`);
+  }
+
   function nextId(prefix: string, record: Record<string, unknown>) {
     let index = Object.keys(record).length + 1;
     let id = `${prefix}-${index}`;
@@ -800,6 +814,7 @@ export function App() {
       onCreateSpace={createSpace}
       onCreateToken={createToken}
       onExportReport={exportReport}
+      onExportEngineJson={exportEngineJson}
       onAddReviewComment={addReviewComment}
       onAddReviewThread={addReviewThread}
       onOpenDashboard={() => setShowDashboard(true)}

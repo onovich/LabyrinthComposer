@@ -32,6 +32,11 @@ function createTauriClient(
             : 'D:\\Projects\\horror-clinic-report.md'
       };
     },
+    async saveEngineExportFileAs() {
+      return {
+        path: 'D:\\Projects\\engine-export.json'
+      };
+    },
     ...overrides
   };
 }
@@ -150,6 +155,43 @@ describe('desktop adapters', () => {
     await expect(adapters.reportRepository.saveReportAs('{}', 'json')).resolves.toEqual({
       ok: false,
       message: 'Report save failed: Error: Report save was cancelled.'
+    });
+  });
+
+  it('saves engine JSON exports through the Tauri engine export dialog', async () => {
+    let savedText = '';
+    const adapters = createDesktopAdapters(
+      createTauriClient({
+        async saveEngineExportFileAs(text) {
+          savedText = text;
+          return {
+            path: 'D:\\Projects\\engine-export.json'
+          };
+        }
+      })
+    );
+
+    await expect(
+      adapters.engineExportRepository.saveEngineExportAs('{"exportVersion":"0.1.0"}')
+    ).resolves.toEqual({
+      ok: true,
+      path: 'D:\\Projects\\engine-export.json'
+    });
+    expect(savedText).toContain('exportVersion');
+  });
+
+  it('reports a cancelled Tauri engine export save-as', async () => {
+    const adapters = createDesktopAdapters(
+      createTauriClient({
+        async saveEngineExportFileAs() {
+          return null;
+        }
+      })
+    );
+
+    await expect(adapters.engineExportRepository.saveEngineExportAs('{}')).resolves.toEqual({
+      ok: false,
+      message: 'Engine export save failed: Error: Engine export save was cancelled.'
     });
   });
 });

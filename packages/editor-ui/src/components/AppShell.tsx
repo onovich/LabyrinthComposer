@@ -1,6 +1,7 @@
 import type { EntityRef, ProjectGraph } from '@labyrinth/schema';
 import {
   createDiagnosticViewModels,
+  createExportViewModel,
   createGraphViewModel,
   createReportViewModel,
   createReviewSummary,
@@ -28,6 +29,7 @@ import {
 } from 'lucide-react';
 
 import { Dashboard, type TemplateCardViewModel } from './Dashboard.js';
+import { ExportPanel } from './ExportPanel.js';
 import { GraphCanvas } from '../graph/GraphCanvas.js';
 import { DiagnosticsPanel } from './DiagnosticsPanel.js';
 import { InspectorPanel } from './InspectorPanel.js';
@@ -54,6 +56,7 @@ type AppShellProps = {
   onUpdateRuleThreshold(ruleId: string, key: string, value: number): void;
   onMarkDiagnosticException(id: string): void;
   onExportReport(format: 'markdown' | 'json'): void;
+  onExportEngineJson(): void;
   onAddReviewThread(target: EntityRef): void;
   onUpdateReviewThreadStatus(id: string, status: 'open' | 'resolved'): void;
   onAddReviewComment(threadId: string, body: string): void;
@@ -97,6 +100,7 @@ export function AppShell({
   onUpdateRuleThreshold,
   onMarkDiagnosticException,
   onExportReport,
+  onExportEngineJson,
   onAddReviewThread,
   onUpdateReviewThreadStatus,
   onAddReviewComment,
@@ -130,6 +134,7 @@ export function AppShell({
   const rulePreset = createRulePresetViewModel(snapshot.project);
   const timeline = createTimelineViewModel(snapshot.project, snapshot.validation);
   const report = createReportViewModel(snapshot.project, snapshot.validation);
+  const exportView = createExportViewModel(snapshot.project, snapshot.validation);
   const reviewThreads = createReviewThreadViewModels(snapshot.project, selectedEntity);
   const reviewSummary = createReviewSummary(snapshot.project);
   const graph = createGraphViewModel(snapshot.project, {
@@ -271,6 +276,7 @@ export function AppShell({
               onUpdateSpace={onUpdateSpace}
               onUpdateToken={onUpdateToken}
             />
+            <ExportPanel viewModel={exportView} onExportEngineJson={onExportEngineJson} />
             <ReviewPanel
               selectedEntity={selectedEntity}
               summary={reviewSummary}

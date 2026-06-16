@@ -26,6 +26,7 @@ export {
   type ProjectSaveResult,
   type SaveTarget
 } from './services/projectRepository.js';
+export { createEngineExportText } from './services/engineExportService.js';
 export { createReportText, type ReportFormat } from './services/reportService.js';
 export {
   createReviewSummary,
@@ -49,6 +50,7 @@ export {
   type GraphViewModel,
   type GraphViewModelOptions
 } from './selectors/graphSelectors.js';
+export { createExportViewModel, type ExportViewModel } from './selectors/exportSelectors.js';
 export {
   createReportViewModel,
   type ReportDiagnosticSummary,

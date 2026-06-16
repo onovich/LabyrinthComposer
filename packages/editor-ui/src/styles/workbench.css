@@ -619,6 +619,51 @@ button {
   gap: 6px;
 }
 
+.lc-export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.lc-export-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.lc-export-summary div {
+  display: grid;
+  gap: 3px;
+  padding: 8px;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.lc-export-summary span {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.lc-export-summary strong {
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.lc-export-state {
+  overflow: hidden;
+  color: var(--muted-strong);
+  font-size: 10px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-export-state-warning {
+  color: var(--warning);
+}
+
 .lc-review-heading {
   display: flex;
   align-items: center;
