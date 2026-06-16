@@ -18,6 +18,7 @@ import type {
 } from './entities.js';
 import type { DiagnosticException, RulePresetOverride } from './rulesets.js';
 import { SCHEMA_VERSION, type SchemaVersion } from './schemaVersion.js';
+import type { ReviewThread } from './review.js';
 
 export type ProjectMetadata = {
   id: string;
@@ -40,6 +41,7 @@ export type ProjectGraph = {
   rulePresetId?: RulePresetId;
   ruleOverrides?: RulePresetOverride[];
   diagnosticExceptions?: DiagnosticException[];
+  reviewThreads?: ReviewThread[];
 };
 
 export type SchemaIssue = {

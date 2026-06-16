@@ -105,6 +105,89 @@ describe('parseProjectGraph', () => {
     );
   });
 
+  it('accepts structured review threads with EntityRef targets', () => {
+    const result = parseProjectGraph({
+      schemaVersion: SCHEMA_VERSION,
+      project: {
+        id: 'review-contract',
+        name: 'Review Contract'
+      },
+      startSpaceId: 'start',
+      targetSpaceIds: ['start'],
+      spaces: {
+        start: {
+          id: 'start',
+          name: 'Start'
+        }
+      },
+      connections: {},
+      gates: {},
+      tokens: {},
+      puzzles: {},
+      beats: {},
+      reviewThreads: [
+        {
+          id: 'review-start',
+          target: {
+            kind: 'space',
+            id: 'start'
+          },
+          status: 'open',
+          comments: [
+            {
+              id: 'comment-1',
+              author: 'Design',
+              body: 'Clarify why this is the entry point.',
+              createdAt: '2026-06-16T00:00:00.000Z'
+            }
+          ]
+        }
+      ]
+    });
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        ok: true
+      })
+    );
+  });
+
+  it('rejects review targets that are not EntityRef values', () => {
+    const result = parseProjectGraph({
+      schemaVersion: SCHEMA_VERSION,
+      project: {
+        id: 'review-contract',
+        name: 'Review Contract'
+      },
+      startSpaceId: 'start',
+      targetSpaceIds: ['start'],
+      spaces: {
+        start: {
+          id: 'start',
+          name: 'Start'
+        }
+      },
+      connections: {},
+      gates: {},
+      tokens: {},
+      puzzles: {},
+      beats: {},
+      reviewThreads: [
+        {
+          id: 'review-dom-node',
+          target: {
+            kind: 'react-flow-node',
+            id: 'rf__node-start'
+          },
+          status: 'open',
+          comments: []
+        }
+      ]
+    });
+
+    expect(result.ok).toBe(false);
+  });
+
   it('rejects invalid rule override severity values', () => {
     const result = parseProjectGraph({
       schemaVersion: SCHEMA_VERSION,

@@ -1,4 +1,14 @@
-import type { Beat, Connection, Gate, ProjectGraph, Puzzle, Space, Token } from '@labyrinth/schema';
+import type {
+  Beat,
+  Connection,
+  EntityRef,
+  Gate,
+  ProjectGraph,
+  Puzzle,
+  ReviewThread,
+  Space,
+  Token
+} from '@labyrinth/schema';
 
 import type { Command, CommandResult } from './commandTypes.js';
 
@@ -56,6 +66,41 @@ function requirePuzzle(project: ProjectGraph, id: string): Puzzle {
   return puzzle;
 }
 
+function requireReviewThread(project: ProjectGraph, id: string): ReviewThread {
+  const thread = (project.reviewThreads ?? []).find((item) => item.id === id);
+
+  if (thread === undefined) {
+    throw new Error(`Review thread "${id}" does not exist.`);
+  }
+
+  return thread;
+}
+
+function requireEntity(project: ProjectGraph, entity: EntityRef): void {
+  switch (entity.kind) {
+    case 'space':
+      requireSpace(project, entity.id);
+      return;
+    case 'connection':
+      requireConnection(project, entity.id);
+      return;
+    case 'gate':
+      requireGate(project, entity.id);
+      return;
+    case 'token':
+      requireToken(project, entity.id);
+      return;
+    case 'puzzle':
+      requirePuzzle(project, entity.id);
+      return;
+    case 'beat':
+      if (project.beats[entity.id] === undefined) {
+        throw new Error(`Beat "${entity.id}" does not exist.`);
+      }
+      return;
+  }
+}
+
 function assertSpaceDoesNotExist(project: ProjectGraph, id: string): void {
   if (id in project.spaces) {
     throw new Error(`Space "${id}" already exists.`);
@@ -83,6 +128,18 @@ function assertTokenDoesNotExist(project: ProjectGraph, id: string): void {
 function assertPuzzleDoesNotExist(project: ProjectGraph, id: string): void {
   if (id in project.puzzles) {
     throw new Error(`Puzzle "${id}" already exists.`);
+  }
+}
+
+function assertReviewThreadDoesNotExist(project: ProjectGraph, id: string): void {
+  if ((project.reviewThreads ?? []).some((thread) => thread.id === id)) {
+    throw new Error(`Review thread "${id}" already exists.`);
+  }
+}
+
+function assertReviewCommentDoesNotExist(thread: ReviewThread, id: string): void {
+  if (thread.comments.some((comment) => comment.id === id)) {
+    throw new Error(`Review comment "${id}" already exists.`);
   }
 }
 
@@ -396,6 +453,91 @@ function applyRemoveDiagnosticException(
   return next;
 }
 
+function applyAddReviewThread(
+  project: ProjectGraph,
+  command: Extract<Command, { type: 'AddReviewThread' }>
+) {
+  const next = cloneProject(project);
+  const { thread } = command.payload;
+
+  assertReviewThreadDoesNotExist(next, thread.id);
+  requireEntity(next, thread.target);
+
+  next.reviewThreads = [
+    ...(next.reviewThreads ?? []),
+    {
+      ...thread,
+      target: { ...thread.target },
+      comments: thread.comments.map((comment) => ({ ...comment }))
+    }
+  ].sort((left, right) => left.id.localeCompare(right.id));
+
+  return next;
+}
+
+function applyUpdateReviewThreadStatus(
+  project: ProjectGraph,
+  command: Extract<Command, { type: 'UpdateReviewThreadStatus' }>
+) {
+  const next = cloneProject(project);
+  requireReviewThread(next, command.payload.id);
+
+  next.reviewThreads = (next.reviewThreads ?? []).map((thread) =>
+    thread.id === command.payload.id
+      ? {
+          ...thread,
+          status: command.payload.status
+        }
+      : thread
+  );
+
+  return next;
+}
+
+function applyAddReviewComment(
+  project: ProjectGraph,
+  command: Extract<Command, { type: 'AddReviewComment' }>
+) {
+  const next = cloneProject(project);
+  const thread = requireReviewThread(next, command.payload.threadId);
+
+  assertReviewCommentDoesNotExist(thread, command.payload.comment.id);
+
+  next.reviewThreads = (next.reviewThreads ?? []).map((item) =>
+    item.id === command.payload.threadId
+      ? {
+          ...item,
+          comments: [...item.comments, { ...command.payload.comment }]
+        }
+      : item
+  );
+
+  return next;
+}
+
+function applyRemoveReviewComment(
+  project: ProjectGraph,
+  command: Extract<Command, { type: 'RemoveReviewComment' }>
+) {
+  const next = cloneProject(project);
+  const thread = requireReviewThread(next, command.payload.threadId);
+
+  if (!thread.comments.some((comment) => comment.id === command.payload.commentId)) {
+    throw new Error(`Review comment "${command.payload.commentId}" does not exist.`);
+  }
+
+  next.reviewThreads = (next.reviewThreads ?? []).map((item) =>
+    item.id === command.payload.threadId
+      ? {
+          ...item,
+          comments: item.comments.filter((comment) => comment.id !== command.payload.commentId)
+        }
+      : item
+  );
+
+  return next;
+}
+
 export function applyCommand(project: ProjectGraph, command: Command): CommandResult {
   switch (command.type) {
     case 'LoadProject':
@@ -473,6 +615,22 @@ export function applyCommand(project: ProjectGraph, command: Command): CommandRe
     case 'RemoveDiagnosticException':
       return {
         project: applyRemoveDiagnosticException(project, command)
+      };
+    case 'AddReviewThread':
+      return {
+        project: applyAddReviewThread(project, command)
+      };
+    case 'UpdateReviewThreadStatus':
+      return {
+        project: applyUpdateReviewThreadStatus(project, command)
+      };
+    case 'AddReviewComment':
+      return {
+        project: applyAddReviewComment(project, command)
+      };
+    case 'RemoveReviewComment':
+      return {
+        project: applyRemoveReviewComment(project, command)
       };
   }
 }

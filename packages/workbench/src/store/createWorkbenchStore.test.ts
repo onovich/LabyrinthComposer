@@ -138,4 +138,26 @@ describe('workbench store', () => {
       'timeline.intensity-flat'
     );
   });
+
+  it('keeps review data out of core validation results', () => {
+    const store = createWorkbenchStore(projectFixture());
+    const before = store.getSnapshot().validation;
+    const snapshot = store.dispatch({
+      type: 'AddReviewThread',
+      payload: {
+        thread: {
+          id: 'review-start',
+          target: {
+            kind: 'space',
+            id: 'start'
+          },
+          status: 'open',
+          comments: []
+        }
+      }
+    });
+
+    expect(snapshot.project.reviewThreads).toHaveLength(1);
+    expect(snapshot.validation).toEqual(before);
+  });
 });

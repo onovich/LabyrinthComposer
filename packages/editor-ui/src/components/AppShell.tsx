@@ -3,6 +3,8 @@ import {
   createDiagnosticViewModels,
   createGraphViewModel,
   createReportViewModel,
+  createReviewSummary,
+  createReviewThreadViewModels,
   createRulePresetViewModel,
   createTimelineViewModel,
   createValidationSummary,
@@ -30,6 +32,7 @@ import { GraphCanvas } from '../graph/GraphCanvas.js';
 import { DiagnosticsPanel } from './DiagnosticsPanel.js';
 import { InspectorPanel } from './InspectorPanel.js';
 import { ReportPanel } from './ReportPanel.js';
+import { ReviewPanel } from './ReviewPanel.js';
 import { RulePresetPanel } from './RulePresetPanel.js';
 import { TimelinePanel } from './TimelinePanel.js';
 
@@ -51,6 +54,10 @@ type AppShellProps = {
   onUpdateRuleThreshold(ruleId: string, key: string, value: number): void;
   onMarkDiagnosticException(id: string): void;
   onExportReport(format: 'markdown' | 'json'): void;
+  onAddReviewThread(target: EntityRef): void;
+  onUpdateReviewThreadStatus(id: string, status: 'open' | 'resolved'): void;
+  onAddReviewComment(threadId: string, body: string): void;
+  onRemoveReviewComment(threadId: string, commentId: string): void;
   onOpenDashboard(): void;
   onOpenProject(): void;
   onSaveProject(): void;
@@ -90,6 +97,10 @@ export function AppShell({
   onUpdateRuleThreshold,
   onMarkDiagnosticException,
   onExportReport,
+  onAddReviewThread,
+  onUpdateReviewThreadStatus,
+  onAddReviewComment,
+  onRemoveReviewComment,
   onOpenDashboard,
   onOpenProject,
   onSaveProject,
@@ -119,6 +130,8 @@ export function AppShell({
   const rulePreset = createRulePresetViewModel(snapshot.project);
   const timeline = createTimelineViewModel(snapshot.project, snapshot.validation);
   const report = createReportViewModel(snapshot.project, snapshot.validation);
+  const reviewThreads = createReviewThreadViewModels(snapshot.project, selectedEntity);
+  const reviewSummary = createReviewSummary(snapshot.project);
   const graph = createGraphViewModel(snapshot.project, {
     validation: snapshot.validation,
     highlightedEntities: selectedDiagnostic?.highlightedEntities ?? []
@@ -257,6 +270,16 @@ export function AppShell({
               onUpdatePuzzle={onUpdatePuzzle}
               onUpdateSpace={onUpdateSpace}
               onUpdateToken={onUpdateToken}
+            />
+            <ReviewPanel
+              selectedEntity={selectedEntity}
+              summary={reviewSummary}
+              threads={reviewThreads}
+              onAddComment={onAddReviewComment}
+              onAddThread={onAddReviewThread}
+              onRemoveComment={onRemoveReviewComment}
+              onSelectTarget={onSelectEntity}
+              onUpdateThreadStatus={onUpdateReviewThreadStatus}
             />
             <ReportPanel viewModel={report} onExportReport={onExportReport} />
           </aside>

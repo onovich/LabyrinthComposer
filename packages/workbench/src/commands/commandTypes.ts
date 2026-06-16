@@ -8,6 +8,9 @@ import type {
   ProjectGraph,
   Puzzle,
   PuzzleId,
+  ReviewComment,
+  ReviewThread,
+  ReviewThreadStatus,
   RulePresetId,
   RulePresetOverride,
   Space,
@@ -163,6 +166,37 @@ export type RemoveDiagnosticExceptionCommand = {
   };
 };
 
+export type AddReviewThreadCommand = {
+  type: 'AddReviewThread';
+  payload: {
+    thread: ReviewThread;
+  };
+};
+
+export type UpdateReviewThreadStatusCommand = {
+  type: 'UpdateReviewThreadStatus';
+  payload: {
+    id: string;
+    status: ReviewThreadStatus;
+  };
+};
+
+export type AddReviewCommentCommand = {
+  type: 'AddReviewComment';
+  payload: {
+    threadId: string;
+    comment: ReviewComment;
+  };
+};
+
+export type RemoveReviewCommentCommand = {
+  type: 'RemoveReviewComment';
+  payload: {
+    threadId: string;
+    commentId: string;
+  };
+};
+
 export type Command =
   | LoadProjectCommand
   | CreateSpaceCommand
@@ -182,7 +216,11 @@ export type Command =
   | UpdateRuleOverrideCommand
   | RemoveRuleOverrideCommand
   | AddDiagnosticExceptionCommand
-  | RemoveDiagnosticExceptionCommand;
+  | RemoveDiagnosticExceptionCommand
+  | AddReviewThreadCommand
+  | UpdateReviewThreadStatusCommand
+  | AddReviewCommentCommand
+  | RemoveReviewCommentCommand;
 
 export type CommandResult = {
   project: ProjectGraph;

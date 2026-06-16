@@ -6,7 +6,12 @@ import {
   parseProjectText,
   type ReportFormat
 } from '@labyrinth/workbench';
-import { SCHEMA_VERSION, type EntityRef, type ProjectGraph } from '@labyrinth/schema';
+import {
+  SCHEMA_VERSION,
+  type EntityRef,
+  type ProjectGraph,
+  type ReviewThreadStatus
+} from '@labyrinth/schema';
 import { useMemo, useState } from 'react';
 
 import { createDesktopAdapters } from './bootstrap/createDesktopAdapters.js';
@@ -132,8 +137,39 @@ function sameEntityRefs(left: EntityRef[], right: EntityRef[]): boolean {
 }
 
 function nextDiagnosticExceptionId(project: ProjectGraph, ruleId: string): string {
-  const existingIds = new Set((project.diagnosticExceptions ?? []).map((exception) => exception.id));
+  const existingIds = new Set(
+    (project.diagnosticExceptions ?? []).map((exception) => exception.id)
+  );
   const base = `exception-${sanitizeIdSegment(ruleId) || 'diagnostic'}`;
+  let id = base;
+  let index = 2;
+
+  while (existingIds.has(id)) {
+    id = `${base}-${index}`;
+    index += 1;
+  }
+
+  return id;
+}
+
+function nextReviewThreadId(project: ProjectGraph, target: EntityRef): string {
+  const existingIds = new Set((project.reviewThreads ?? []).map((thread) => thread.id));
+  const base = `review-${sanitizeIdSegment(`${target.kind}-${target.id}`) || 'entity'}`;
+  let id = base;
+  let index = 2;
+
+  while (existingIds.has(id)) {
+    id = `${base}-${index}`;
+    index += 1;
+  }
+
+  return id;
+}
+
+function nextReviewCommentId(project: ProjectGraph, threadId: string): string {
+  const thread = (project.reviewThreads ?? []).find((item) => item.id === threadId);
+  const existingIds = new Set(thread?.comments.map((comment) => comment.id) ?? []);
+  const base = `${sanitizeIdSegment(threadId) || 'review'}-comment`;
   let id = base;
   let index = 2;
 
@@ -385,6 +421,72 @@ export function App() {
         }
       }),
       'Diagnostic exception added'
+    );
+  }
+
+  function addReviewThread(target: EntityRef) {
+    commit(
+      store.dispatch({
+        type: 'AddReviewThread',
+        payload: {
+          thread: {
+            id: nextReviewThreadId(snapshot.project, target),
+            target,
+            status: 'open',
+            comments: []
+          }
+        }
+      }),
+      'Review thread added'
+    );
+  }
+
+  function updateReviewThreadStatus(id: string, status: ReviewThreadStatus) {
+    commit(
+      store.dispatch({
+        type: 'UpdateReviewThreadStatus',
+        payload: {
+          id,
+          status
+        }
+      }),
+      status === 'resolved' ? 'Review thread resolved' : 'Review thread reopened'
+    );
+  }
+
+  function addReviewComment(threadId: string, body: string) {
+    const trimmedBody = body.trim();
+
+    if (trimmedBody.length === 0) {
+      return;
+    }
+
+    commit(
+      store.dispatch({
+        type: 'AddReviewComment',
+        payload: {
+          threadId,
+          comment: {
+            id: nextReviewCommentId(snapshot.project, threadId),
+            body: trimmedBody,
+            createdAt: new Date().toISOString()
+          }
+        }
+      }),
+      'Review comment added'
+    );
+  }
+
+  function removeReviewComment(threadId: string, commentId: string) {
+    commit(
+      store.dispatch({
+        type: 'RemoveReviewComment',
+        payload: {
+          threadId,
+          commentId
+        }
+      }),
+      'Review comment removed'
     );
   }
 
@@ -698,6 +800,8 @@ export function App() {
       onCreateSpace={createSpace}
       onCreateToken={createToken}
       onExportReport={exportReport}
+      onAddReviewComment={addReviewComment}
+      onAddReviewThread={addReviewThread}
       onOpenDashboard={() => setShowDashboard(true)}
       onOpenProject={openProject}
       onRedo={() => commit(store.redo())}
@@ -715,6 +819,8 @@ export function App() {
       onSetRulePreset={setRulePreset}
       onUndo={() => commit(store.undo())}
       onMarkDiagnosticException={markDiagnosticException}
+      onRemoveReviewComment={removeReviewComment}
+      onUpdateReviewThreadStatus={updateReviewThreadStatus}
       onUpdateRuleThreshold={updateRuleThreshold}
       onUpdateBeat={updateBeat}
       onUpdateConnection={updateConnection}

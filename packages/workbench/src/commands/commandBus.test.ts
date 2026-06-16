@@ -276,6 +276,96 @@ describe('command bus', () => {
     expect(withoutException.diagnosticExceptions).toBeUndefined();
   });
 
+  it('supports undo and redo for review threads and comments', () => {
+    const bus = createCommandBus(projectFixture());
+
+    bus.dispatch({
+      type: 'AddReviewThread',
+      payload: {
+        thread: {
+          id: 'review-start',
+          target: {
+            kind: 'space',
+            id: 'start'
+          },
+          status: 'open',
+          comments: []
+        }
+      }
+    });
+    bus.dispatch({
+      type: 'AddReviewComment',
+      payload: {
+        threadId: 'review-start',
+        comment: {
+          id: 'comment-1',
+          body: 'Clarify player intent at the start.'
+        }
+      }
+    });
+    bus.dispatch({
+      type: 'UpdateReviewThreadStatus',
+      payload: {
+        id: 'review-start',
+        status: 'resolved'
+      }
+    });
+
+    expect(bus.getProject().reviewThreads).toEqual([
+      {
+        id: 'review-start',
+        target: {
+          kind: 'space',
+          id: 'start'
+        },
+        status: 'resolved',
+        comments: [
+          {
+            id: 'comment-1',
+            body: 'Clarify player intent at the start.'
+          }
+        ]
+      }
+    ]);
+
+    bus.undo();
+    expect(bus.getProject().reviewThreads?.[0]?.status).toBe('open');
+
+    bus.redo();
+    expect(bus.getProject().reviewThreads?.[0]?.status).toBe('resolved');
+
+    bus.dispatch({
+      type: 'RemoveReviewComment',
+      payload: {
+        threadId: 'review-start',
+        commentId: 'comment-1'
+      }
+    });
+
+    expect(bus.getProject().reviewThreads?.[0]?.comments).toEqual([]);
+  });
+
+  it('rejects review threads that target missing entities', () => {
+    const bus = createCommandBus(projectFixture());
+
+    expect(() =>
+      bus.dispatch({
+        type: 'AddReviewThread',
+        payload: {
+          thread: {
+            id: 'review-missing',
+            target: {
+              kind: 'token',
+              id: 'missing-token'
+            },
+            status: 'open',
+            comments: []
+          }
+        }
+      })
+    ).toThrow('Token "missing-token" does not exist.');
+  });
+
   it('updates inspector-owned fields through commands', () => {
     const bus = createCommandBus(projectFixture());
 

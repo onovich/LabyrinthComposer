@@ -67,6 +67,13 @@
         "$ref": "#/$defs/diagnosticException"
       },
       "uniqueItems": true
+    },
+    "reviewThreads": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/reviewThread"
+      },
+      "uniqueItems": true
     }
   },
   "$defs": {
@@ -146,6 +153,51 @@
         },
         "createdAt": {
           "type": "string"
+        }
+      }
+    },
+    "reviewThreadStatus": {
+      "enum": ["open", "resolved"]
+    },
+    "reviewComment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "body"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "author": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string",
+          "minLength": 1
+        },
+        "createdAt": {
+          "type": "string"
+        }
+      }
+    },
+    "reviewThread": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "target", "status", "comments"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "target": {
+          "$ref": "#/$defs/entityRef"
+        },
+        "status": {
+          "$ref": "#/$defs/reviewThreadStatus"
+        },
+        "comments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/reviewComment"
+          }
         }
       }
     },

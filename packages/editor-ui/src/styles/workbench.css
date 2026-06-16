@@ -619,6 +619,178 @@ button {
   gap: 6px;
 }
 
+.lc-review-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lc-review-target,
+.lc-review-empty {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.lc-review-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.lc-review-summary div {
+  display: grid;
+  gap: 3px;
+  padding: 8px;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.lc-review-summary span {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.lc-review-summary strong {
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.lc-review-list {
+  display: grid;
+  gap: 8px;
+}
+
+.lc-review-thread {
+  display: grid;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.lc-review-thread-focused {
+  border-color: rgba(106, 109, 87, 0.26);
+  box-shadow: 0 0 0 3px rgba(106, 109, 87, 0.06);
+}
+
+.lc-review-thread-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lc-review-target-button {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.lc-review-target-button strong,
+.lc-review-target-button span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-review-target-button strong {
+  font-size: 12px;
+}
+
+.lc-review-target-button span {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.lc-review-comments {
+  display: grid;
+  gap: 6px;
+}
+
+.lc-review-comment {
+  display: grid;
+  gap: 5px;
+  padding: 7px;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.lc-review-comment p {
+  margin: 0;
+  color: var(--muted-strong);
+  font-size: 11px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.lc-review-comment div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.lc-review-comment span {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-review-compose {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 6px;
+}
+
+.lc-review-compose textarea {
+  min-height: 42px;
+  width: 100%;
+  resize: vertical;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 11px;
+  line-height: 1.4;
+  outline: none;
+  padding: 6px 8px;
+}
+
+.lc-icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  border: 1px solid var(--line-soft);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.lc-icon-button:hover {
+  color: var(--danger);
+}
+
 .lc-report-markdown-preview {
   max-height: 180px;
   margin: 0;

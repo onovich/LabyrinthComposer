@@ -28,6 +28,11 @@ export {
 } from './services/projectRepository.js';
 export { createReportText, type ReportFormat } from './services/reportService.js';
 export {
+  createReviewSummary,
+  type ReviewEntitySummary,
+  type ReviewSummary
+} from './services/reviewService.js';
+export {
   createDiagnosticViewModels,
   createHighlightedEntitiesForDiagnostic,
   createValidationSummary,
@@ -49,6 +54,11 @@ export {
   type ReportDiagnosticSummary,
   type ReportViewModel
 } from './selectors/reportSelectors.js';
+export {
+  createReviewThreadViewModels,
+  type ReviewCommentViewModel,
+  type ReviewThreadViewModel
+} from './selectors/reviewSelectors.js';
 export {
   createRulePresetViewModel,
   type RulePresetOptionViewModel,
