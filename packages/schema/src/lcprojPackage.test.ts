@@ -22,12 +22,27 @@ describe('lcproj package contract', () => {
       project: {
         id: 'package-test',
         name: 'Package Test'
-      }
+      },
+      assets: [
+        {
+          id: 'map-sketch',
+          kind: 'image',
+          packagePath: 'assets/map-sketch.png'
+        }
+      ]
     });
 
     expect(manifest.canonicalProjectFile).toBe(LCPROJ_CANONICAL_PROJECT_FILE);
     expect(manifest.artifacts).toContainEqual(LCPROJ_PACKAGE_ARTIFACTS.engineExport);
     expect(manifest.artifacts.every((artifact) => artifact.canonical)).toBe(false);
+    expect(manifest.assetRefs).toEqual([
+      {
+        id: 'map-sketch',
+        kind: 'image',
+        packagePath: 'assets/map-sketch.png'
+      }
+    ]);
     expect(manifest.migrationRisks.join(' ')).toContain('project.json is canonical');
+    expect(manifest.migrationRisks.join(' ')).toContain('must not override project.json');
   });
 });

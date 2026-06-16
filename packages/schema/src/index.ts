@@ -1,3 +1,4 @@
+export * from './assets.js';
 export * from './diagnostics.js';
 export * from './entities.js';
 export * from './lcprojPackage.js';

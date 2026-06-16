@@ -1,4 +1,5 @@
 import type { ProjectGraph } from './project.js';
+import type { AssetRef } from './assets.js';
 
 export const LCPROJ_PACKAGE_VERSION = '0.1.0';
 export const LCPROJ_PACKAGE_EXTENSION = '.lcproj';
@@ -26,6 +27,7 @@ export type LcprojPackageManifest = {
   canonicalProjectFile: typeof LCPROJ_CANONICAL_PROJECT_FILE;
   directories: LcprojPackageDirectory[];
   artifacts: LcprojPackageArtifact[];
+  assetRefs: AssetRef[];
   migrationRisks: string[];
 };
 
@@ -81,10 +83,14 @@ export function createLcprojPackageManifest(project: ProjectGraph): LcprojPackag
       ...artifact,
       path: [...artifact.path]
     })),
+    assetRefs: (project.assets ?? []).map((asset) => ({
+      ...asset
+    })),
     migrationRisks: [
       'Only project.json is canonical project data.',
       'exports, reports, and cache entries are regenerable artifacts.',
-      'assets are opaque files until a future schema explicitly references them.',
+      'assets are package files referenced by project.json AssetRef entries, not embedded content.',
+      'package manifests may inventory assetRefs but must not override project.json.',
       'Opening a package must ignore generated artifacts for validation.'
     ]
   };

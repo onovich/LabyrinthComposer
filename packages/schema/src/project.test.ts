@@ -152,6 +152,97 @@ describe('parseProjectGraph', () => {
     );
   });
 
+  it('accepts portable AssetRef entries without requiring local file existence', () => {
+    const result = parseProjectGraph({
+      schemaVersion: SCHEMA_VERSION,
+      project: {
+        id: 'asset-contract',
+        name: 'Asset Contract'
+      },
+      startSpaceId: 'start',
+      targetSpaceIds: ['start'],
+      spaces: {
+        start: {
+          id: 'start',
+          name: 'Start'
+        }
+      },
+      connections: {},
+      gates: {},
+      tokens: {},
+      puzzles: {},
+      beats: {},
+      assets: [
+        {
+          id: 'map-sketch',
+          kind: 'image',
+          packagePath: 'assets/map-sketch.png',
+          label: 'Map sketch',
+          mimeType: 'image/png'
+        },
+        {
+          id: 'missing-reference',
+          kind: 'document',
+          packagePath: 'assets/notes/missing-reference.md'
+        }
+      ]
+    });
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        ok: true
+      })
+    );
+  });
+
+  it('rejects AssetRef paths that are absolute or escape the assets directory', () => {
+    const baseProject = {
+      schemaVersion: SCHEMA_VERSION,
+      project: {
+        id: 'asset-contract',
+        name: 'Asset Contract'
+      },
+      startSpaceId: 'start',
+      targetSpaceIds: ['start'],
+      spaces: {
+        start: {
+          id: 'start',
+          name: 'Start'
+        }
+      },
+      connections: {},
+      gates: {},
+      tokens: {},
+      puzzles: {},
+      beats: {}
+    };
+
+    expect(
+      parseProjectGraph({
+        ...baseProject,
+        assets: [
+          {
+            id: 'absolute',
+            kind: 'image',
+            packagePath: 'C:\\Users\\designer\\map.png'
+          }
+        ]
+      }).ok
+    ).toBe(false);
+    expect(
+      parseProjectGraph({
+        ...baseProject,
+        assets: [
+          {
+            id: 'escape',
+            kind: 'image',
+            packagePath: 'assets/../map.png'
+          }
+        ]
+      }).ok
+    ).toBe(false);
+  });
+
   it('rejects review targets that are not EntityRef values', () => {
     const result = parseProjectGraph({
       schemaVersion: SCHEMA_VERSION,

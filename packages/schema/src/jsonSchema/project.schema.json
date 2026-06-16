@@ -74,6 +74,13 @@
         "$ref": "#/$defs/reviewThread"
       },
       "uniqueItems": true
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/assetRef"
+      },
+      "uniqueItems": true
     }
   },
   "$defs": {
@@ -102,6 +109,39 @@
         },
         "id": {
           "$ref": "#/$defs/id"
+        }
+      }
+    },
+    "assetKind": {
+      "enum": ["image", "audio", "document", "other"]
+    },
+    "packageAssetPath": {
+      "type": "string",
+      "minLength": 8,
+      "pattern": "^assets/.+",
+      "not": {
+        "pattern": "(^|/)\\.\\.(/|$)|\\\\|^[A-Za-z]:"
+      }
+    },
+    "assetRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "packagePath"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "$ref": "#/$defs/assetKind"
+        },
+        "packagePath": {
+          "$ref": "#/$defs/packageAssetPath"
+        },
+        "label": {
+          "type": "string"
+        },
+        "mimeType": {
+          "type": "string"
         }
       }
     },
