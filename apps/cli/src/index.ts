@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import { formatExportTargetChoices } from '@labyrinth/exporters';
+
 import { runExport } from './commands/export.js';
 import { runValidate } from './commands/validate.js';
 import { runReport } from './commands/report.js';
@@ -33,7 +35,8 @@ async function main(args: string[]): Promise<number> {
       'Usage:',
       '  labyrinth validate <project-file> [--format text|json] [--strict]',
       '  labyrinth report <project-file> [--format markdown|json] [--out file]',
-      '  labyrinth export <project-file> --target engine-json [--out file]',
+      '  labyrinth export --list-targets',
+      `  labyrinth export <project-file> --target ${formatExportTargetChoices()} [--out file]`,
       ''
     ].join('\n')
   );

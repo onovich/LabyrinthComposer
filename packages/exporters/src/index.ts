@@ -21,3 +21,14 @@ export {
   type ReportTimeline,
   type ReportTimelineBeat
 } from './reportModel.js';
+export {
+  createExportTargetText,
+  findExportTarget,
+  formatExportTargetChoices,
+  formatExportTargetList,
+  listExportTargets,
+  type ExportTarget,
+  type ExportTargetContext,
+  type ExportTargetId,
+  type ExportTargetSummary
+} from './targets/registry.js';

@@ -287,7 +287,18 @@ describe('labyrinth CLI', () => {
     ]);
 
     expect(result.status).toBe(2);
-    expect(result.stderr).toContain('--target must be "engine-json"');
+    expect(result.stderr).toContain('Unsupported export target: unity-scene');
+    expect(result.stderr).toContain('Available targets: engine-json');
+  });
+
+  it('lists available export targets', () => {
+    const result = runCli(['export', '--list-targets']);
+
+    expect(result.status).toBe(0);
+    expect(result.stderr).toBe('');
+    expect(result.stdout).toContain('Available export targets:');
+    expect(result.stdout).toContain('engine-json');
+    expect(result.stdout).toContain('exports/engine-export.json');
   });
 
   it('generates engine JSON export on stdout', () => {

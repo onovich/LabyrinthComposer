@@ -15,6 +15,7 @@ const requiredDocs = [
   'docs/phase3-architecture-implementation.md',
   'docs/phase4-acceptance-review.md',
   'docs/phase4-architecture-implementation.md',
+  'docs/export-targets.md',
   'docs/lcproj-package-assets.md',
   'docs/release/artifact-policy.md',
   'docs/release/rc-checklist.md',

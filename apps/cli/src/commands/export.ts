@@ -1,17 +1,25 @@
-import { createEngineExport, formatEngineExportJson } from '@labyrinth/exporters';
+import {
+  findExportTarget,
+  formatExportTargetChoices,
+  formatExportTargetList,
+  type ExportTarget
+} from '@labyrinth/exporters';
 import { parseProjectGraph } from '@labyrinth/schema';
 import { createValidationComposition } from '@labyrinth/workbench';
 
 import { readProjectSourceText, writeOutputText } from '../projectSource.js';
 import type { CliIo } from './validate.js';
 
-type ExportTarget = 'engine-json';
-
-type ExportArgs = {
-  projectFile: string;
-  target: ExportTarget;
-  outFile?: string;
-};
+type ExportArgs =
+  | {
+      mode: 'list-targets';
+    }
+  | {
+      mode: 'generate';
+      projectFile: string;
+      target: ExportTarget;
+      outFile?: string;
+    };
 
 type ParseArgsResult =
   | {
@@ -26,7 +34,8 @@ type ParseArgsResult =
 function usage(): string {
   return [
     'Usage:',
-    '  labyrinth export <project-file> --target engine-json [--out file]',
+    '  labyrinth export --list-targets',
+    `  labyrinth export <project-file> --target ${formatExportTargetChoices()} [--out file]`,
     '',
     'Exit codes:',
     '  0  export generated',
@@ -38,21 +47,36 @@ function parseExportArgs(args: string[]): ParseArgsResult {
   let target: ExportTarget | undefined;
   let outFile: string | undefined;
   let projectFile: string | undefined;
+  let listTargets = false;
 
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
 
+    if (arg === '--list-targets') {
+      listTargets = true;
+      continue;
+    }
+
     if (arg === '--target') {
       const next = args[index + 1];
 
-      if (next !== 'engine-json') {
+      if (next === undefined || next.startsWith('-')) {
         return {
           ok: false,
-          message: '--target must be "engine-json".'
+          message: '--target requires an export target id.'
         };
       }
 
-      target = next;
+      const exportTarget = findExportTarget(next);
+
+      if (exportTarget === undefined) {
+        return {
+          ok: false,
+          message: `Unsupported export target: ${next}. Available targets: ${formatExportTargetChoices()}.`
+        };
+      }
+
+      target = exportTarget;
       index += 1;
       continue;
     }
@@ -96,6 +120,22 @@ function parseExportArgs(args: string[]): ParseArgsResult {
     projectFile = arg;
   }
 
+  if (listTargets) {
+    if (projectFile !== undefined || target !== undefined || outFile !== undefined) {
+      return {
+        ok: false,
+        message: '--list-targets cannot be combined with project files, --target, or --out.'
+      };
+    }
+
+    return {
+      ok: true,
+      args: {
+        mode: 'list-targets'
+      }
+    };
+  }
+
   if (projectFile === undefined) {
     return {
       ok: false,
@@ -113,6 +153,7 @@ function parseExportArgs(args: string[]): ParseArgsResult {
   return {
     ok: true,
     args: {
+      mode: 'generate',
       projectFile,
       target,
       outFile
@@ -126,6 +167,11 @@ export async function runExport(rawArgs: string[], io: CliIo): Promise<number> {
   if (!parsedArgs.ok) {
     io.stderr.write(`${parsedArgs.message}\n`);
     return 2;
+  }
+
+  if (parsedArgs.args.mode === 'list-targets') {
+    io.stdout.write(`${formatExportTargetList()}\n`);
+    return 0;
   }
 
   let source: Awaited<ReturnType<typeof readProjectSourceText>>;
@@ -157,13 +203,19 @@ export async function runExport(rawArgs: string[], io: CliIo): Promise<number> {
   }
 
   const { rulePreset, validation } = createValidationComposition(parsedProject.project);
-  const text = formatEngineExportJson(
-    createEngineExport(parsedProject.project, validation, rulePreset)
-  );
+  const text = parsedArgs.args.target.generate({
+    project: parsedProject.project,
+    validation,
+    rulePreset
+  });
 
   if (parsedArgs.args.outFile !== undefined) {
     try {
-      await writeOutputText(parsedArgs.args.outFile, 'engineExport', text);
+      await writeOutputText(
+        parsedArgs.args.outFile,
+        parsedArgs.args.target.packageArtifactKind,
+        text
+      );
     } catch (error) {
       io.stderr.write(`Failed to write "${parsedArgs.args.outFile}": ${String(error)}\n`);
       return 2;

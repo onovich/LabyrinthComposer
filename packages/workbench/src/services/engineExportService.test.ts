@@ -2,7 +2,10 @@ import { describe, expect, it } from 'vitest';
 
 import { SCHEMA_VERSION, type ProjectGraph, type ValidationResult } from '@labyrinth/schema';
 
-import { createEngineExportText } from './engineExportService.js';
+import {
+  createEngineExportText,
+  createExportTargetTextFromSnapshot
+} from './engineExportService.js';
 
 const project: ProjectGraph = {
   schemaVersion: SCHEMA_VERSION,
@@ -59,5 +62,29 @@ describe('createEngineExportText', () => {
     expect(engineExport.generatedAt).toBe('2026-06-16T00:00:00.000Z');
     expect(engineExport.sourceProject.id).toBe('engine-desktop-test');
     expect(engineExport.spaces).toEqual([{ id: 'start', name: 'Start' }]);
+  });
+
+  it('uses the exporter target registry for target-specific generation', () => {
+    const text = createExportTargetTextFromSnapshot(
+      {
+        project,
+        validation,
+        rulePreset: {
+          id: 'maze.standard',
+          name: 'Standard Maze',
+          enabledRuleIds: [],
+          thresholds: {}
+        }
+      },
+      'engine-json',
+      '2026-06-16T00:00:00.000Z'
+    );
+    const engineExport = JSON.parse(text) as {
+      exportVersion: string;
+      generatedAt: string;
+    };
+
+    expect(engineExport.exportVersion).toBe('0.1.0');
+    expect(engineExport.generatedAt).toBe('2026-06-16T00:00:00.000Z');
   });
 });
