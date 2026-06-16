@@ -7,6 +7,7 @@ const sourceRoots = [
   'packages/schema/src',
   'packages/rulesets/src',
   'packages/exporters/src',
+  'packages/collaboration-prototype/src',
   'packages/test-fixtures/src',
   'packages/workbench/src',
   'packages/editor-ui/src',
@@ -144,6 +145,23 @@ function isForbiddenExampleImport(specifier) {
   return specifier === '@labyrinth' || specifier.startsWith('@labyrinth/');
 }
 
+function isForbiddenCollaborationImport(specifier) {
+  return (
+    specifier.startsWith('node:') ||
+    ['fs', 'path', 'process', 'react', 'react-dom', '@xyflow/react'].includes(specifier) ||
+    specifier === '@labyrinth/core' ||
+    specifier.startsWith('@labyrinth/core/') ||
+    specifier === '@labyrinth/rulesets' ||
+    specifier.startsWith('@labyrinth/rulesets/') ||
+    specifier === '@labyrinth/exporters' ||
+    specifier.startsWith('@labyrinth/exporters/') ||
+    specifier === '@labyrinth/editor-ui' ||
+    specifier.startsWith('@labyrinth/editor-ui/') ||
+    specifier.startsWith('@tauri-apps/') ||
+    specifier.startsWith('apps/')
+  );
+}
+
 const violations = [];
 
 for (const root of sourceRoots) {
@@ -202,6 +220,23 @@ for (const root of sourceRoots) {
 
       if (projectPath.startsWith('examples/') && isForbiddenExampleImport(specifier)) {
         violations.push(`${projectPath} imports forbidden example dependency "${specifier}"`);
+      }
+
+      if (
+        projectPath.startsWith('packages/collaboration-prototype/') &&
+        !isTestFile &&
+        isForbiddenCollaborationImport(specifier)
+      ) {
+        violations.push(`${projectPath} imports forbidden collaboration dependency "${specifier}"`);
+      }
+
+      if (
+        projectPath.startsWith('packages/') &&
+        !projectPath.startsWith('packages/collaboration-prototype/') &&
+        (specifier === '@labyrinth/collaboration-prototype' ||
+          specifier.startsWith('@labyrinth/collaboration-prototype/'))
+      ) {
+        violations.push(`${projectPath} imports experimental collaboration package`);
       }
 
       if (projectPath.startsWith('packages/') && specifier.startsWith('@labyrinth/cli')) {
