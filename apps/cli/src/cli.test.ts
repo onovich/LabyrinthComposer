@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { copyFileSync, mkdirSync, mkdtempSync, readFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -159,6 +159,34 @@ describe('labyrinth CLI', () => {
       join(process.cwd(), 'packages/test-fixtures/samples/horror-clinic.lcproj.json'),
       join(packagePath, 'project.json')
     );
+
+    const result = runCli(['validate', packagePath, '--format', 'json']);
+
+    expect(result.status).toBe(0);
+    expect(JSON.parse(result.stdout) as unknown).toEqual(
+      expect.objectContaining({
+        ok: true,
+        diagnostics: []
+      })
+    );
+  });
+
+  it('ignores generated .lcproj artifacts during validation', () => {
+    const outputDir = mkdtempSync(join(tmpdir(), 'labyrinth-package-artifacts-'));
+    const packagePath = join(outputDir, 'horror-clinic.lcproj');
+
+    mkdirSync(join(packagePath, 'reports'), {
+      recursive: true
+    });
+    mkdirSync(join(packagePath, 'cache'), {
+      recursive: true
+    });
+    copyFileSync(
+      join(process.cwd(), 'packages/test-fixtures/samples/horror-clinic.lcproj.json'),
+      join(packagePath, 'project.json')
+    );
+    writeFileSync(join(packagePath, 'reports', 'latest-report.json'), '{not-valid-json', 'utf8');
+    writeFileSync(join(packagePath, 'cache', 'layout-cache.json'), '{not-valid-json', 'utf8');
 
     const result = runCli(['validate', packagePath, '--format', 'json']);
 

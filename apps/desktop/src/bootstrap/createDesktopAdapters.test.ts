@@ -14,6 +14,9 @@ function createTauriClient(
         path: 'D:\\Projects\\horror-clinic.lcproj.json'
       };
     },
+    async openProjectPackage() {
+      return null;
+    },
     async saveProjectFile(_text, path) {
       return {
         path
@@ -93,6 +96,58 @@ describe('desktop adapters', () => {
         path: 'D:\\Projects\\horror-clinic.lcproj.json'
       })
     );
+    expect(savedText).toContain('"schemaVersion": "0.1.0"');
+  });
+
+  it('opens a Tauri-selected .lcproj package after file selection is cancelled', async () => {
+    const adapters = createDesktopAdapters(
+      createTauriClient({
+        async openProjectFile() {
+          return null;
+        },
+        async openProjectPackage() {
+          return {
+            text: horrorClinicProjectText,
+            path: 'D:\\Projects\\horror-clinic.lcproj'
+          };
+        }
+      })
+    );
+
+    const openResult = await adapters.projectRepository.openProject();
+
+    expect(openResult).toEqual(
+      expect.objectContaining({
+        ok: true,
+        path: 'D:\\Projects\\horror-clinic.lcproj'
+      })
+    );
+  });
+
+  it('can save as a .lcproj package path through Tauri', async () => {
+    let savedText = '';
+    const adapters = createDesktopAdapters(
+      createTauriClient({
+        async saveProjectFileAs(text) {
+          savedText = text;
+          return {
+            path: 'D:\\Projects\\horror-clinic-copy.lcproj'
+          };
+        }
+      })
+    );
+    const openResult = await adapters.projectRepository.openProject();
+
+    if (!openResult.ok) {
+      throw new Error(openResult.message);
+    }
+
+    const saveResult = await adapters.projectRepository.saveProjectAs(openResult.project);
+
+    expect(saveResult).toEqual({
+      ok: true,
+      path: 'D:\\Projects\\horror-clinic-copy.lcproj'
+    });
     expect(savedText).toContain('"schemaVersion": "0.1.0"');
   });
 

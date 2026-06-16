@@ -41,6 +41,7 @@ type SaveProjectFileResult = {
 export type TauriProjectFileClient = {
   isAvailable(): boolean;
   openProjectFile(): Promise<ProjectFileResult | null>;
+  openProjectPackage(): Promise<ProjectFileResult | null>;
   saveProjectFile(text: string, path: string): Promise<SaveProjectFileResult>;
   saveProjectFileAs(text: string): Promise<SaveProjectFileResult | null>;
   saveReportFileAs(text: string, format: ReportFormat): Promise<SaveProjectFileResult | null>;
@@ -84,6 +85,9 @@ const defaultTauriProjectFileClient: TauriProjectFileClient = {
   openProjectFile() {
     return invoke<ProjectFileResult | null>('open_project_file');
   },
+  openProjectPackage() {
+    return invoke<ProjectFileResult | null>('open_project_package');
+  },
   saveProjectFile(text, path) {
     return invoke<SaveProjectFileResult>('save_project_file', {
       path,
@@ -115,7 +119,13 @@ export function createDesktopAdapters(
     projectRepository: createProjectRepository({
       async openText() {
         if (tauriProjectFileClient.isAvailable()) {
-          return tauriProjectFileClient.openProjectFile();
+          const openedFile = await tauriProjectFileClient.openProjectFile();
+
+          if (openedFile !== null) {
+            return openedFile;
+          }
+
+          return tauriProjectFileClient.openProjectPackage();
         }
 
         return {
