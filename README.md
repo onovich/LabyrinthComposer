@@ -1,6 +1,6 @@
 # Labyrinth Composer
 
-Phase 0 establishes the local-first domain core for spatial puzzle validation.
+Labyrinth Composer is a local-first tool for designing spatial puzzle graphs, validating reachability and progression rules, reviewing structure, and exporting engine-facing artifacts.
 
 ## Commands
 
@@ -13,17 +13,35 @@ npx --yes pnpm@11.7.0 test
 npx --yes pnpm@11.7.0 labyrinth validate packages/test-fixtures/samples/horror-clinic.lcproj.json --format text
 ```
 
+Useful release gate:
+
+```powershell
+C:\Users\Administrator\.codex\skills\project-ops-workflow\scripts\ops\ReleaseDryRun.cmd
+```
+
 The CLI exit codes are:
 
 - `0`: no error diagnostics.
 - `1`: error diagnostics, or any diagnostic when `--strict` is set.
-- `2`: file read, JSON parse, schema validation, or argument failure.
+- `2`: file read, JSON parse, schema validation, argument, report, export, or IO failure.
 
-## Phase 0 Boundaries
+## Current Boundaries
 
 - `packages/schema` owns v0 types, JSON Schema, parsing, and migration entry points.
 - `packages/core` owns pure validation algorithms and diagnostics.
+- `packages/rulesets` owns rule presets.
+- `packages/exporters` owns pure report/export DTO generation.
+- `packages/workbench` owns editor state, command handling, validation composition, and view models.
+- `packages/editor-ui` owns React UI components.
 - `packages/test-fixtures` stores samples and regression cases.
-- `apps/cli` reads files, calls schema/core, formats output, and sets exit codes.
+- `apps/cli` reads/writes files, calls packages, formats output, and sets exit codes.
+- `apps/desktop` owns Tauri/browser host adapters, app-local preferences, recent files, and logs.
 
-Phase 0 intentionally does not include UI, Tauri, SQLite, cloud sync, AI generation, or engine plugins.
+Project truth stays in `.lcproj/project.json` or `.lcproj.json`. Generated reports, exports, cache files, release artifacts, and app-local preferences are outside project truth.
+
+Start here:
+
+- `docs/user/getting-started.md`
+- `docs/user/cli-ci.md`
+- `docs/user/package-format.md`
+- `docs/release/rc-checklist.md`

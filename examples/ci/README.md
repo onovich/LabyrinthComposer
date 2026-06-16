@@ -1,6 +1,8 @@
-# CI Example
+# CI Usage
 
-`labyrinth-validate.yml.example` is intentionally committed as an example workflow, not an enabled workflow.
+The enabled workflow is `.github/workflows/labyrinth-validate.yml`.
+
+`labyrinth-validate.yml.example` remains as a readable template for downstream projects.
 
 Recommended CI commands:
 
@@ -8,6 +10,7 @@ Recommended CI commands:
 node apps/cli/dist/index.js validate packages/test-fixtures/samples/horror-clinic.lcproj.json --strict --format json
 node apps/cli/dist/index.js report packages/test-fixtures/samples/horror-clinic.lcproj.json --format json --out artifacts-report.json
 node apps/cli/dist/index.js export packages/test-fixtures/samples/horror-clinic.lcproj.json --target engine-json --out artifacts-engine-export.json
+node scripts/release-dry-run.mjs
 ```
 
 Exit codes:
