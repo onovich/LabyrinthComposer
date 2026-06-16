@@ -11,10 +11,11 @@ const sourceRoots = [
   'packages/workbench/src',
   'packages/editor-ui/src',
   'apps/cli/src',
-  'apps/desktop/src'
+  'apps/desktop/src',
+  'examples'
 ];
 const importPattern = /(?:import|export)\s+(?:type\s+)?(?:[^'"]*from\s+)?['"]([^'"]+)['"]/g;
-const sourceExtensions = ['.ts', '.tsx'];
+const sourceExtensions = ['.ts', '.tsx', '.js', '.mjs', '.cs', '.gd'];
 
 function isSourceFile(entryName) {
   return sourceExtensions.some((extension) => entryName.endsWith(extension));
@@ -139,6 +140,10 @@ function isForbiddenEditorUiImport(specifier) {
   );
 }
 
+function isForbiddenExampleImport(specifier) {
+  return specifier === '@labyrinth' || specifier.startsWith('@labyrinth/');
+}
+
 const violations = [];
 
 for (const root of sourceRoots) {
@@ -195,9 +200,17 @@ for (const root of sourceRoots) {
         violations.push(`${projectPath} imports forbidden editor-ui dependency "${specifier}"`);
       }
 
+      if (projectPath.startsWith('examples/') && isForbiddenExampleImport(specifier)) {
+        violations.push(`${projectPath} imports forbidden example dependency "${specifier}"`);
+      }
+
       if (projectPath.startsWith('packages/') && specifier.startsWith('@labyrinth/cli')) {
         violations.push(`${projectPath} imports CLI from a package`);
       }
+    }
+
+    if (projectPath.startsWith('examples/') && content.includes('@labyrinth/')) {
+      violations.push(`${projectPath} references a workspace package from an example`);
     }
   }
 }

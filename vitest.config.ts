@@ -25,6 +25,7 @@ export default defineConfig({
     include: [
       'apps/**/*.test.ts',
       'apps/**/*.test.tsx',
+      'examples/**/*.test.ts',
       'packages/**/*.test.ts',
       'packages/**/*.test.tsx'
     ]

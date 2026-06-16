@@ -1,0 +1,82 @@
+{
+  "exportVersion": "0.1.0",
+  "generatedAt": "2026-06-16T00:00:00.000Z",
+  "sourceProject": {
+    "id": "importer-sample",
+    "name": "Importer Sample",
+    "schemaVersion": "0.1.0",
+    "rulePresetId": "zelda.mini-dungeon",
+    "rulePresetName": "Zelda Mini Dungeon"
+  },
+  "validation": {
+    "ok": true,
+    "reachableSpaces": ["entry", "key-room", "locked-door"],
+    "acquiredTokens": ["brass-key"],
+    "openedGates": ["brass-key-gate"],
+    "solvedPuzzles": [],
+    "diagnostics": []
+  },
+  "spaces": [
+    {
+      "id": "entry",
+      "name": "Entry Hall",
+      "tags": ["start"]
+    },
+    {
+      "id": "key-room",
+      "name": "Key Room"
+    },
+    {
+      "id": "locked-door",
+      "name": "Locked Door"
+    }
+  ],
+  "connections": [
+    {
+      "id": "entry-key-room",
+      "fromSpaceId": "entry",
+      "toSpaceId": "key-room"
+    },
+    {
+      "id": "key-room-locked-door",
+      "fromSpaceId": "key-room",
+      "toSpaceId": "locked-door",
+      "gateId": "brass-key-gate"
+    }
+  ],
+  "gates": [
+    {
+      "id": "brass-key-gate",
+      "name": "Brass Key Gate",
+      "kind": "lock",
+      "requiredTokenIds": ["brass-key"]
+    }
+  ],
+  "tokens": [
+    {
+      "id": "brass-key",
+      "name": "Brass Key",
+      "kind": "item",
+      "locationSpaceId": "key-room"
+    }
+  ],
+  "puzzles": [],
+  "beats": [
+    {
+      "id": "beat-entry",
+      "name": "Enter the hall",
+      "spaceId": "entry",
+      "kind": "discovery",
+      "intensity": 0.2,
+      "order": 1
+    },
+    {
+      "id": "beat-door",
+      "name": "Open the locked door",
+      "spaceId": "locked-door",
+      "kind": "reward",
+      "intensity": 0.5,
+      "order": 2
+    }
+  ]
+}
