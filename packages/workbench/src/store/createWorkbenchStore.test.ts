@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { SCHEMA_VERSION, type ProjectGraph } from '@labyrinth/schema';
 
+import { createValidationComposition } from '../services/validationService.js';
 import { createWorkbenchStore } from './createWorkbenchStore.js';
 
 function projectFixture(): ProjectGraph {
@@ -159,5 +160,33 @@ describe('workbench store', () => {
 
     expect(snapshot.project.reviewThreads).toHaveLength(1);
     expect(snapshot.validation).toEqual(before);
+  });
+
+  it('can defer validation and apply worker results later', () => {
+    const store = createWorkbenchStore(projectFixture(), {
+      validationMode: 'deferred'
+    });
+    const before = store.getSnapshot().validation;
+    const pending = store.dispatch({
+      type: 'CreateSpace',
+      payload: {
+        space: {
+          id: 'exit',
+          name: 'Exit'
+        },
+        addToTargets: true
+      }
+    });
+
+    expect(pending.status).toBe('validating');
+    expect(pending.dirty).toBe(true);
+    expect(pending.validation).toEqual(before);
+
+    const resolved = store.applyValidation(createValidationComposition(pending.project));
+
+    expect(resolved.status).toBe('idle');
+    expect(resolved.validation.diagnostics.map((diagnostic) => diagnostic.ruleId)).toContain(
+      'reachability.target-unreachable'
+    );
   });
 });

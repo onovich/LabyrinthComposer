@@ -240,13 +240,17 @@ export function AppShell({
               Beat
             </button>
           </div>
-          <div className={`lc-status-pill ${summary.ok ? '' : 'lc-status-pill-warning'}`}>
+          <div
+            className={`lc-status-pill ${summary.ok ? '' : 'lc-status-pill-warning'} ${snapshot.status === 'validating' ? 'lc-status-pill-validating' : ''}`}
+          >
             <Waypoints size={12} />
-            {summary.ok
-              ? snapshot.dirty
-                ? 'Unsaved changes'
-                : operationMessage
-              : `${summary.errorCount} errors / ${summary.warningCount} warnings`}
+            {snapshot.status === 'validating'
+              ? 'Validating'
+              : summary.ok
+                ? snapshot.dirty
+                  ? 'Unsaved changes'
+                  : operationMessage
+                : `${summary.errorCount} errors / ${summary.warningCount} warnings`}
           </div>
         </header>
         <section className="lc-workbench">

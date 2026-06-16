@@ -14,6 +14,8 @@ export {
   createWorkbenchStore,
   type WorkbenchSnapshot,
   type WorkbenchStatus,
+  type WorkbenchStoreOptions,
+  type WorkbenchValidationMode,
   type WorkbenchStore
 } from './store/createWorkbenchStore.js';
 export {

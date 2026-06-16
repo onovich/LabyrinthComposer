@@ -3,6 +3,7 @@ import {
   createHighlightedEntitiesForDiagnostic,
   createEngineExportText,
   createReportText,
+  createValidationComposition,
   createWorkbenchStore,
   parseProjectText,
   type ReportFormat
@@ -13,9 +14,13 @@ import {
   type ProjectGraph,
   type ReviewThreadStatus
 } from '@labyrinth/schema';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { createDesktopAdapters } from './bootstrap/createDesktopAdapters.js';
+import type {
+  ValidationWorkerRequest,
+  ValidationWorkerResponse
+} from './workers/validationWorker.js';
 import horrorClinicProjectText from '../../../packages/test-fixtures/samples/horror-clinic.lcproj.json?raw';
 import narrativeProjectText from '../../../packages/test-fixtures/samples/narrative-knowledge-lock.lcproj.json?raw';
 import zeldaProjectText from '../../../packages/test-fixtures/samples/zelda-mini-dungeon.lcproj.json?raw';
@@ -265,7 +270,13 @@ const templates: TemplateDefinition[] = [
 ];
 
 export function App() {
-  const store = useMemo(() => createWorkbenchStore(createStarterProject()), []);
+  const store = useMemo(
+    () =>
+      createWorkbenchStore(createStarterProject(), {
+        validationMode: 'deferred'
+      }),
+    []
+  );
   const adapters = useMemo(() => createDesktopAdapters(), []);
   const [snapshot, setSnapshot] = useState(() => store.getSnapshot());
   const [showDashboard, setShowDashboard] = useState(true);
@@ -277,11 +288,65 @@ export function App() {
   const [projectPath, setProjectPath] = useState<string | undefined>();
   const [operationMessage, setOperationMessage] = useState('Ready');
   const [dashboardRulePresetId, setDashboardRulePresetId] = useState<string | undefined>();
+  const validationWorkerRef = useRef<Worker | null>(null);
+  const validationRequestIdRef = useRef(0);
+  const latestValidationRequestIdRef = useRef(0);
+
+  useEffect(() => {
+    const worker = new Worker(new URL('./workers/validationWorker.ts', import.meta.url), {
+      type: 'module'
+    });
+
+    validationWorkerRef.current = worker;
+    worker.onmessage = (event: MessageEvent<ValidationWorkerResponse>) => {
+      if (event.data.requestId !== latestValidationRequestIdRef.current) {
+        return;
+      }
+
+      setSnapshot(store.applyValidation(event.data.composition));
+      setOperationMessage(`Validated in ${Math.max(1, Math.round(event.data.elapsedMs))} ms`);
+    };
+    worker.onerror = () => {
+      setOperationMessage('Validation worker failed');
+    };
+
+    return () => {
+      worker.terminate();
+
+      if (validationWorkerRef.current === worker) {
+        validationWorkerRef.current = null;
+      }
+    };
+  }, [store]);
+
+  function scheduleValidation(project: ProjectGraph) {
+    const requestId = validationRequestIdRef.current + 1;
+
+    validationRequestIdRef.current = requestId;
+    latestValidationRequestIdRef.current = requestId;
+
+    const request = {
+      requestId,
+      project
+    } satisfies ValidationWorkerRequest;
+
+    if (validationWorkerRef.current === null) {
+      setSnapshot(store.applyValidation(createValidationComposition(project)));
+      setOperationMessage('Validated');
+      return;
+    }
+
+    validationWorkerRef.current.postMessage(request);
+  }
 
   function commit(nextSnapshot = store.getSnapshot(), message = 'Edited') {
     setSnapshot(nextSnapshot);
     setSelectedDiagnosticId(null);
     setOperationMessage(message);
+
+    if (nextSnapshot.status === 'validating') {
+      scheduleValidation(nextSnapshot.project);
+    }
   }
 
   function selectEntity(entity: EntityRef | null) {
@@ -309,13 +374,16 @@ export function App() {
       return;
     }
 
-    setSnapshot(store.loadProject(result.project));
+    const nextSnapshot = store.loadProject(result.project);
+
+    setSnapshot(nextSnapshot);
     setSelectedEntity({ kind: 'space', id: result.project.startSpaceId });
     setSelectedDiagnosticId(null);
     setProjectPath(result.path);
     setDashboardRulePresetId(result.project.rulePresetId);
     setOperationMessage(`Loaded ${result.path ?? result.project.project.name}`);
     setShowDashboard(false);
+    scheduleValidation(nextSnapshot.project);
   }
 
   function selectDashboardRulePreset(rulePresetId: string) {
@@ -341,12 +409,15 @@ export function App() {
 
     try {
       const project = withRulePreset(template.load(), dashboardRulePresetId);
-      setSnapshot(store.loadProject(project));
+      const nextSnapshot = store.loadProject(project);
+
+      setSnapshot(nextSnapshot);
       setSelectedEntity({ kind: 'space', id: project.startSpaceId });
       setSelectedDiagnosticId(null);
       setProjectPath(template.path);
       setOperationMessage(`Loaded ${template.name}`);
       setShowDashboard(false);
+      scheduleValidation(nextSnapshot.project);
     } catch (error) {
       setOperationMessage(`Template load failed: ${String(error)}`);
     }
@@ -821,9 +892,7 @@ export function App() {
       onOpenProject={openProject}
       onRedo={() => commit(store.redo())}
       onRunValidation={() => {
-        setSnapshot(store.validate());
-        setSelectedDiagnosticId(null);
-        setOperationMessage('Validated');
+        commit(store.validate(), 'Validating');
       }}
       onSaveAsProject={saveProjectAs}
       onSaveProject={saveProject}
