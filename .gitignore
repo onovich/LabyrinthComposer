@@ -11,3 +11,5 @@ apps/desktop/src-tauri/target/
 apps/desktop/.app-data/
 apps/desktop/preferences.json
 apps/desktop/logs/
+apps/desktop/collaboration-session/
+apps/desktop/collaboration-logs/

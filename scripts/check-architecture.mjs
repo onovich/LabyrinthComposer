@@ -21,7 +21,9 @@ const requiredArchitectureFiles = [
   'packages/exporters/src/targets/registry.ts',
   'apps/desktop/src/preferences/preferences.ts',
   'apps/desktop/src-tauri/src/preferences.rs',
-  'docs/collaboration-decision-record.md'
+  'docs/collaboration-decision-record.md',
+  'docs/collaboration/conflict-semantics.md',
+  'docs/collaboration/session-state-policy.md'
 ];
 const mainPackageManifests = [
   'package.json',
@@ -35,7 +37,36 @@ const mainPackageManifests = [
   'packages/test-fixtures/package.json',
   'packages/workbench/package.json'
 ];
-const forbiddenMainDependencies = ['@labyrinth/collaboration-prototype', 'yjs'];
+const forbiddenMainDependencies = [
+  '@labyrinth/collaboration-prototype',
+  '@labyrinth/collaboration-session',
+  'yjs',
+  'y-websocket',
+  'y-webrtc'
+];
+const forbiddenSessionStateFields = [
+  'actorId',
+  'connectionStatus',
+  'cursor',
+  'cursors',
+  'peer',
+  'peerId',
+  'peerIds',
+  'presence',
+  'provider',
+  'providerState',
+  'providerUrl',
+  'retryQueue',
+  'room',
+  'roomId',
+  'session',
+  'sessionId',
+  'syncClock',
+  'yDoc',
+  'yjsUpdate',
+  'crdtMetadata'
+];
+const forbiddenProviderImports = ['yjs', 'y-websocket', 'y-webrtc'];
 const importPattern = /(?:import|export)\s+(?:type\s+)?(?:[^'"]*from\s+)?['"]([^'"]+)['"]/g;
 const sourceExtensions = ['.ts', '.tsx', '.js', '.mjs', '.cs', '.gd'];
 
@@ -198,6 +229,43 @@ function isForbiddenE2eImport(specifier) {
   return specifier !== '@playwright/test';
 }
 
+function isCollaborationPackageImport(specifier) {
+  return (
+    specifier === '@labyrinth/collaboration-prototype' ||
+    specifier.startsWith('@labyrinth/collaboration-prototype/') ||
+    specifier === '@labyrinth/collaboration-session' ||
+    specifier.startsWith('@labyrinth/collaboration-session/')
+  );
+}
+
+function isProviderImport(specifier) {
+  return forbiddenProviderImports.includes(specifier);
+}
+
+function collectJsonPropertyKeys(value, keys = []) {
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      collectJsonPropertyKeys(item, keys);
+    }
+
+    return keys;
+  }
+
+  if (value === null || typeof value !== 'object') {
+    return keys;
+  }
+
+  if ('properties' in value && value.properties && typeof value.properties === 'object') {
+    keys.push(...Object.keys(value.properties));
+  }
+
+  for (const child of Object.values(value)) {
+    collectJsonPropertyKeys(child, keys);
+  }
+
+  return keys;
+}
+
 const violations = [];
 
 for (const requiredFile of requiredArchitectureFiles) {
@@ -237,6 +305,24 @@ if (
   )
 ) {
   violations.push('Root tsconfig references experimental collaboration prototype');
+}
+
+const projectTypeSource = await readFile(join(rootDir, 'packages/schema/src/project.ts'), 'utf8');
+const projectJsonSchema = JSON.parse(
+  await readFile(join(rootDir, 'packages/schema/src/jsonSchema/project.schema.json'), 'utf8')
+);
+const schemaPropertyKeys = collectJsonPropertyKeys(projectJsonSchema);
+
+for (const forbiddenField of forbiddenSessionStateFields) {
+  const fieldPattern = new RegExp(`\\b${forbiddenField}\\??\\s*:`);
+
+  if (fieldPattern.test(projectTypeSource)) {
+    violations.push(`ProjectGraph type includes forbidden session field "${forbiddenField}"`);
+  }
+
+  if (schemaPropertyKeys.includes(forbiddenField)) {
+    violations.push(`Project JSON schema includes forbidden session field "${forbiddenField}"`);
+  }
 }
 
 for (const root of sourceRoots) {
@@ -339,19 +425,23 @@ for (const root of sourceRoots) {
       if (
         projectPath.startsWith('packages/') &&
         !projectPath.startsWith('packages/collaboration-prototype/') &&
-        (specifier === '@labyrinth/collaboration-prototype' ||
-          specifier.startsWith('@labyrinth/collaboration-prototype/'))
+        isCollaborationPackageImport(specifier)
       ) {
         violations.push(`${projectPath} imports experimental collaboration package`);
       }
 
       if (
         (projectPath.startsWith('apps/desktop/') || projectPath.startsWith('apps/cli/')) &&
-        (specifier === '@labyrinth/collaboration-prototype' ||
-          specifier.startsWith('@labyrinth/collaboration-prototype/') ||
-          specifier === 'yjs')
+        (isCollaborationPackageImport(specifier) || isProviderImport(specifier))
       ) {
         violations.push(`${projectPath} imports experimental collaboration dependency`);
+      }
+
+      if (
+        !projectPath.startsWith('packages/collaboration-prototype/') &&
+        isProviderImport(specifier)
+      ) {
+        violations.push(`${projectPath} imports collaboration provider dependency "${specifier}"`);
       }
 
       if (projectPath.startsWith('packages/') && specifier.startsWith('@labyrinth/cli')) {
