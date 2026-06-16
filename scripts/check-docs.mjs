@@ -1,6 +1,8 @@
 import { access } from 'node:fs/promises';
 
 const requiredDocs = [
+  '.github/workflows/labyrinth-validate.yml',
+  '.github/workflows/labyrinth-validate.yml.example',
   'AGENTS.md',
   'docs/development-plan.md',
   'docs/phase0-acceptance-review.md',

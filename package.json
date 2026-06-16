@@ -7,6 +7,7 @@
   "scripts": {
     "architecture:check": "node scripts/check-architecture.mjs",
     "build": "tsc -b && pnpm --filter @labyrinth/desktop build:bundle",
+    "ci:check": "node scripts/check-ci-workflow.mjs",
     "dev:desktop": "pnpm --filter @labyrinth/desktop dev",
     "docs:check": "node scripts/check-docs.mjs",
     "e2e": "playwright test",

@@ -37,7 +37,7 @@
       "commands": []
     },
     "docsCheck": {
-      "commands": ["npx --yes pnpm@11.7.0 docs:check"]
+      "commands": ["npx --yes pnpm@11.7.0 docs:check", "npx --yes pnpm@11.7.0 ci:check"]
     },
     "smoke": {
       "urls": [],

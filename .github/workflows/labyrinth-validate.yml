@@ -1,0 +1,82 @@
+name: Labyrinth RC Gate
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  release-candidate-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.7.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Validate code, architecture, and docs
+        run: |
+          pnpm lint
+          pnpm typecheck
+          pnpm build
+          pnpm test
+          pnpm architecture:check
+          pnpm docs:check
+          pnpm ci:check
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run Playwright E2E
+        run: pnpm e2e
+
+      - name: Check desktop host
+        run: |
+          cargo fmt --check --manifest-path apps/desktop/src-tauri/Cargo.toml
+          cargo check --manifest-path apps/desktop/src-tauri/Cargo.toml
+
+      - name: Write CLI artifacts
+        if: always()
+        run: |
+          mkdir -p artifacts/ci
+          node apps/cli/dist/index.js validate packages/test-fixtures/samples/horror-clinic.lcproj.json --strict --format json > artifacts/ci/validation.json
+
+          set +e
+          node apps/cli/dist/index.js validate packages/test-fixtures/rulesets/ruleset.horror.clinic/02-flat-timeline.lcproj.json --ruleset horror.clinic --strict --format json > artifacts/ci/ruleset-strict.json
+          strict_status=$?
+          set -e
+          if [ "$strict_status" -ne 1 ]; then
+            echo "Expected strict ruleset validation to fail with exit code 1." >&2
+            exit 1
+          fi
+
+          node apps/cli/dist/index.js report packages/test-fixtures/samples/horror-clinic.lcproj.json --format json --out artifacts/ci/report.json
+          node apps/cli/dist/index.js export packages/test-fixtures/samples/horror-clinic.lcproj.json --target engine-json --out artifacts/ci/engine-export.json
+
+      - name: Release dry-run
+        run: pnpm release:dry-run
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: labyrinth-rc-gate-artifacts
+          path: |
+            artifacts/ci/*.json
+            apps/desktop/dist/**
+            test-results/**
