@@ -15,6 +15,8 @@ const requiredDocs = [
   'docs/phase3-architecture-implementation.md',
   'docs/phase4-acceptance-review.md',
   'docs/phase4-architecture-implementation.md',
+  'docs/release/artifact-policy.md',
+  'docs/release/rc-checklist.md',
   'docs/Labyrinth_Composer_UI_UX_设计文档_v0.1.pdf',
   'docs/codex-ops-workflow.md',
   'docs/codex-git-workflow.md'

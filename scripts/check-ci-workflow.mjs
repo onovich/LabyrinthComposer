@@ -19,6 +19,7 @@ const requiredSnippets = [
   'node apps/cli/dist/index.js validate',
   'node apps/cli/dist/index.js report',
   'node apps/cli/dist/index.js export',
+  'artifacts/release-candidate/manifest.json',
   'actions/upload-artifact@v4',
   'pnpm release:dry-run'
 ];

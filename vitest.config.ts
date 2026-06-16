@@ -27,7 +27,8 @@ export default defineConfig({
       'apps/**/*.test.tsx',
       'examples/**/*.test.ts',
       'packages/**/*.test.ts',
-      'packages/**/*.test.tsx'
+      'packages/**/*.test.tsx',
+      'scripts/**/*.test.mjs'
     ]
   }
 });

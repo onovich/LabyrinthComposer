@@ -14,6 +14,7 @@ const sourceRoots = [
   'apps/cli/src',
   'apps/desktop/src',
   'examples',
+  'scripts',
   'tests/e2e'
 ];
 const importPattern = /(?:import|export)\s+(?:type\s+)?(?:[^'"]*from\s+)?['"]([^'"]+)['"]/g;
@@ -185,7 +186,11 @@ for (const root of sourceRoots) {
 
   for (const file of files) {
     const projectPath = toProjectPath(file);
-    const isTestFile = projectPath.endsWith('.test.ts') || projectPath.endsWith('.test.tsx');
+    const isTestFile =
+      projectPath.endsWith('.test.ts') ||
+      projectPath.endsWith('.test.tsx') ||
+      projectPath.endsWith('.test.mjs') ||
+      projectPath.endsWith('.test.js');
     const content = await readFile(file, 'utf8');
     const imports = [...content.matchAll(importPattern)].map((match) => match[1]);
 
@@ -252,6 +257,25 @@ for (const root of sourceRoots) {
 
       if (projectPath.startsWith('tests/e2e/') && isForbiddenE2eImport(specifier)) {
         violations.push(`${projectPath} imports forbidden e2e dependency "${specifier}"`);
+      }
+
+      if (
+        projectPath.startsWith('scripts/release-') &&
+        !isTestFile &&
+        (specifier === '@labyrinth/schema' ||
+          specifier.startsWith('@labyrinth/schema/') ||
+          specifier === '@labyrinth/core' ||
+          specifier.startsWith('@labyrinth/core/') ||
+          specifier === '@labyrinth/rulesets' ||
+          specifier.startsWith('@labyrinth/rulesets/') ||
+          specifier === '@labyrinth/exporters' ||
+          specifier.startsWith('@labyrinth/exporters/') ||
+          specifier === '@labyrinth/workbench' ||
+          specifier.startsWith('@labyrinth/workbench/') ||
+          specifier === '@labyrinth/editor-ui' ||
+          specifier.startsWith('@labyrinth/editor-ui/'))
+      ) {
+        violations.push(`${projectPath} imports domain package from release script "${specifier}"`);
       }
 
       if (

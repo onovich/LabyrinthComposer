@@ -78,5 +78,6 @@ jobs:
           name: labyrinth-rc-gate-artifacts
           path: |
             artifacts/ci/*.json
+            artifacts/release-candidate/manifest.json
             apps/desktop/dist/**
             test-results/**

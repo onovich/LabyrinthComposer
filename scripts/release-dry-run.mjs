@@ -1,7 +1,9 @@
 import { spawn } from 'node:child_process';
-import { access, readdir, readFile } from 'node:fs/promises';
+import { access, mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { join, resolve } from 'node:path';
+import { join, relative, resolve } from 'node:path';
+
+import { createReleaseDryRunManifest } from './release-dry-run-policy.mjs';
 
 const rootDir = fileURLToPath(new URL('..', import.meta.url));
 
@@ -53,9 +55,12 @@ async function main() {
   const desktopDist = fromRoot('apps/desktop/dist');
   const desktopAssets = join(desktopDist, 'assets');
   const indexPath = join(desktopDist, 'index.html');
+  const packageJson = JSON.parse(await readFile(fromRoot('package.json'), 'utf8'));
   const tauriConfigPath = fromRoot('apps/desktop/src-tauri/tauri.conf.json');
   const tauriConfig = JSON.parse(await readFile(tauriConfigPath, 'utf8'));
   const frontendDist = resolve(fromRoot('apps/desktop/src-tauri'), tauriConfig.build.frontendDist);
+  const artifactDir = fromRoot('artifacts/release-candidate');
+  const manifestPath = join(artifactDir, 'manifest.json');
 
   await assertPathExists(indexPath, 'Desktop index');
   await assertPathExists(desktopAssets, 'Desktop assets directory');
@@ -79,9 +84,28 @@ async function main() {
     throw new Error('Desktop bundle has no CSS asset.');
   }
 
+  const commit = (await run('git', ['rev-parse', '--short=12', 'HEAD'])).trim();
+  const manifest = createReleaseDryRunManifest({
+    productName: tauriConfig.productName ?? packageJson.name,
+    version: tauriConfig.version ?? packageJson.version,
+    platform: process.platform,
+    arch: process.arch,
+    commit,
+    desktopDist: relative(rootDir, desktopDist).replaceAll('\\', '/'),
+    frontendDist: relative(rootDir, frontendDist).replaceAll('\\', '/'),
+    assetCount: assets.length,
+    generatedAt: new Date().toISOString()
+  });
+
+  await mkdir(artifactDir, {
+    recursive: true
+  });
+  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+
   const trackedArtifacts = (
     await run('git', [
       'ls-files',
+      'artifacts',
       'apps/desktop/dist',
       'apps/desktop/src-tauri/gen',
       'apps/desktop/src-tauri/target'
@@ -92,12 +116,13 @@ async function main() {
     throw new Error(`Build artifacts are tracked by git:\n${trackedArtifacts}`);
   }
 
+  await assertIgnored('artifacts/release-candidate/manifest.json');
   await assertIgnored('apps/desktop/dist');
   await assertIgnored('apps/desktop/src-tauri/gen');
   await assertIgnored('apps/desktop/src-tauri/target');
 
   console.log(
-    'Release dry-run passed: desktop bundle is present, Tauri points to it, and generated artifacts are untracked/ignored.'
+    `Release dry-run passed: ${manifest.artifact.baseName} manifest wrote to ${relative(rootDir, manifestPath).replaceAll('\\', '/')}.`
   );
 }
 
