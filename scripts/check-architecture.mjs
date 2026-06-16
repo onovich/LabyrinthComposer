@@ -13,7 +13,8 @@ const sourceRoots = [
   'packages/editor-ui/src',
   'apps/cli/src',
   'apps/desktop/src',
-  'examples'
+  'examples',
+  'tests/e2e'
 ];
 const importPattern = /(?:import|export)\s+(?:type\s+)?(?:[^'"]*from\s+)?['"]([^'"]+)['"]/g;
 const sourceExtensions = ['.ts', '.tsx', '.js', '.mjs', '.cs', '.gd'];
@@ -173,6 +174,10 @@ function isForbiddenCollaborationImport(specifier) {
   );
 }
 
+function isForbiddenE2eImport(specifier) {
+  return specifier !== '@playwright/test';
+}
+
 const violations = [];
 
 for (const root of sourceRoots) {
@@ -243,6 +248,10 @@ for (const root of sourceRoots) {
         isForbiddenCollaborationImport(specifier)
       ) {
         violations.push(`${projectPath} imports forbidden collaboration dependency "${specifier}"`);
+      }
+
+      if (projectPath.startsWith('tests/e2e/') && isForbiddenE2eImport(specifier)) {
+        violations.push(`${projectPath} imports forbidden e2e dependency "${specifier}"`);
       }
 
       if (

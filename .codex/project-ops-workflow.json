@@ -47,7 +47,14 @@
       "commands": []
     },
     "releaseDryRun": {
-      "commands": []
+      "commands": [
+        "C:\\Users\\Administrator\\.codex\\skills\\project-ops-workflow\\scripts\\ops\\Validate.cmd",
+        "C:\\Users\\Administrator\\.codex\\skills\\project-ops-workflow\\scripts\\ops\\Smoke.cmd",
+        "npx --yes pnpm@11.7.0 e2e",
+        "cargo fmt --check --manifest-path apps/desktop/src-tauri/Cargo.toml",
+        "cargo check --manifest-path apps/desktop/src-tauri/Cargo.toml",
+        "npx --yes pnpm@11.7.0 release:dry-run"
+      ]
     }
   },
   "devServer": {
