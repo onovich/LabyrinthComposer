@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -74,6 +74,27 @@ describe('labyrinth CLI', () => {
     expect(result.stderr).toContain('Failed to read');
   });
 
+  it('validates an .lcproj package by reading project.json', () => {
+    const outputDir = mkdtempSync(join(tmpdir(), 'labyrinth-package-source-'));
+    const packagePath = join(outputDir, 'horror-clinic.lcproj');
+
+    mkdirSync(packagePath);
+    copyFileSync(
+      join(process.cwd(), 'packages/test-fixtures/samples/horror-clinic.lcproj.json'),
+      join(packagePath, 'project.json')
+    );
+
+    const result = runCli(['validate', packagePath, '--format', 'json']);
+
+    expect(result.status).toBe(0);
+    expect(JSON.parse(result.stdout) as unknown).toEqual(
+      expect.objectContaining({
+        ok: true,
+        diagnostics: []
+      })
+    );
+  });
+
   it('generates a Markdown report for review workflows', () => {
     const result = runCli([
       'report',
@@ -131,6 +152,28 @@ describe('labyrinth CLI', () => {
     expect(report.rulePreset.id).toBe('horror.clinic');
   });
 
+  it('writes JSON reports into .lcproj package reports artifacts', () => {
+    const outputDir = mkdtempSync(join(tmpdir(), 'labyrinth-report-package-'));
+    const packagePath = join(outputDir, 'horror-clinic.lcproj');
+    const result = runCli([
+      'report',
+      'packages/test-fixtures/samples/horror-clinic.lcproj.json',
+      '--format',
+      'json',
+      '--out',
+      packagePath
+    ]);
+    const report = JSON.parse(
+      readFileSync(join(packagePath, 'reports', 'latest-report.json'), 'utf8')
+    ) as {
+      project: { id: string };
+    };
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toBe('');
+    expect(report.project.id).toBe('horror-clinic');
+  });
+
   it('returns exit code 2 for unsupported export targets', () => {
     const result = runCli([
       'export',
@@ -142,7 +185,6 @@ describe('labyrinth CLI', () => {
     expect(result.status).toBe(2);
     expect(result.stderr).toContain('--target must be "engine-json"');
   });
-
 
   it('generates engine JSON export on stdout', () => {
     const result = runCli([
@@ -188,5 +230,27 @@ describe('labyrinth CLI', () => {
     expect(result.stdout).toBe('');
     expect(engineExport.sourceProject.id).toBe('horror-clinic');
     expect(Array.isArray(engineExport.validation.diagnostics)).toBe(true);
+  });
+
+  it('writes engine exports into .lcproj package export artifacts', () => {
+    const outputDir = mkdtempSync(join(tmpdir(), 'labyrinth-export-package-'));
+    const packagePath = join(outputDir, 'zelda-mini-dungeon.lcproj');
+    const result = runCli([
+      'export',
+      'packages/test-fixtures/samples/zelda-mini-dungeon.lcproj.json',
+      '--target',
+      'engine-json',
+      '--out',
+      packagePath
+    ]);
+    const engineExport = JSON.parse(
+      readFileSync(join(packagePath, 'exports', 'engine-export.json'), 'utf8')
+    ) as {
+      sourceProject: { id: string };
+    };
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toBe('');
+    expect(engineExport.sourceProject.id).toBe('zelda-mini-dungeon');
   });
 });

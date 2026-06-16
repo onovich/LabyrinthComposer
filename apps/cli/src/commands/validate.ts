@@ -1,10 +1,9 @@
-import { readFile } from 'node:fs/promises';
-
 import { validateProject } from '@labyrinth/core';
 import { parseProjectGraph } from '@labyrinth/schema';
 
 import { formatJson } from '../formatters/jsonFormatter.js';
 import { formatText } from '../formatters/textFormatter.js';
+import { readProjectSourceText } from '../projectSource.js';
 
 type OutputFormat = 'json' | 'text';
 
@@ -125,10 +124,10 @@ export async function runValidate(rawArgs: string[], io: CliIo): Promise<number>
     return 2;
   }
 
-  let raw: string;
+  let source: Awaited<ReturnType<typeof readProjectSourceText>>;
 
   try {
-    raw = await readFile(parsedArgs.args.projectFile, 'utf8');
+    source = await readProjectSourceText(parsedArgs.args.projectFile);
   } catch (error) {
     io.stderr.write(`Failed to read "${parsedArgs.args.projectFile}": ${String(error)}\n`);
     return 2;
@@ -137,16 +136,16 @@ export async function runValidate(rawArgs: string[], io: CliIo): Promise<number>
   let value: unknown;
 
   try {
-    value = JSON.parse(raw) as unknown;
+    value = JSON.parse(source.text) as unknown;
   } catch (error) {
-    io.stderr.write(`Failed to parse JSON "${parsedArgs.args.projectFile}": ${String(error)}\n`);
+    io.stderr.write(`Failed to parse JSON "${source.canonicalPath}": ${String(error)}\n`);
     return 2;
   }
 
   const parsedProject = parseProjectGraph(value);
 
   if (!parsedProject.ok) {
-    io.stderr.write(`Schema validation failed for "${parsedArgs.args.projectFile}":\n`);
+    io.stderr.write(`Schema validation failed for "${source.canonicalPath}":\n`);
     for (const issue of parsedProject.issues) {
       io.stderr.write(`- ${issue.path}: ${issue.message}\n`);
     }
