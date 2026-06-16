@@ -45,7 +45,7 @@ export function createReleaseDryRunManifest({
     dryRun: true,
     publish: {
       enabled: false,
-      reason: 'Phase 5 release gate verifies artifacts only and does not publish.'
+      reason: 'Phase 4 productization gate verifies artifacts only and does not publish.'
     },
     signing: {
       enabled: false,

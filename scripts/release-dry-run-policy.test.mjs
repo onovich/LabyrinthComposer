@@ -37,6 +37,9 @@ describe('release dry-run artifact policy', () => {
 
     expect(manifest.dryRun).toBe(true);
     expect(manifest.publish.enabled).toBe(false);
+    expect(manifest.publish.reason).toBe(
+      'Phase 4 productization gate verifies artifacts only and does not publish.'
+    );
     expect(manifest.signing.enabled).toBe(false);
     expect(manifest.artifact.baseName).toBe('Labyrinth-Composer-0.1.0-linux-x64-abc123');
     expect(manifest.desktop).toEqual({

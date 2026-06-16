@@ -18,6 +18,7 @@ const requiredDocs = [
   'docs/phase3-architecture-implementation.md',
   'docs/phase4-acceptance-review.md',
   'docs/phase4-architecture-implementation.md',
+  'docs/phase4-productization-acceptance-review.md',
   'docs/phase5-acceptance-review.md',
   'docs/phase5-architecture-implementation.md',
   'docs/app-local-preferences.md',
