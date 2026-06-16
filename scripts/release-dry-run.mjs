@@ -58,12 +58,14 @@ async function main() {
   const packageJson = JSON.parse(await readFile(fromRoot('package.json'), 'utf8'));
   const tauriConfigPath = fromRoot('apps/desktop/src-tauri/tauri.conf.json');
   const tauriConfig = JSON.parse(await readFile(tauriConfigPath, 'utf8'));
+  const tauriLinuxIcon = fromRoot('apps/desktop/src-tauri/icons/icon.png');
   const frontendDist = resolve(fromRoot('apps/desktop/src-tauri'), tauriConfig.build.frontendDist);
   const artifactDir = fromRoot('artifacts/release-candidate');
   const manifestPath = join(artifactDir, 'manifest.json');
 
   await assertPathExists(indexPath, 'Desktop index');
   await assertPathExists(desktopAssets, 'Desktop assets directory');
+  await assertPathExists(tauriLinuxIcon, 'Tauri Linux icon');
 
   if (frontendDist !== desktopDist) {
     throw new Error(`Tauri frontendDist points to ${frontendDist}, expected ${desktopDist}`);
