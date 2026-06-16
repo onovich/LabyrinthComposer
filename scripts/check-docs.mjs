@@ -16,6 +16,7 @@ const requiredDocs = [
   'docs/phase4-acceptance-review.md',
   'docs/phase4-architecture-implementation.md',
   'docs/app-local-preferences.md',
+  'docs/collaboration-decision-record.md',
   'docs/export-targets.md',
   'docs/lcproj-package-assets.md',
   'docs/release/artifact-policy.md',

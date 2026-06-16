@@ -135,4 +135,25 @@ describe('entity graph collaboration adapter', () => {
       locationSpaceId: 'start'
     });
   });
+
+  it('treats repeated Yjs updates as idempotent command delivery', () => {
+    const clientA = createCollaborationDoc();
+    const clientB = createCollaborationDoc();
+    const update = appendCommandAsYjsUpdate(clientA, {
+      id: 'command-1',
+      command: {
+        type: 'CreateSpace',
+        payload: {
+          space: {
+            id: 'exit',
+            name: 'Exit'
+          }
+        }
+      }
+    });
+
+    expect(applyYjsUpdateToDoc(clientB, update)).toHaveLength(1);
+    expect(applyYjsUpdateToDoc(clientB, update)).toEqual([]);
+    expect(getCollaborationCommands(clientB)).toHaveLength(1);
+  });
 });

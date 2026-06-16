@@ -20,8 +20,22 @@ const sourceRoots = [
 const requiredArchitectureFiles = [
   'packages/exporters/src/targets/registry.ts',
   'apps/desktop/src/preferences/preferences.ts',
-  'apps/desktop/src-tauri/src/preferences.rs'
+  'apps/desktop/src-tauri/src/preferences.rs',
+  'docs/collaboration-decision-record.md'
 ];
+const mainPackageManifests = [
+  'package.json',
+  'apps/cli/package.json',
+  'apps/desktop/package.json',
+  'packages/core/package.json',
+  'packages/editor-ui/package.json',
+  'packages/exporters/package.json',
+  'packages/rulesets/package.json',
+  'packages/schema/package.json',
+  'packages/test-fixtures/package.json',
+  'packages/workbench/package.json'
+];
+const forbiddenMainDependencies = ['@labyrinth/collaboration-prototype', 'yjs'];
 const importPattern = /(?:import|export)\s+(?:type\s+)?(?:[^'"]*from\s+)?['"]([^'"]+)['"]/g;
 const sourceExtensions = ['.ts', '.tsx', '.js', '.mjs', '.cs', '.gd'];
 
@@ -194,6 +208,37 @@ for (const requiredFile of requiredArchitectureFiles) {
   }
 }
 
+for (const manifestPath of mainPackageManifests) {
+  const manifest = JSON.parse(await readFile(join(rootDir, manifestPath), 'utf8'));
+  const dependencySections = [
+    manifest.dependencies ?? {},
+    manifest.devDependencies ?? {},
+    manifest.peerDependencies ?? {},
+    manifest.optionalDependencies ?? {}
+  ];
+
+  for (const dependencyName of forbiddenMainDependencies) {
+    if (dependencySections.some((section) => dependencyName in section)) {
+      violations.push(
+        `${manifestPath} depends on experimental collaboration dependency "${dependencyName}"`
+      );
+    }
+  }
+}
+
+const rootTsconfig = JSON.parse(await readFile(join(rootDir, 'tsconfig.json'), 'utf8'));
+const rootReferences = Array.isArray(rootTsconfig.references) ? rootTsconfig.references : [];
+
+if (
+  rootReferences.some(
+    (reference) =>
+      typeof reference?.path === 'string' &&
+      reference.path.replaceAll('\\', '/').includes('packages/collaboration-prototype')
+  )
+) {
+  violations.push('Root tsconfig references experimental collaboration prototype');
+}
+
 for (const root of sourceRoots) {
   const files = await collectFiles(join(rootDir, root));
 
@@ -298,6 +343,15 @@ for (const root of sourceRoots) {
           specifier.startsWith('@labyrinth/collaboration-prototype/'))
       ) {
         violations.push(`${projectPath} imports experimental collaboration package`);
+      }
+
+      if (
+        (projectPath.startsWith('apps/desktop/') || projectPath.startsWith('apps/cli/')) &&
+        (specifier === '@labyrinth/collaboration-prototype' ||
+          specifier.startsWith('@labyrinth/collaboration-prototype/') ||
+          specifier === 'yjs')
+      ) {
+        violations.push(`${projectPath} imports experimental collaboration dependency`);
       }
 
       if (projectPath.startsWith('packages/') && specifier.startsWith('@labyrinth/cli')) {
