@@ -102,7 +102,7 @@ Command Bus 的价值：
 
 - 支持撤销/重做。
 - 支持测试回放。
-- 支持未来协作同步。
+- 支持命令回放、测试复现和脚本化复用同一套变更语义。
 - 支持 CLI 或脚本化生成复用同一套变更语义。
 
 ### 4.4 Desktop Shell 只是权限边界
@@ -586,4 +586,4 @@ Phase 1 是最容易把架构写脏的阶段，因为 UI 很诱人，demo 很快
 2. Core 是唯一规则真相。
 3. Command Bus 是唯一编辑入口。
 
-只要这三条线不破，Phase 1 的工作台可以大胆迭代；如果为了交互方便让 React Flow、Inspector 或 Diagnostics Panel 开始承载领域语义，Phase 2 的规则包、Timeline、协作和引擎集成都会被拖进泥里。
+只要这三条线不破，Phase 1 的工作台可以大胆迭代；如果为了交互方便让 React Flow、Inspector 或 Diagnostics Panel 开始承载领域语义，Phase 2 的规则包、Timeline、个人自查和引擎集成都会被拖进返工。

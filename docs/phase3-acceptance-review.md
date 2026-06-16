@@ -16,8 +16,8 @@ Phase 3 moves Labyrinth Composer from local analysis toward production handoff w
   Commit: `c809997 feat: add phase 3 review data workflow`
 - Round 5: `.lcproj` package prototype, package artifact paths, CLI package read/write smoke, and migration-risk notes.
   Commit: `f38676c feat: add phase 3 lcproj package prototype`
-- Round 6: Experimental Yjs command adapter with two-client replay tests and architecture guard coverage.
-  Commit: `9830b35 feat: add phase 3 collaboration prototype`
+- Round 6: Historical collaboration prototype work was later superseded by the single-user product scope correction.
+  Commit: `9830b35 feat: add phase 3 collaboration prototype` (superseded; prototype removed from current scope)
 - Round 7: Desktop engine JSON export service, Export Panel, Tauri save adapter, final validation, and acceptance review.
 
 ## Acceptance Matrix
@@ -33,8 +33,8 @@ Phase 3 moves Labyrinth Composer from local analysis toward production handoff w
 | Review does not participate in core validation                                       | Pass   | `packages/workbench/src/store/createWorkbenchStore.test.ts`                                                                                           |
 | `.lcproj` package keeps only `project.json` canonical                                | Pass   | `packages/schema/src/lcprojPackage.ts`, `docs/lcproj-package-prototype.md`                                                                            |
 | CLI can read `.lcproj/project.json` and write package artifacts                      | Pass   | `apps/cli/src/projectSource.ts`, `apps/cli/src/cli.test.ts`                                                                                           |
-| Collaboration prototype proves Command to Yjs update and replay back to ProjectGraph | Pass   | `packages/collaboration-prototype/src/entityGraphAdapter.test.ts`                                                                                     |
-| Main desktop/workbench/core/schema do not depend on Yjs                              | Pass   | `scripts/check-architecture.mjs`                                                                                                                      |
+| Cancelled collaboration direction is not required for Phase 3 product scope          | Pass   | `docs/product-scope-confirmation.md`, `scripts/check-architecture.mjs`                                                                                |
+| Main desktop/workbench/core/schema do not depend on collaboration providers          | Pass   | `scripts/check-architecture.mjs`                                                                                                                      |
 | Desktop can save engine JSON without generating export content in the adapter        | Pass   | `packages/workbench/src/services/engineExportService.ts`, `apps/desktop/src/bootstrap/createDesktopAdapters.ts`, `apps/desktop/src-tauri/src/main.rs` |
 
 ## Final Verification
@@ -55,18 +55,18 @@ Phase 3 moves Labyrinth Composer from local analysis toward production handoff w
 
 ## Architecture Review
 
-- `packages/core` still has no dependency on exporters, workbench, editor UI, desktop, CLI, Yjs, Unity, or Godot.
+- `packages/core` still has no dependency on exporters, workbench, editor UI, desktop, CLI, collaboration providers, Unity, or Godot.
 - `packages/schema` holds contracts only and has no runtime dependency on app/UI/workbench/exporter layers.
 - `packages/exporters` remains pure and does not read or write files.
-- `packages/workbench` composes schema/core/rulesets/exporters and does not import React, DOM, Tauri, Node, or Yjs.
+- `packages/workbench` composes schema/core/rulesets/exporters and does not import React, DOM, Tauri, Node, or collaboration providers.
 - `packages/editor-ui` imports schema/workbench/React UI dependencies only.
-- `packages/collaboration-prototype` is experimental. Architecture checks forbid other packages from importing it.
+- The historical collaboration prototype is removed from the current product scope. Architecture checks continue to forbid collaboration provider dependencies in main packages.
 - `examples/unity-importer` and `examples/godot-importer` consume generated JSON and do not import workspace packages.
 
 ## Residual Risks
 
 - `.lcproj` is still a prototype and is not the default save format.
-- Collaboration is an adapter proof, not a product feature. It has no presence model, conflict UI, or persistence policy.
+- Real-time collaboration is not a product feature. The historical adapter proof has been superseded by the single-user scope correction.
 - Desktop `.lcproj` directory open is still optional; CLI package read/write is the implemented minimum path.
 - Engine export currently has one stable JSON target. Unity/Godot-specific shaping remains deliberately outside the main schema.
 

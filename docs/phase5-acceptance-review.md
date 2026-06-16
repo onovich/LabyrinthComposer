@@ -18,16 +18,16 @@ Phase 5 hardened the project for Release Candidate validation without changing p
 | Package manifest and assets | Pass   | `packages/schema/src/assets.ts`, `docs/lcproj-package-assets.md`                     |
 | Export target registry      | Pass   | `packages/exporters/src/targets/registry.ts`, CLI `--list-targets`                   |
 | App-local preferences/logs  | Pass   | `apps/desktop/src/preferences/`, `apps/desktop/src-tauri/src/preferences.rs`         |
-| Collaboration decision gate | Pass   | `docs/collaboration-decision-record.md`, architecture guard                          |
+| Cancelled collaboration cleanup | Pass   | `docs/product-scope-confirmation.md`, `scripts/check-architecture.mjs`            |
 | User docs                   | Pass   | `docs/user/getting-started.md`, `docs/user/cli-ci.md`, `docs/user/package-format.md` |
 
 ## Boundary Checks
 
-- `ProjectGraph` does not store recent files, app-local logs, window state, release data, or collaboration provider state.
+- `ProjectGraph` does not store recent files, app-local logs, window state, release data, session state, or provider state.
 - `.lcproj/project.json` remains canonical package data.
 - Generated exports, reports, cache, and release artifacts remain disposable.
 - CI and release dry-run call repository scripts and CLI rather than reimplementing domain behavior.
-- Collaboration prototype remains isolated from the main app path.
+- Real-time collaboration is cancelled for the current product path; architecture guards prevent provider dependencies from returning.
 
 ## Final Verification
 

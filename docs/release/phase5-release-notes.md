@@ -9,7 +9,7 @@ Date: 2026-06-16
 - Defined `.lcproj` package asset references with portable `AssetRef` paths.
 - Added exporter target registry and `labyrinth export --list-targets`.
 - Added app-local desktop preferences, recent files, and log storage.
-- Kept collaboration as an explicit decision gate outside the main product path.
+- Confirmed real-time collaboration is outside the single-user product path and kept provider/session state out of project data.
 
 ## Compatibility
 

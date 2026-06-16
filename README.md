@@ -1,6 +1,6 @@
 # Labyrinth Composer
 
-Labyrinth Composer is a local-first tool for designing spatial puzzle graphs, validating reachability and progression rules, reviewing structure, and exporting engine-facing artifacts.
+Labyrinth Composer is a local-first, single-user tool for indie game developers designing spatial puzzle graphs, validating reachability and progression rules, keeping self-review notes, and exporting engine-facing artifacts.
 
 ## Commands
 
@@ -38,6 +38,8 @@ The CLI exit codes are:
 - `apps/desktop` owns Tauri/browser host adapters, app-local preferences, recent files, and logs.
 
 Project truth stays in `.lcproj/project.json` or `.lcproj.json`. Generated reports, exports, cache files, release artifacts, and app-local preferences are outside project truth.
+
+Product scope is solo and local-first: no real-time collaboration, cloud sync, accounts, permissions, telemetry, or team workspace features are part of the current plan.
 
 Start here:
 

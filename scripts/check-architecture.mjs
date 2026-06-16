@@ -7,7 +7,6 @@ const sourceRoots = [
   'packages/schema/src',
   'packages/rulesets/src',
   'packages/exporters/src',
-  'packages/collaboration-prototype/src',
   'packages/test-fixtures/src',
   'packages/workbench/src',
   'packages/editor-ui/src',
@@ -20,10 +19,16 @@ const sourceRoots = [
 const requiredArchitectureFiles = [
   'packages/exporters/src/targets/registry.ts',
   'apps/desktop/src/preferences/preferences.ts',
-  'apps/desktop/src-tauri/src/preferences.rs',
+  'apps/desktop/src-tauri/src/preferences.rs'
+];
+const forbiddenRemovedPaths = [
+  'packages/collaboration-prototype',
+  'packages/collaboration-session',
+  'docs/collaboration',
   'docs/collaboration-decision-record.md',
-  'docs/collaboration/conflict-semantics.md',
-  'docs/collaboration/session-state-policy.md'
+  'docs/phase6-architecture-implementation.md',
+  'docs/phase6-acceptance-review.md',
+  'docs/phase7-architecture-implementation.md'
 ];
 const mainPackageManifests = [
   'package.json',
@@ -273,6 +278,15 @@ for (const requiredFile of requiredArchitectureFiles) {
     await stat(join(rootDir, requiredFile));
   } catch {
     violations.push(`Missing required architecture boundary file: ${requiredFile}`);
+  }
+}
+
+for (const removedPath of forbiddenRemovedPaths) {
+  try {
+    await stat(join(rootDir, removedPath));
+    violations.push(`Removed collaboration scope path must not be restored: ${removedPath}`);
+  } catch {
+    // Expected: the removed path should not exist.
   }
 }
 

@@ -81,13 +81,13 @@ Phase 4 hardens the existing Phase 0-3 product path into a beta-ready workflow w
 - `ProjectGraph` remains the only canonical project truth.
 - No React Flow node positions, viewport, selection, validation result, report text, engine export text, worker cache, or layout cache were added to `ProjectGraph`.
 - `.lcproj/project.json` remains the only package truth. `exports`, `reports`, and `cache` are treated as generated artifacts.
-- `packages/core` still owns validation algorithms and does not depend on rulesets, workbench, exporters, UI, desktop, CLI, Tauri, React, Node filesystem APIs, or Yjs.
+- `packages/core` still owns validation algorithms and does not depend on rulesets, workbench, exporters, UI, desktop, CLI, Tauri, React, Node filesystem APIs, or collaboration providers.
 - `packages/schema` remains a contract layer and does not import app, UI, workbench, exporter, ruleset, or core runtime logic.
 - `packages/workbench` composes schema/core/rulesets/exporters services and remains free of React, DOM, Tauri, Worker, and filesystem dependencies.
 - `apps/desktop` owns host capabilities: worker lifecycle, file dialogs, package open/save, export save-as, and browser download fallback.
 - `packages/editor-ui` renders view models and emits callbacks only; it does not generate report/export domain content or interpret ruleset semantics.
 - `tests/e2e` is now covered by architecture check and may only import `@playwright/test`.
-- `packages/collaboration-prototype` remains experimental and forbidden from main package imports.
+- Real-time collaboration is not part of the product path. Architecture checks continue to forbid collaboration provider dependencies in main packages.
 
 ## Residual Risks
 
