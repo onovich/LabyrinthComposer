@@ -26,6 +26,11 @@ export {
   type ProjectSaveResult,
   type SaveTarget
 } from './services/projectRepository.js';
+export {
+  createValidationComposition,
+  type ValidationComposition,
+  type ValidationCompositionOptions
+} from './services/validationService.js';
 export { createEngineExportText } from './services/engineExportService.js';
 export { createReportText, type ReportFormat } from './services/reportService.js';
 export {

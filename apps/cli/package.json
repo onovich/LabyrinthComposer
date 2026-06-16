@@ -15,6 +15,7 @@
     "@labyrinth/core": "workspace:*",
     "@labyrinth/exporters": "workspace:*",
     "@labyrinth/rulesets": "workspace:*",
-    "@labyrinth/schema": "workspace:*"
+    "@labyrinth/schema": "workspace:*",
+    "@labyrinth/workbench": "workspace:*"
   }
 }

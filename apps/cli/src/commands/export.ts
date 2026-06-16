@@ -1,7 +1,6 @@
-import { validateProjectWithRules } from '@labyrinth/core';
 import { createEngineExport, formatEngineExportJson } from '@labyrinth/exporters';
-import { getRulePreset } from '@labyrinth/rulesets';
 import { parseProjectGraph } from '@labyrinth/schema';
+import { createValidationComposition } from '@labyrinth/workbench';
 
 import { readProjectSourceText, writeOutputText } from '../projectSource.js';
 import type { CliIo } from './validate.js';
@@ -157,12 +156,7 @@ export async function runExport(rawArgs: string[], io: CliIo): Promise<number> {
     return 2;
   }
 
-  const rulePreset = getRulePreset(parsedProject.project.rulePresetId);
-  const validation = validateProjectWithRules(parsedProject.project, {
-    preset: rulePreset,
-    overrides: parsedProject.project.ruleOverrides,
-    exceptions: parsedProject.project.diagnosticExceptions
-  });
+  const { rulePreset, validation } = createValidationComposition(parsedProject.project);
   const text = formatEngineExportJson(
     createEngineExport(parsedProject.project, validation, rulePreset)
   );

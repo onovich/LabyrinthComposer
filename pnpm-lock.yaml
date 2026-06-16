@@ -72,6 +72,9 @@ importers:
       '@labyrinth/schema':
         specifier: workspace:*
         version: link:../../packages/schema
+      '@labyrinth/workbench':
+        specifier: workspace:*
+        version: link:../../packages/workbench
 
   apps/desktop:
     dependencies:

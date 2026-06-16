@@ -1,5 +1,5 @@
-import { validateProject } from '@labyrinth/core';
 import { parseProjectGraph } from '@labyrinth/schema';
+import { createValidationComposition } from '@labyrinth/workbench';
 
 import { formatJson } from '../formatters/jsonFormatter.js';
 import { formatText } from '../formatters/textFormatter.js';
@@ -15,6 +15,7 @@ export type CliIo = {
 type ValidateArgs = {
   projectFile: string;
   format: OutputFormat;
+  rulesetId?: string;
   strict: boolean;
 };
 
@@ -31,7 +32,10 @@ type ParseArgsResult =
 function usage(): string {
   return [
     'Usage:',
-    '  labyrinth validate <project-file> [--format text|json] [--strict]',
+    '  labyrinth validate <project-file> [--format text|json] [--ruleset id] [--strict]',
+    '',
+    'Options:',
+    '  --ruleset id  Override the project rulePresetId for this validation run',
     '',
     'Exit codes:',
     '  0  no error diagnostics',
@@ -42,6 +46,7 @@ function usage(): string {
 
 function parseValidateArgs(args: string[]): ParseArgsResult {
   let format: OutputFormat = 'text';
+  let rulesetId: string | undefined;
   let strict = false;
   let projectFile: string | undefined;
 
@@ -65,6 +70,21 @@ function parseValidateArgs(args: string[]): ParseArgsResult {
 
     if (arg === '--strict') {
       strict = true;
+      continue;
+    }
+
+    if (arg === '--ruleset') {
+      const next = args[index + 1];
+
+      if (next === undefined || next.startsWith('-')) {
+        return {
+          ok: false,
+          message: '--ruleset requires a preset id.'
+        };
+      }
+
+      rulesetId = next;
+      index += 1;
       continue;
     }
 
@@ -104,6 +124,7 @@ function parseValidateArgs(args: string[]): ParseArgsResult {
     args: {
       projectFile,
       format,
+      rulesetId,
       strict
     }
   };
@@ -152,7 +173,9 @@ export async function runValidate(rawArgs: string[], io: CliIo): Promise<number>
     return 2;
   }
 
-  const result = validateProject(parsedProject.project);
+  const { validation: result } = createValidationComposition(parsedProject.project, {
+    rulePresetId: parsedArgs.args.rulesetId
+  });
   io.stdout.write(parsedArgs.args.format === 'json' ? formatJson(result) : formatText(result));
 
   return hasExitFailure(parsedArgs.args.strict, result.diagnostics) ? 1 : 0;

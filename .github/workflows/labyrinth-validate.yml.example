@@ -28,6 +28,13 @@ jobs:
         run: |
           node apps/cli/dist/index.js validate packages/test-fixtures/samples/horror-clinic.lcproj.json --strict --format json > artifacts-validation.json
 
+      - name: Verify ruleset diagnostics fail strict CI
+        run: |
+          if node apps/cli/dist/index.js validate packages/test-fixtures/rulesets/ruleset.horror.clinic/02-flat-timeline.lcproj.json --ruleset horror.clinic --strict --format json > artifacts-ruleset-strict.json; then
+            echo "Expected strict ruleset validation to fail." >&2
+            exit 1
+          fi
+
       - name: Write report artifact
         if: always()
         run: |
@@ -44,5 +51,6 @@ jobs:
           name: labyrinth-ci-artifacts
           path: |
             artifacts-validation.json
+            artifacts-ruleset-strict.json
             artifacts-report.json
             artifacts-engine-export.json

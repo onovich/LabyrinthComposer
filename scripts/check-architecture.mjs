@@ -141,6 +141,17 @@ function isForbiddenEditorUiImport(specifier) {
   );
 }
 
+function isForbiddenCliImport(specifier) {
+  return (
+    ['react', 'react-dom', '@xyflow/react'].includes(specifier) ||
+    specifier.startsWith('@tauri-apps/') ||
+    specifier === '@labyrinth/editor-ui' ||
+    specifier.startsWith('@labyrinth/editor-ui/') ||
+    specifier.startsWith('@labyrinth/desktop') ||
+    specifier.startsWith('apps/desktop')
+  );
+}
+
 function isForbiddenExampleImport(specifier) {
   return specifier === '@labyrinth' || specifier.startsWith('@labyrinth/');
 }
@@ -216,6 +227,10 @@ for (const root of sourceRoots) {
         isForbiddenEditorUiImport(specifier)
       ) {
         violations.push(`${projectPath} imports forbidden editor-ui dependency "${specifier}"`);
+      }
+
+      if (projectPath.startsWith('apps/cli/') && !isTestFile && isForbiddenCliImport(specifier)) {
+        violations.push(`${projectPath} imports forbidden CLI dependency "${specifier}"`);
       }
 
       if (projectPath.startsWith('examples/') && isForbiddenExampleImport(specifier)) {

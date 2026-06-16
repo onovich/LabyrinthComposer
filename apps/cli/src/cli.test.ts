@@ -5,6 +5,9 @@ import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
+import { parseProjectGraph, type Diagnostic, type ValidationResult } from '@labyrinth/schema';
+import { createValidationComposition } from '@labyrinth/workbench';
+
 const tsxCli = join(process.cwd(), 'node_modules', 'tsx', 'dist', 'cli.mjs');
 const cliEntry = join(process.cwd(), 'apps/cli/src/index.ts');
 
@@ -13,6 +16,25 @@ function runCli(args: string[]) {
     cwd: process.cwd(),
     encoding: 'utf8'
   });
+}
+
+function readProject(path: string) {
+  const parsed = parseProjectGraph(JSON.parse(readFileSync(path, 'utf8')) as unknown);
+
+  if (!parsed.ok) {
+    throw new Error(`${path} failed schema parse: ${JSON.stringify(parsed.issues)}`);
+  }
+
+  return parsed.project;
+}
+
+function summarizeDiagnostics(diagnostics: Diagnostic[]) {
+  return diagnostics.map((diagnostic) => ({
+    id: diagnostic.id,
+    ruleId: diagnostic.ruleId,
+    severity: diagnostic.severity,
+    affectedEntities: diagnostic.affectedEntities
+  }));
 }
 
 describe('labyrinth CLI', () => {
@@ -46,7 +68,7 @@ describe('labyrinth CLI', () => {
 
   it('keeps warning-only validation passing unless strict mode is enabled', () => {
     const warningProject =
-      'packages/test-fixtures/cases/backtracking.long-token-return/key-long-return.lcproj.json';
+      'packages/test-fixtures/rulesets/ruleset.maze.standard/02-long-gate-return.lcproj.json';
     const nonStrict = runCli(['validate', warningProject, '--format', 'json']);
     const strict = runCli(['validate', warningProject, '--format', 'json', '--strict']);
     const nonStrictResult = JSON.parse(nonStrict.stdout) as {
@@ -65,6 +87,60 @@ describe('labyrinth CLI', () => {
     ]);
     expect(strict.status).toBe(1);
     expect(strictResult.diagnostics.map((diagnostic) => diagnostic.severity)).toEqual(['warning']);
+  });
+
+  it('uses --ruleset diagnostics for strict validation', () => {
+    const rulesetProject =
+      'packages/test-fixtures/rulesets/ruleset.horror.clinic/02-flat-timeline.lcproj.json';
+    const nonStrict = runCli([
+      'validate',
+      rulesetProject,
+      '--ruleset',
+      'horror.clinic',
+      '--format',
+      'json'
+    ]);
+    const strict = runCli([
+      'validate',
+      rulesetProject,
+      '--ruleset',
+      'horror.clinic',
+      '--format',
+      'json',
+      '--strict'
+    ]);
+    const nonStrictResult = JSON.parse(nonStrict.stdout) as ValidationResult;
+    const strictResult = JSON.parse(strict.stdout) as ValidationResult;
+
+    expect(nonStrict.status).toBe(0);
+    expect(nonStrictResult.ok).toBe(true);
+    expect(nonStrictResult.diagnostics.map((diagnostic) => diagnostic.ruleId)).toContain(
+      'timeline.intensity-flat'
+    );
+    expect(strict.status).toBe(1);
+    expect(strictResult.diagnostics.map((diagnostic) => diagnostic.severity)).toContain('info');
+  });
+
+  it('matches workbench validation composition diagnostics', () => {
+    const rulesetProject =
+      'packages/test-fixtures/rulesets/ruleset.horror.clinic/02-flat-timeline.lcproj.json';
+    const result = runCli([
+      'validate',
+      rulesetProject,
+      '--ruleset',
+      'horror.clinic',
+      '--format',
+      'json'
+    ]);
+    const cliValidation = JSON.parse(result.stdout) as ValidationResult;
+    const workbenchValidation = createValidationComposition(readProject(rulesetProject), {
+      rulePresetId: 'horror.clinic'
+    }).validation;
+
+    expect(result.status).toBe(0);
+    expect(summarizeDiagnostics(cliValidation.diagnostics)).toEqual(
+      summarizeDiagnostics(workbenchValidation.diagnostics)
+    );
   });
 
   it('returns exit code 2 for file read failures', () => {
