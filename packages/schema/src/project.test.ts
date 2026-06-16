@@ -243,6 +243,38 @@ describe('parseProjectGraph', () => {
     ).toBe(false);
   });
 
+  it('rejects unknown AssetRef kinds while allowing missing referenced files', () => {
+    const result = parseProjectGraph({
+      schemaVersion: SCHEMA_VERSION,
+      project: {
+        id: 'asset-contract',
+        name: 'Asset Contract'
+      },
+      startSpaceId: 'start',
+      targetSpaceIds: ['start'],
+      spaces: {
+        start: {
+          id: 'start',
+          name: 'Start'
+        }
+      },
+      connections: {},
+      gates: {},
+      tokens: {},
+      puzzles: {},
+      beats: {},
+      assets: [
+        {
+          id: 'unknown-kind',
+          kind: 'prefab',
+          packagePath: 'assets/missing.prefab'
+        }
+      ]
+    });
+
+    expect(result.ok).toBe(false);
+  });
+
   it('rejects review targets that are not EntityRef values', () => {
     const result = parseProjectGraph({
       schemaVersion: SCHEMA_VERSION,

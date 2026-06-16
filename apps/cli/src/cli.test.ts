@@ -171,6 +171,27 @@ describe('labyrinth CLI', () => {
     );
   });
 
+  it('validates a package even when generated directories have not been created yet', () => {
+    const outputDir = mkdtempSync(join(tmpdir(), 'labyrinth-package-minimal-'));
+    const packagePath = join(outputDir, 'horror-clinic.lcproj');
+
+    mkdirSync(packagePath);
+    copyFileSync(
+      join(process.cwd(), 'packages/test-fixtures/samples/horror-clinic.lcproj.json'),
+      join(packagePath, 'project.json')
+    );
+
+    const result = runCli(['validate', packagePath, '--format', 'json']);
+
+    expect(result.status).toBe(0);
+    expect(JSON.parse(result.stdout) as unknown).toEqual(
+      expect.objectContaining({
+        ok: true,
+        diagnostics: []
+      })
+    );
+  });
+
   it('ignores generated .lcproj artifacts during validation', () => {
     const outputDir = mkdtempSync(join(tmpdir(), 'labyrinth-package-artifacts-'));
     const packagePath = join(outputDir, 'horror-clinic.lcproj');
@@ -197,6 +218,54 @@ describe('labyrinth CLI', () => {
         diagnostics: []
       })
     );
+  });
+
+  it('fails a package when canonical project.json is corrupted', () => {
+    const outputDir = mkdtempSync(join(tmpdir(), 'labyrinth-package-corrupt-project-'));
+    const packagePath = join(outputDir, 'horror-clinic.lcproj');
+
+    mkdirSync(join(packagePath, 'exports'), {
+      recursive: true
+    });
+    writeFileSync(join(packagePath, 'project.json'), '{not-valid-json', 'utf8');
+    copyFileSync(
+      join(process.cwd(), 'examples/engine-export/sample-engine-export.json'),
+      join(packagePath, 'exports', 'engine-export.json')
+    );
+
+    const result = runCli(['validate', packagePath, '--format', 'json']);
+
+    expect(result.status).toBe(2);
+    expect(result.stderr).toContain('Failed to parse JSON');
+    expect(result.stderr).toContain('project.json');
+  });
+
+  it('does not use package manifests or generated artifacts as validation truth', () => {
+    const outputDir = mkdtempSync(join(tmpdir(), 'labyrinth-package-manifest-not-truth-'));
+    const packagePath = join(outputDir, 'horror-clinic.lcproj');
+
+    mkdirSync(join(packagePath, 'reports'), {
+      recursive: true
+    });
+    writeFileSync(join(packagePath, 'project.json'), '{"schemaVersion":"0.1.0"}', 'utf8');
+    writeFileSync(
+      join(packagePath, 'manifest.json'),
+      JSON.stringify({
+        canonicalProjectFile: 'reports/latest-report.json',
+        projectId: 'horror-clinic'
+      }),
+      'utf8'
+    );
+    copyFileSync(
+      join(process.cwd(), 'packages/test-fixtures/samples/horror-clinic.lcproj.json'),
+      join(packagePath, 'reports', 'latest-report.json')
+    );
+
+    const result = runCli(['validate', packagePath, '--format', 'json']);
+
+    expect(result.status).toBe(2);
+    expect(result.stderr).toContain('Schema validation failed');
+    expect(result.stderr).toContain('project.json');
   });
 
   it('generates a Markdown report for review workflows', () => {

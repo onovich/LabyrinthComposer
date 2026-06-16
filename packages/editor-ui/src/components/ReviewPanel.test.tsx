@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { ReviewPanel } from './ReviewPanel.js';
 
 describe('ReviewPanel', () => {
-  it('renders entity review threads and comment actions', () => {
+  it('renders entity self-review notes without changing stored review contracts', () => {
     const html = renderToStaticMarkup(
       <ReviewPanel
         selectedEntity={{
@@ -47,9 +47,12 @@ describe('ReviewPanel', () => {
       />
     );
 
-    expect(html).toContain('Review');
+    expect(html).toContain('Self Review');
+    expect(html).toContain('Note');
     expect(html).toContain('space:start');
     expect(html).toContain('Clarify the entry prompt.');
-    expect(html).toContain('Resolve');
+    expect(html).toContain('Mark Done');
+    expect(html).not.toContain('Thread');
+    expect(html).not.toContain('Comments');
   });
 });

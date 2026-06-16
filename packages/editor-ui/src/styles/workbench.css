@@ -255,6 +255,21 @@ button {
   font-size: 10px;
 }
 
+.lc-nav-item span,
+.lc-nav-item small {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-nav-item small {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 9px;
+}
+
 .lc-nav-item:hover,
 .lc-tool-button:hover {
   background: var(--hover);
@@ -264,6 +279,19 @@ button {
 .lc-nav-item-active {
   background: var(--selection);
   color: var(--text);
+}
+
+.lc-outline-group {
+  display: grid;
+  gap: 4px;
+}
+
+.lc-outline-heading {
+  margin: 7px 0 1px;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 .lc-main {

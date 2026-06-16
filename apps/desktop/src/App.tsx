@@ -562,7 +562,7 @@ export function App() {
           }
         }
       }),
-      'Review thread added'
+      'Self-review note added'
     );
   }
 
@@ -575,7 +575,7 @@ export function App() {
           status
         }
       }),
-      status === 'resolved' ? 'Review thread resolved' : 'Review thread reopened'
+      status === 'resolved' ? 'Self-review note marked done' : 'Self-review note reopened'
     );
   }
 
@@ -598,7 +598,7 @@ export function App() {
           }
         }
       }),
-      'Review comment added'
+      'Note added'
     );
   }
 
@@ -611,7 +611,7 @@ export function App() {
           commentId
         }
       }),
-      'Review comment removed'
+      'Note removed'
     );
   }
 

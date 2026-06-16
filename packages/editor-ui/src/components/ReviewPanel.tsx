@@ -48,7 +48,7 @@ export function ReviewPanel({
     <section className="lc-panel-section">
       <div className="lc-review-heading">
         <div>
-          <div className="lc-section-label">Review</div>
+          <div className="lc-section-label">Self Review</div>
           <div className="lc-review-target">
             {selectedEntity === null ? 'No entity selected' : entityKey(selectedEntity)}
           </div>
@@ -57,30 +57,30 @@ export function ReviewPanel({
           className="lc-tool-button lc-tool-button-primary"
           disabled={selectedEntity === null}
           onClick={() => selectedEntity !== null && onAddThread(selectedEntity)}
-          title="Add review thread"
+          title="Add self-review note"
           type="button"
         >
           <MessageSquarePlus size={14} />
-          Thread
+          Note
         </button>
       </div>
-      <div className="lc-review-summary" aria-label="Review summary">
+      <div className="lc-review-summary" aria-label="Self review summary">
         <div>
-          <span>Open</span>
+          <span>Active</span>
           <strong>{summary.openThreads}</strong>
         </div>
         <div>
-          <span>Resolved</span>
+          <span>Done</span>
           <strong>{summary.resolvedThreads}</strong>
         </div>
         <div>
-          <span>Comments</span>
+          <span>Notes</span>
           <strong>{summary.commentCount}</strong>
         </div>
       </div>
-      <div className="lc-review-list" aria-label="Review threads">
+      <div className="lc-review-list" aria-label="Self-review notes">
         {threads.length === 0 ? (
-          <div className="lc-review-empty">No review threads</div>
+          <div className="lc-review-empty">No self-review notes</div>
         ) : (
           threads.map((thread) => (
             <article
@@ -107,12 +107,12 @@ export function ReviewPanel({
                   type="button"
                 >
                   {thread.status === 'open' ? <CheckCircle2 size={12} /> : <RotateCcw size={12} />}
-                  {thread.status === 'open' ? 'Resolve' : 'Reopen'}
+                  {thread.status === 'open' ? 'Mark Done' : 'Reopen'}
                 </button>
               </div>
               <div className="lc-review-comments">
                 {thread.comments.length === 0 ? (
-                  <span className="lc-review-empty">No comments</span>
+                  <span className="lc-review-empty">No notes</span>
                 ) : (
                   thread.comments.map((comment) => (
                     <div className="lc-review-comment" key={comment.id}>
@@ -122,7 +122,7 @@ export function ReviewPanel({
                         <button
                           className="lc-icon-button"
                           onClick={() => onRemoveComment(thread.id, comment.id)}
-                          title="Remove comment"
+                          title="Remove note"
                           type="button"
                         >
                           <Trash2 size={12} />
@@ -134,7 +134,7 @@ export function ReviewPanel({
               </div>
               <div className="lc-review-compose">
                 <textarea
-                  aria-label={`Add comment to ${thread.id}`}
+                  aria-label={`Add note for ${entityKey(thread.target)}`}
                   onChange={(event) =>
                     setDrafts((current) => ({
                       ...current,

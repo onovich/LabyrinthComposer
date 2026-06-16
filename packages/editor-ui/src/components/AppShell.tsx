@@ -83,6 +83,14 @@ type AppShellProps = {
   onRedo(): void;
 };
 
+function sortedEntries<T extends { id: string }>(record: Record<string, T>): T[] {
+  return Object.values(record).sort((left, right) => left.id.localeCompare(right.id));
+}
+
+function isSelectedEntity(selectedEntity: EntityRef | null, entity: EntityRef): boolean {
+  return selectedEntity?.kind === entity.kind && selectedEntity.id === entity.id;
+}
+
 export function AppShell({
   showDashboard,
   templates,
@@ -143,6 +151,35 @@ export function AppShell({
     validation: snapshot.validation,
     highlightedEntities: selectedDiagnostic?.highlightedEntities ?? []
   });
+  const spaces = sortedEntries(snapshot.project.spaces);
+  const connections = sortedEntries(snapshot.project.connections);
+  const gates = sortedEntries(snapshot.project.gates);
+  const tokens = sortedEntries(snapshot.project.tokens);
+  const puzzles = sortedEntries(snapshot.project.puzzles);
+  const beats = sortedEntries(snapshot.project.beats).sort(
+    (left, right) => (left.order ?? 0) - (right.order ?? 0) || left.id.localeCompare(right.id)
+  );
+
+  function connectionLabel(connection: ProjectGraph['connections'][string]): string {
+    const from = snapshot.project.spaces[connection.fromSpaceId]?.name ?? connection.fromSpaceId;
+    const to = snapshot.project.spaces[connection.toSpaceId]?.name ?? connection.toSpaceId;
+
+    return `${from} -> ${to}`;
+  }
+
+  function outlineButton(entity: EntityRef, label: string, meta?: string) {
+    return (
+      <button
+        className={`lc-nav-item ${isSelectedEntity(selectedEntity, entity) ? 'lc-nav-item-active' : ''}`}
+        key={`${entity.kind}:${entity.id}`}
+        onClick={() => onSelectEntity(entity)}
+        type="button"
+      >
+        <span>{label}</span>
+        {meta !== undefined ? <small>{meta}</small> : null}
+      </button>
+    );
+  }
 
   if (showDashboard) {
     return (
@@ -173,16 +210,58 @@ export function AppShell({
         </div>
         <div className="lc-sidebar-section">
           <div className="lc-section-label">Outline</div>
-          {Object.values(snapshot.project.spaces).map((space) => (
-            <button
-              className={`lc-nav-item ${selectedEntity?.kind === 'space' && selectedEntity.id === space.id ? 'lc-nav-item-active' : ''}`}
-              key={space.id}
-              onClick={() => onSelectEntity({ kind: 'space', id: space.id })}
-              type="button"
-            >
-              {space.name}
-            </button>
-          ))}
+          <div className="lc-outline-group">
+            <div className="lc-outline-heading">Spaces</div>
+            {spaces.map((space) =>
+              outlineButton({ kind: 'space', id: space.id }, space.name, space.id)
+            )}
+          </div>
+          {connections.length > 0 ? (
+            <div className="lc-outline-group">
+              <div className="lc-outline-heading">Connections</div>
+              {connections.map((connection) =>
+                outlineButton(
+                  { kind: 'connection', id: connection.id },
+                  connectionLabel(connection),
+                  connection.gateId
+                )
+              )}
+            </div>
+          ) : null}
+          {gates.length > 0 ? (
+            <div className="lc-outline-group">
+              <div className="lc-outline-heading">Gates</div>
+              {gates.map((gate) => outlineButton({ kind: 'gate', id: gate.id }, gate.name, gate.kind))}
+            </div>
+          ) : null}
+          {tokens.length > 0 ? (
+            <div className="lc-outline-group">
+              <div className="lc-outline-heading">Tokens</div>
+              {tokens.map((token) =>
+                outlineButton({ kind: 'token', id: token.id }, token.name, token.kind)
+              )}
+            </div>
+          ) : null}
+          {puzzles.length > 0 ? (
+            <div className="lc-outline-group">
+              <div className="lc-outline-heading">Puzzles</div>
+              {puzzles.map((puzzle) =>
+                outlineButton({ kind: 'puzzle', id: puzzle.id }, puzzle.name, puzzle.locationSpaceId)
+              )}
+            </div>
+          ) : null}
+          {beats.length > 0 ? (
+            <div className="lc-outline-group">
+              <div className="lc-outline-heading">Beats</div>
+              {beats.map((beat) =>
+                outlineButton(
+                  { kind: 'beat', id: beat.id },
+                  beat.name,
+                  beat.order === undefined ? beat.kind : `#${beat.order}`
+                )
+              )}
+            </div>
+          ) : null}
         </div>
       </aside>
       <main className="lc-main">

@@ -7,6 +7,7 @@ const requiredDocs = [
   'docs/development-plan.md',
   'docs/product-scope-confirmation.md',
   'docs/roadmap-status-and-next-phase.md',
+  'docs/phase4-productization-execution-plan.md',
   'docs/phase0-acceptance-review.md',
   'docs/phase0-architecture-implementation.md',
   'docs/phase1-acceptance-review.md',

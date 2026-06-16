@@ -99,7 +99,7 @@ describe('AppShell workbench information architecture', () => {
     const html = renderAppShell();
     const toolsStart = html.indexOf('aria-label="Project tools"');
     const exportIndex = html.indexOf('>Export<', toolsStart);
-    const reviewIndex = html.indexOf('>Review<', toolsStart);
+    const selfReviewIndex = html.indexOf('>Self Review<', toolsStart);
     const reportIndex = html.indexOf('>Report<', toolsStart);
     const rulePresetIndex = html.indexOf('>Rule Preset<', toolsStart);
     const timelineIndex = html.indexOf('>Timeline<', toolsStart);
@@ -107,8 +107,9 @@ describe('AppShell workbench information architecture', () => {
 
     expect(toolsStart).toBeGreaterThan(-1);
     expect(exportIndex).toBeGreaterThan(-1);
-    expect(exportIndex).toBeLessThan(reviewIndex);
-    expect(reviewIndex).toBeLessThan(reportIndex);
+    expect(selfReviewIndex).toBeGreaterThan(-1);
+    expect(exportIndex).toBeLessThan(selfReviewIndex);
+    expect(selfReviewIndex).toBeLessThan(reportIndex);
     expect(reportIndex).toBeLessThan(rulePresetIndex);
     expect(rulePresetIndex).toBeLessThan(timelineIndex);
     expect(timelineIndex).toBeLessThan(inspectorIndex);
