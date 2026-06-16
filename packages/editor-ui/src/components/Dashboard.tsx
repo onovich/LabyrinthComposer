@@ -8,8 +8,15 @@ export type TemplateCardViewModel = {
   stats: string;
 };
 
+export type RecentProjectViewModel = {
+  path: string;
+  label: string;
+  lastOpenedAt: string;
+};
+
 type DashboardProps = {
   templates: TemplateCardViewModel[];
+  recentProjects: RecentProjectViewModel[];
   operationMessage: string;
   rulePreset: RulePresetViewModel;
   onSelectTemplate(id: string): void;
@@ -19,6 +26,7 @@ type DashboardProps = {
 
 export function Dashboard({
   templates,
+  recentProjects,
   operationMessage,
   rulePreset,
   onSelectTemplate,
@@ -60,6 +68,19 @@ export function Dashboard({
         </label>
         <p>{rulePreset.currentPreset.description}</p>
       </section>
+      {recentProjects.length > 0 ? (
+        <section className="lc-dashboard-recent" aria-label="Recent files">
+          <div className="lc-section-label">Recent Files</div>
+          <ul>
+            {recentProjects.map((project) => (
+              <li key={project.path}>
+                <strong>{project.label}</strong>
+                <span>{project.path}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
       <section className="lc-template-grid" aria-label="Templates">
         {templates.map((template) => (
           <button

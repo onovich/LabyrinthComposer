@@ -62,6 +62,13 @@ describe('Dashboard smoke', () => {
     const html = renderToStaticMarkup(
       <Dashboard
         operationMessage="Ready"
+        recentProjects={[
+          {
+            path: 'D:\\Projects\\horror-clinic.lcproj',
+            label: 'horror-clinic.lcproj',
+            lastOpenedAt: '2026-06-16T00:00:00.000Z'
+          }
+        ]}
         rulePreset={rulePreset}
         templates={templates}
         onOpenProject={() => undefined}
@@ -76,5 +83,7 @@ describe('Dashboard smoke', () => {
     expect(html).toContain('Open project');
     expect(html).toContain('Rule preset');
     expect(html).toContain('Standard Maze');
+    expect(html).toContain('Recent Files');
+    expect(html).toContain('horror-clinic.lcproj');
   });
 });

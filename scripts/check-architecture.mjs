@@ -17,6 +17,11 @@ const sourceRoots = [
   'scripts',
   'tests/e2e'
 ];
+const requiredArchitectureFiles = [
+  'packages/exporters/src/targets/registry.ts',
+  'apps/desktop/src/preferences/preferences.ts',
+  'apps/desktop/src-tauri/src/preferences.rs'
+];
 const importPattern = /(?:import|export)\s+(?:type\s+)?(?:[^'"]*from\s+)?['"]([^'"]+)['"]/g;
 const sourceExtensions = ['.ts', '.tsx', '.js', '.mjs', '.cs', '.gd'];
 
@@ -180,6 +185,14 @@ function isForbiddenE2eImport(specifier) {
 }
 
 const violations = [];
+
+for (const requiredFile of requiredArchitectureFiles) {
+  try {
+    await stat(join(rootDir, requiredFile));
+  } catch {
+    violations.push(`Missing required architecture boundary file: ${requiredFile}`);
+  }
+}
 
 for (const root of sourceRoots) {
   const files = await collectFiles(join(rootDir, root));

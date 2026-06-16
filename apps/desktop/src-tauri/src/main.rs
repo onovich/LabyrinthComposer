@@ -7,6 +7,8 @@ use std::{
 use serde::Serialize;
 use tauri_plugin_dialog::DialogExt;
 
+mod preferences;
+
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 struct ProjectFileResult {
@@ -353,7 +355,11 @@ fn main() {
             save_project_file,
             save_project_file_as,
             save_report_file_as,
-            save_engine_export_file_as
+            save_engine_export_file_as,
+            preferences::load_preferences,
+            preferences::save_preferences,
+            preferences::reset_preferences,
+            preferences::append_app_log
         ])
         .run(tauri::generate_context!())
         .expect("failed to run Labyrinth Composer");

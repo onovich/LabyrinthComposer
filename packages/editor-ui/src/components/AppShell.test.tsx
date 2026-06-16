@@ -54,6 +54,7 @@ function renderAppShell() {
       projectPath={undefined}
       selectedDiagnosticId={null}
       selectedEntity={{ kind: 'space', id: 'start' }}
+      recentProjects={[]}
       showDashboard={false}
       snapshot={snapshot}
       templates={[]}

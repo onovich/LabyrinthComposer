@@ -1,5 +1,9 @@
 export { AppShell } from './components/AppShell.js';
-export { Dashboard, type TemplateCardViewModel } from './components/Dashboard.js';
+export {
+  Dashboard,
+  type RecentProjectViewModel,
+  type TemplateCardViewModel
+} from './components/Dashboard.js';
 export { DiagnosticsPanel } from './components/DiagnosticsPanel.js';
 export { ExportPanel } from './components/ExportPanel.js';
 export { ReportPanel } from './components/ReportPanel.js';

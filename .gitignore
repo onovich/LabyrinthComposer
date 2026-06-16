@@ -8,3 +8,6 @@ test-results/
 .codex/*.pid
 apps/desktop/src-tauri/gen/
 apps/desktop/src-tauri/target/
+apps/desktop/.app-data/
+apps/desktop/preferences.json
+apps/desktop/logs/

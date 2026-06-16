@@ -40,6 +40,28 @@ function createTauriClient(
         path: 'D:\\Projects\\engine-export.json'
       };
     },
+    async loadPreferences() {
+      return {
+        text: null,
+        path: 'C:\\Users\\Designer\\AppData\\Roaming\\LabyrinthComposer\\preferences.json',
+        logDirectory: 'C:\\Users\\Designer\\AppData\\Roaming\\LabyrinthComposer\\logs'
+      };
+    },
+    async savePreferences() {
+      return {
+        path: 'C:\\Users\\Designer\\AppData\\Roaming\\LabyrinthComposer\\preferences.json'
+      };
+    },
+    async resetPreferences() {
+      return {
+        path: 'C:\\Users\\Designer\\AppData\\Roaming\\LabyrinthComposer\\preferences.json'
+      };
+    },
+    async appendAppLog() {
+      return {
+        path: 'C:\\Users\\Designer\\AppData\\Roaming\\LabyrinthComposer\\logs\\labyrinth-composer.log'
+      };
+    },
     ...overrides
   };
 }
@@ -248,5 +270,99 @@ describe('desktop adapters', () => {
       ok: false,
       message: 'Engine export save failed: Error: Engine export save was cancelled.'
     });
+  });
+
+  it('resets corrupted app-local preferences without blocking project work', async () => {
+    let resetText = '';
+    const adapters = createDesktopAdapters(
+      createTauriClient({
+        async loadPreferences() {
+          return {
+            text: '{not-json',
+            path: 'C:\\Users\\Designer\\AppData\\Roaming\\LabyrinthComposer\\preferences.json',
+            logDirectory: 'C:\\Users\\Designer\\AppData\\Roaming\\LabyrinthComposer\\logs'
+          };
+        },
+        async resetPreferences(text) {
+          resetText = text;
+          return {
+            path: 'C:\\Users\\Designer\\AppData\\Roaming\\LabyrinthComposer\\preferences.json'
+          };
+        }
+      })
+    );
+
+    const preferences = await adapters.preferencesRepository.loadPreferences();
+    const project = await adapters.projectRepository.openProject();
+
+    expect(preferences).toEqual(
+      expect.objectContaining({
+        ok: true,
+        recovered: true
+      })
+    );
+    expect(resetText).toContain('"recentProjects": []');
+    expect(project).toEqual(
+      expect.objectContaining({
+        ok: true
+      })
+    );
+  });
+
+  it('records recent files in preferences without adding them to saved project text', async () => {
+    let preferencesText = '';
+    let savedProjectText = '';
+    const adapters = createDesktopAdapters(
+      createTauriClient({
+        async savePreferences(text) {
+          preferencesText = text;
+          return {
+            path: 'C:\\Users\\Designer\\AppData\\Roaming\\LabyrinthComposer\\preferences.json'
+          };
+        },
+        async saveProjectFile(text, path) {
+          savedProjectText = text;
+          return {
+            path
+          };
+        }
+      })
+    );
+    const openResult = await adapters.projectRepository.openProject();
+
+    if (!openResult.ok) {
+      throw new Error(openResult.message);
+    }
+
+    await adapters.preferencesRepository.addRecentProject(openResult.path ?? '');
+    await adapters.projectRepository.saveProject(openResult.project, {
+      path: openResult.path
+    });
+
+    expect(preferencesText).toContain('recentProjects');
+    expect(preferencesText).toContain('D:\\\\Projects\\\\horror-clinic.lcproj.json');
+    expect(savedProjectText).toContain('"schemaVersion": "0.1.0"');
+    expect(savedProjectText).not.toContain('recentProjects');
+    expect(savedProjectText).not.toContain('D:\\Projects\\horror-clinic.lcproj.json');
+  });
+
+  it('writes app logs through the host boundary', async () => {
+    let logEntry = '';
+    const adapters = createDesktopAdapters(
+      createTauriClient({
+        async appendAppLog(entry) {
+          logEntry = entry;
+          return {
+            path: 'C:\\Users\\Designer\\AppData\\Roaming\\LabyrinthComposer\\logs\\labyrinth-composer.log'
+          };
+        }
+      })
+    );
+
+    await expect(adapters.preferencesRepository.appendLog('Opened project')).resolves.toEqual({
+      ok: true,
+      path: 'C:\\Users\\Designer\\AppData\\Roaming\\LabyrinthComposer\\logs\\labyrinth-composer.log'
+    });
+    expect(logEntry).toContain('Opened project');
   });
 });

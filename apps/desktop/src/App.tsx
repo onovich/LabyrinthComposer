@@ -1,4 +1,8 @@
-import { AppShell, type TemplateCardViewModel } from '@labyrinth/editor-ui';
+import {
+  AppShell,
+  type RecentProjectViewModel,
+  type TemplateCardViewModel
+} from '@labyrinth/editor-ui';
 import {
   createHighlightedEntitiesForDiagnostic,
   createEngineExportText,
@@ -17,6 +21,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { createDesktopAdapters } from './bootstrap/createDesktopAdapters.js';
+import type { DesktopPreferences } from './preferences/preferences.js';
 import type {
   ValidationWorkerRequest,
   ValidationWorkerResponse
@@ -269,6 +274,14 @@ const templates: TemplateDefinition[] = [
   }
 ];
 
+function createRecentProjectViewModels(preferences: DesktopPreferences): RecentProjectViewModel[] {
+  return preferences.recentProjects.map((project) => ({
+    path: project.path,
+    label: project.label,
+    lastOpenedAt: project.lastOpenedAt
+  }));
+}
+
 export function App() {
   const store = useMemo(
     () =>
@@ -288,6 +301,7 @@ export function App() {
   const [projectPath, setProjectPath] = useState<string | undefined>();
   const [operationMessage, setOperationMessage] = useState('Ready');
   const [dashboardRulePresetId, setDashboardRulePresetId] = useState<string | undefined>();
+  const [recentProjects, setRecentProjects] = useState<RecentProjectViewModel[]>([]);
   const validationWorkerRef = useRef<Worker | null>(null);
   const validationRequestIdRef = useRef(0);
   const latestValidationRequestIdRef = useRef(0);
@@ -318,6 +332,28 @@ export function App() {
       }
     };
   }, [store]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void adapters.preferencesRepository.loadPreferences().then((result) => {
+      if (cancelled) {
+        return;
+      }
+
+      setRecentProjects(createRecentProjectViewModels(result.preferences));
+
+      if (!result.ok) {
+        setOperationMessage(result.message);
+      } else if (result.recovered && result.message !== undefined) {
+        setOperationMessage(result.message);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [adapters]);
 
   function scheduleValidation(project: ProjectGraph) {
     const requestId = validationRequestIdRef.current + 1;
@@ -366,6 +402,22 @@ export function App() {
     }
   }
 
+  async function rememberProjectPath(path: string | undefined, action: string) {
+    if (path === undefined) {
+      return;
+    }
+
+    const result = await adapters.preferencesRepository.addRecentProject(path);
+
+    if (result.ok) {
+      setRecentProjects(createRecentProjectViewModels(result.preferences));
+    } else {
+      setOperationMessage(result.message);
+    }
+
+    void adapters.preferencesRepository.appendLog(`${action}: ${path}`);
+  }
+
   async function openProject() {
     const result = await adapters.projectRepository.openProject();
 
@@ -384,6 +436,7 @@ export function App() {
     setOperationMessage(`Loaded ${result.path ?? result.project.project.name}`);
     setShowDashboard(false);
     scheduleValidation(nextSnapshot.project);
+    void rememberProjectPath(result.path, 'Opened project');
   }
 
   function selectDashboardRulePreset(rulePresetId: string) {
@@ -580,6 +633,7 @@ export function App() {
     setSnapshot(store.markSaved());
     setProjectPath(result.path ?? projectPath);
     setOperationMessage(`Saved ${result.path ?? 'project'}`);
+    void rememberProjectPath(result.path ?? projectPath, 'Saved project');
   }
 
   async function saveProjectAs() {
@@ -593,6 +647,7 @@ export function App() {
     setSnapshot(store.markSaved());
     setProjectPath(result.path ?? projectPath);
     setOperationMessage(`Saved ${result.path ?? 'project copy'}`);
+    void rememberProjectPath(result.path ?? projectPath, 'Saved project copy');
   }
 
   async function exportReport(format: ReportFormat) {
@@ -873,6 +928,7 @@ export function App() {
       canUndo={store.commandBus.canUndo()}
       operationMessage={operationMessage}
       projectPath={projectPath}
+      recentProjects={recentProjects}
       selectedDiagnosticId={selectedDiagnosticId}
       selectedEntity={selectedEntity}
       showDashboard={showDashboard}

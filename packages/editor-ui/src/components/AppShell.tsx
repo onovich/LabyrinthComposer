@@ -28,7 +28,7 @@ import {
   Waypoints
 } from 'lucide-react';
 
-import { Dashboard, type TemplateCardViewModel } from './Dashboard.js';
+import { Dashboard, type RecentProjectViewModel, type TemplateCardViewModel } from './Dashboard.js';
 import { ExportPanel } from './ExportPanel.js';
 import { GraphCanvas } from '../graph/GraphCanvas.js';
 import { DiagnosticsPanel } from './DiagnosticsPanel.js';
@@ -41,6 +41,7 @@ import { TimelinePanel } from './TimelinePanel.js';
 type AppShellProps = {
   showDashboard: boolean;
   templates: TemplateCardViewModel[];
+  recentProjects: RecentProjectViewModel[];
   snapshot: WorkbenchSnapshot;
   selectedEntity: EntityRef | null;
   selectedDiagnosticId: string | null;
@@ -85,6 +86,7 @@ type AppShellProps = {
 export function AppShell({
   showDashboard,
   templates,
+  recentProjects,
   snapshot,
   selectedEntity,
   selectedDiagnosticId,
@@ -146,6 +148,7 @@ export function AppShell({
     return (
       <Dashboard
         operationMessage={operationMessage}
+        recentProjects={recentProjects}
         rulePreset={rulePreset}
         templates={templates}
         onOpenProject={onOpenProject}
