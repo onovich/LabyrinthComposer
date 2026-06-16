@@ -1,0 +1,48 @@
+name: Labyrinth Validate
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  validate-labyrinth-projects:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.7.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+
+      - name: Validate project JSON for CI
+        run: |
+          node apps/cli/dist/index.js validate packages/test-fixtures/samples/horror-clinic.lcproj.json --strict --format json > artifacts-validation.json
+
+      - name: Write report artifact
+        if: always()
+        run: |
+          node apps/cli/dist/index.js report packages/test-fixtures/samples/horror-clinic.lcproj.json --format json --out artifacts-report.json
+
+      - name: Write engine export artifact
+        if: always()
+        run: |
+          node apps/cli/dist/index.js export packages/test-fixtures/samples/horror-clinic.lcproj.json --target engine-json --out artifacts-engine-export.json
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: labyrinth-ci-artifacts
+          path: |
+            artifacts-validation.json
+            artifacts-report.json
+            artifacts-engine-export.json

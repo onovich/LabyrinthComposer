@@ -165,7 +165,12 @@ export async function runReport(rawArgs: string[], io: CliIo): Promise<number> {
     parsedArgs.args.format === 'json' ? formatJsonReport(model) : formatMarkdownReport(model);
 
   if (parsedArgs.args.outFile !== undefined) {
-    await writeFile(parsedArgs.args.outFile, text, 'utf8');
+    try {
+      await writeFile(parsedArgs.args.outFile, text, 'utf8');
+    } catch (error) {
+      io.stderr.write(`Failed to write "${parsedArgs.args.outFile}": ${String(error)}\n`);
+      return 2;
+    }
   } else {
     io.stdout.write(text);
   }

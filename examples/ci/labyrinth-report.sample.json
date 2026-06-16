@@ -1,0 +1,57 @@
+{
+  "generatedAt": "2026-06-16T00:00:00.000Z",
+  "schemaVersion": "0.1.0",
+  "project": {
+    "id": "horror-clinic",
+    "name": "Horror Clinic"
+  },
+  "rulePreset": {
+    "id": "horror.clinic",
+    "name": "Horror Clinic",
+    "description": "Knowledge-gate and pacing checks for clue-driven horror routes."
+  },
+  "summary": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "info": 0,
+    "suppressed": 0,
+    "reachableSpaces": [
+      "basement",
+      "maintenance",
+      "operating-theater",
+      "records-office",
+      "waiting-room"
+    ],
+    "acquiredTokens": ["basement-code", "fuse", "power-restored"],
+    "openedGates": ["basement-code-gate", "power-restored-gate"],
+    "solvedPuzzles": ["repair-breaker"]
+  },
+  "diagnostics": [],
+  "exceptions": [],
+  "timeline": {
+    "beats": [
+      {
+        "id": "flicker",
+        "name": "Flickering hall lights",
+        "order": 1,
+        "kind": "threat",
+        "intensity": 0.7,
+        "spaceId": "waiting-room",
+        "diagnosticIds": []
+      },
+      {
+        "id": "theater-opens",
+        "name": "The theater opens",
+        "order": 2,
+        "kind": "reward",
+        "intensity": 0.4,
+        "spaceId": "operating-theater",
+        "diagnosticIds": []
+      }
+    ],
+    "minIntensity": 0.4,
+    "maxIntensity": 0.7,
+    "diagnosticCount": 0
+  }
+}

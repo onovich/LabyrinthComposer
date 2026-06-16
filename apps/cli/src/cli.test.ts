@@ -44,6 +44,36 @@ describe('labyrinth CLI', () => {
     expect(result.stdout).toContain('reachability.target-unreachable');
   });
 
+  it('keeps warning-only validation passing unless strict mode is enabled', () => {
+    const warningProject =
+      'packages/test-fixtures/cases/backtracking.long-token-return/key-long-return.lcproj.json';
+    const nonStrict = runCli(['validate', warningProject, '--format', 'json']);
+    const strict = runCli(['validate', warningProject, '--format', 'json', '--strict']);
+    const nonStrictResult = JSON.parse(nonStrict.stdout) as {
+      ok: boolean;
+      diagnostics: Array<{ severity: string }>;
+    };
+    const strictResult = JSON.parse(strict.stdout) as {
+      ok: boolean;
+      diagnostics: Array<{ severity: string }>;
+    };
+
+    expect(nonStrict.status).toBe(0);
+    expect(nonStrictResult.ok).toBe(true);
+    expect(nonStrictResult.diagnostics.map((diagnostic) => diagnostic.severity)).toEqual([
+      'warning'
+    ]);
+    expect(strict.status).toBe(1);
+    expect(strictResult.diagnostics.map((diagnostic) => diagnostic.severity)).toEqual(['warning']);
+  });
+
+  it('returns exit code 2 for file read failures', () => {
+    const result = runCli(['validate', 'packages/test-fixtures/missing-project.lcproj.json']);
+
+    expect(result.status).toBe(2);
+    expect(result.stderr).toContain('Failed to read');
+  });
+
   it('generates a Markdown report for review workflows', () => {
     const result = runCli([
       'report',
@@ -78,6 +108,41 @@ describe('labyrinth CLI', () => {
       })
     );
   });
+
+  it('writes a JSON report to --out for CI artifacts', () => {
+    const outputDir = mkdtempSync(join(tmpdir(), 'labyrinth-report-'));
+    const outputPath = join(outputDir, 'report.json');
+    const result = runCli([
+      'report',
+      'packages/test-fixtures/samples/horror-clinic.lcproj.json',
+      '--format',
+      'json',
+      '--out',
+      outputPath
+    ]);
+    const report = JSON.parse(readFileSync(outputPath, 'utf8')) as {
+      project: { id: string };
+      rulePreset: { id: string };
+    };
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toBe('');
+    expect(report.project.id).toBe('horror-clinic');
+    expect(report.rulePreset.id).toBe('horror.clinic');
+  });
+
+  it('returns exit code 2 for unsupported export targets', () => {
+    const result = runCli([
+      'export',
+      'packages/test-fixtures/samples/horror-clinic.lcproj.json',
+      '--target',
+      'unity-scene'
+    ]);
+
+    expect(result.status).toBe(2);
+    expect(result.stderr).toContain('--target must be "engine-json"');
+  });
+
 
   it('generates engine JSON export on stdout', () => {
     const result = runCli([
