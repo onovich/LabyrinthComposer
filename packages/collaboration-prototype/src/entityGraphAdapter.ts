@@ -3,14 +3,14 @@ import * as Y from 'yjs';
 import type { ProjectGraph } from '@labyrinth/schema';
 import { applyCommand, type Command } from '@labyrinth/workbench';
 
+import {
+  cloneCollaborationCommandEnvelope,
+  type CollaborationCommandEnvelope
+} from './session/commandEnvelope.js';
+
 export const COLLABORATION_COMMANDS_ARRAY = 'commands';
 
-export type CollaborationCommandRecord = {
-  id: string;
-  command: Command;
-  actorId?: string;
-  createdAt?: string;
-};
+export type CollaborationCommandRecord = CollaborationCommandEnvelope;
 
 export type CollaborationDoc = {
   doc: Y.Doc;
@@ -21,7 +21,7 @@ function commandArray(doc: Y.Doc): Y.Array<CollaborationCommandRecord> {
 }
 
 function cloneRecord(record: CollaborationCommandRecord): CollaborationCommandRecord {
-  return JSON.parse(JSON.stringify(record)) as CollaborationCommandRecord;
+  return cloneCollaborationCommandEnvelope(record);
 }
 
 export function createCollaborationDoc(): CollaborationDoc {
